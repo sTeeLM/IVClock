@@ -1,5 +1,4 @@
 #include "key.h"
-#include "stm32f1xx_hal.h"
 #include "bsp.h"
 
 int8_t BSP_Key_Init(void)
@@ -29,4 +28,9 @@ int8_t BSP_Key_Init(void)
   HAL_NVIC_EnableIRQ(INT_KEY_SET_EXTI_IRQn);	
 	
 	return BSP_ERROR_NONE;
+}
+
+int8_t BSP_Key_Is_Factory_Reset(void)
+{
+	return 0;
 }

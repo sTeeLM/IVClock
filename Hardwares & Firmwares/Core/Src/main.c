@@ -19,17 +19,34 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "beeper.h"
-#include "blue_tooth.h"
+#include "debug.h"
+#include "delay.h"
+
+#include "adc.h"
 #include "i2c.h"
 #include "iv18.h"
 #include "key.h"
 #include "mp3.h"
-#include "rtc.h"
+#include "tim.h"
 #include "usart.h"
-#include "timer.h"
-#include "power.h"
 #include "acc.h"
+#include "blue_tooth.h"
+#include "gpio.h"
+#include "rom.h"
+#include "rtc.h"
+
+#include "alarm.h"
+#include "beeper.h"
+#include "button.h"
+#include "clock.h"
+#include "config.h"
+#include "display.h"
+#include "player.h"
+#include "power.h"
+#include "timer.h"
+#include "console.h"
+
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -88,30 +105,38 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-  BSP_I2C_Init();
-	BSP_USART1_Init();
-	BSP_USART2_Init();
-	BSP_USART3_Init();
-	BSP_Beeper_Init();
-	BSP_Blue_Tooth_Init();
+	/* Hardware initialize */
+	BSP_I2C_Init();
+	BSP_GPIO_Init();	
+	BSP_USART1_UART_Init();
+	BSP_USART2_UART_Init();
+	BSP_USART3_UART_Init();
+	BSP_ROM_Init();	
+	BSP_RTC_Init();
+	BSP_ADC1_Init();
 	BSP_IV18_Init();
 	BSP_Key_Init();
 	BSP_MP3_Init();
-	BSP_RTC_Init();
-	BSP_Timer_Init();
-	BSP_Power_Init();	
-	BSP_ACC_Init();	
+	BSP_TIM1_Init();
+	BSP_TIM3_Init();
+	BSP_ACC_Init();
+	BSP_Blue_Tooth_Init();
 	
-  /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
+	/* System initialize */
+	config_init();
+	power_init();
+	console_init();
+	alarm_init();
+	clock_init();
+	timer_init();
+	button_init();
+	beeper_init();
+	display_init();
+	player_init();
+	
+	
+	power_33_enable(TRUE);
+	
   /* USER CODE BEGIN WHILE */
   while (1)
   {
@@ -160,13 +185,12 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
 }
-
 
 /* USER CODE BEGIN 4 */
 

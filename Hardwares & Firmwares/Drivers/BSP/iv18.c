@@ -1,5 +1,4 @@
 #include "iv18.h"
-#include "stm32f1xx_hal.h"
 #include "bsp.h"
 
 int8_t BSP_IV18_Init(void)
