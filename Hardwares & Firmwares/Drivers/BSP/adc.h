@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include "bsp.h"
 
-BSP_Error_Type BSP_ADC1_Init(void);
+BSP_Error_Type BSP_ADC_Init(void);
 
 #endif

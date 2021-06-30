@@ -21,7 +21,7 @@ BSP_Error_Type BSP_GPIO_Init(void)
 	
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(POWER_33_EN_GPIO_Port, POWER_33_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(POWER_33_EN_GPIO_Port, POWER_33_EN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(POWER_50_EN_GPIO_Port, POWER_50_EN_Pin, GPIO_PIN_RESET);
@@ -62,10 +62,10 @@ void BSP_GPIO_Power_33_Enable(FlagStatus enable)
 
 void BSP_GPIO_Power_50_Enable(FlagStatus enable)
 {
-	HAL_GPIO_WritePin(POWER_33_EN_GPIO_Port, POWER_50_EN_Pin, enable == SET ? GPIO_PIN_SET : GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(POWER_50_EN_GPIO_Port, POWER_50_EN_Pin, enable == SET ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 void BSP_GPIO_Power_490_Enable(FlagStatus enable)
 {
-	HAL_GPIO_WritePin(POWER_33_EN_GPIO_Port, POWER_490_EN_Pin, enable == SET ? GPIO_PIN_SET : GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(POWER_490_EN_GPIO_Port, POWER_490_EN_Pin, enable == SET ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }

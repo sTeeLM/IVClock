@@ -2,8 +2,12 @@
 #define __IVCLOCK_CONFIG_H__
 
 #include <stdint.h>
-#include "cext.h"
 
-bool config_init(void);
+enum config_type {
+	CONFIG_TIME_IS12,
+};
+
+void config_init(void);
+uint8_t config_read(enum config_type type);
 
 #endif

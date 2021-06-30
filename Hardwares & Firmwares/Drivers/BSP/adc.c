@@ -1,5 +1,6 @@
 #include "adc.h"
 #include "bsp.h"
+#include "debug.h"
 
 static ADC_HandleTypeDef hadc1;
 
@@ -8,7 +9,7 @@ static ADC_HandleTypeDef hadc1;
   * @param None
   * @retval None
   */
-BSP_Error_Type BSP_ADC1_Init(void)
+BSP_Error_Type BSP_ADC_Init(void)
 {
 
   /* USER CODE BEGIN ADC1_Init 0 */
@@ -18,7 +19,7 @@ BSP_Error_Type BSP_ADC1_Init(void)
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
-
+	IVDBG("BSP_ADC_Init");
   /* USER CODE END ADC1_Init 1 */
   /** Common config
   */

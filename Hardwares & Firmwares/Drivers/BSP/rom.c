@@ -1,6 +1,6 @@
 #include "rom.h"
 #include "bsp.h"
-
+#include "debug.h"
 #include "i2c.h"
 #include "delay.h"
 
@@ -13,6 +13,7 @@
   */
 BSP_Error_Type BSP_ROM_Init(void)
 {
+	IVDBG("BSP_ROM_Init");
   return BSP_ERROR_NONE;
 }
 

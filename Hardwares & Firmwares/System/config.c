@@ -1,6 +1,11 @@
 #include "config.h"
 
-bool config_init(void)
+void config_init(void)
 {
-  return 0;
+
+}
+
+uint8_t config_read(enum config_type type)
+{
+	return  0;
 }

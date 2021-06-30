@@ -7,9 +7,9 @@
 
 #define CONSOLE_BUFFER_SIZE 41
 
-bool console_init(void)
+void console_init(void)
 {
-  return 0;
+
 }
 
 
@@ -62,6 +62,11 @@ static void _call_cmd(char * buf, char arg1, char arg2)
 }
 
 static void _console_gets(char * buffer, uint16_t len)
+{
+	
+}
+
+uint8_t console_try_get_key(void)
 {
 	
 }

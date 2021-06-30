@@ -108,16 +108,18 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
+	
+	delay_init();
 
 	/* Hardware initialize */
-	BSP_I2C_Init();
 	BSP_GPIO_Init();	
 	BSP_USART1_UART_Init();
 	BSP_USART2_UART_Init();
 	BSP_USART3_UART_Init();
+	BSP_I2C_Init();
 	BSP_ROM_Init();	
 	BSP_RTC_Init();
-	BSP_ADC1_Init();
+	BSP_ADC_Init();
 	BSP_IV18_Init();
 	BSP_Key_Init();
 	BSP_MP3_Init();
@@ -126,6 +128,7 @@ int main(void)
 	BSP_ACC_Init();
 	BSP_Blue_Tooth_Init();
 	
+	IVDBG("initialize system...");
 	/* System initialize */
 	config_init();
 	power_init();
@@ -139,8 +142,6 @@ int main(void)
 	player_init();
 	task_init();
 	sm_init();
-	
-	power_33_enable(TRUE);
 	
   /* USER CODE BEGIN WHILE */
   while (1)

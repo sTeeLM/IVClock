@@ -4,9 +4,9 @@
 #include "gpio.h"
 #include "adc.h"
 
-bool power_init(void)
+void power_init(void)
 {
-  return 0;
+
 }
 
 void power_33_enable(bool enable)

@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include "cext.h"
 
-bool alarm_init(void);
+void alarm_init(void);
 
 #endif

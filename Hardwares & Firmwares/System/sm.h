@@ -25,7 +25,7 @@ struct sm_trans
   SM_PROC sm_proc;
 };
 
-bool sm_init(void);
+void sm_init(void);
 
 void sm_run(enum task_events ev);
 

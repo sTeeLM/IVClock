@@ -51,10 +51,11 @@ static void _rtc_dump_raw(void)
 {
   uint8_t addr;
   uint8_t c;
+	BSP_Error_Type ret;
   IVDBG("RTC raw content:");
-  for(addr = 0; addr < 0x15; addr ++) {
-    BSP_I2C_Read(RTC_I2C_ADDRESS, addr, I2C_MEMADD_SIZE_8BIT, &c, 1);
-    IVDBG("rtc [%02bx] = 0x%02bx", addr,  c);
+  for(addr = 0; addr < 0x12; addr ++) {
+    ret = BSP_I2C_Read(RTC_I2C_ADDRESS, addr, I2C_MEMADD_SIZE_8BIT, &c, 1);
+    IVDBG("rtc [%02x] = 0x%02x, ret %d", addr, c, ret);
   }
 }
 
@@ -93,8 +94,10 @@ static void _rtc_initialize (void)
     BSP_RTC_Time_Set_Sec(30); 
   }
   BSP_RTC_Write_Data(RTC_TYPE_TIME);
-  
+	
+  IVDBG("before delay");
   delay_ms(10);
+	IVDBG("after delay");
   
   BSP_RTC_Read_Data(RTC_TYPE_DATE);
  
@@ -155,6 +158,8 @@ BSP_Error_Type BSP_RTC_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	
+	IVDBG("BSP_RTC_Init");
+	
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -178,32 +183,32 @@ void BSP_RTC_Dump(void)
 {
   IVDBG("BSP_RTC_Dump:");
   BSP_RTC_Read_Data(RTC_TYPE_DATE);
-  IVDBG("date/day: %02bu-%02bu-%02bu/%bu",
+  IVDBG("date/day: %02u-%02u-%02u/%u",
     BSP_RTC_Date_Get_Year(), BSP_RTC_Date_Get_Month(), BSP_RTC_Date_Get_Date(),
     BSP_RTC_Date_Get_Day()
   );
   
   BSP_RTC_Read_Data(RTC_TYPE_TIME);
-  IVDBG("time: %02bu:%02bu:%02bu, is12: %s",
+  IVDBG("time: %02u:%02u:%02u, is12: %s",
     BSP_RTC_Time_Get_Hour(), BSP_RTC_Time_Get_Min(), BSP_RTC_Time_Get_Sec(),
     BSP_RTC_Time_Get_Hour_12() ? "ON" : "OFF"
   );
   
   BSP_RTC_Read_Data(RTC_TYPE_ALARM0);
   IVDBG("alarm0 mode: %s", BSP_RTC_Alarm_Get_Mode_Str());
-  IVDBG("  day:%02bu", BSP_RTC_Alarm_Get_Day());
-  IVDBG("  date:%02bu", BSP_RTC_Alarm_Get_Date());  
-  IVDBG("  hour:%02bu", BSP_RTC_Alarm_Get_Hour());
-  IVDBG("  min:%02bu", BSP_RTC_Alarm_Get_Min());  
-  IVDBG("  sec:%02bu", BSP_RTC_Alarm_Get_Sec());
+  IVDBG("  day:%02u", BSP_RTC_Alarm_Get_Day());
+  IVDBG("  date:%02u", BSP_RTC_Alarm_Get_Date());  
+  IVDBG("  hour:%02u", BSP_RTC_Alarm_Get_Hour());
+  IVDBG("  min:%02u", BSP_RTC_Alarm_Get_Min());  
+  IVDBG("  sec:%02u", BSP_RTC_Alarm_Get_Sec());
   IVDBG("  is12:%s", BSP_RTC_Alarm_Get_Hour_12() ? "ON" : "OFF");  
 
   BSP_RTC_Read_Data(RTC_TYPE_ALARM1);
   IVDBG("alarm1 mode: %s", BSP_RTC_Alarm_Get_Mode_Str());
-  IVDBG("  day:%02bu", BSP_RTC_Alarm_Get_Day());
-  IVDBG("  date:%02bu", BSP_RTC_Alarm_Get_Date());  
-  IVDBG("  hour:%02bu", BSP_RTC_Alarm_Get_Hour());
-  IVDBG("  min:%02bu", BSP_RTC_Alarm_Get_Min());  
+  IVDBG("  day:%02u", BSP_RTC_Alarm_Get_Day());
+  IVDBG("  date:%02u", BSP_RTC_Alarm_Get_Date());  
+  IVDBG("  hour:%02u", BSP_RTC_Alarm_Get_Hour());
+  IVDBG("  min:%02u", BSP_RTC_Alarm_Get_Min());  
   IVDBG("  is12:%s", BSP_RTC_Alarm_Get_Hour_12() ? "ON" : "OFF");
   
   BSP_RTC_Read_Data(RTC_TYPE_CTL);

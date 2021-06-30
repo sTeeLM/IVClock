@@ -30,8 +30,3 @@ void debug_printf(ivlog_type_t level, const char * fmt, ...)
   BSP_USART1_Transmit((uint8_t *)buffer, len);
 }
 
-int fputc(int ch, FILE* file)
-{
-	BSP_USART1_Transmit((uint8_t *)&ch, 1);
-	return ch;
-}

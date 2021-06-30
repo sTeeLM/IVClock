@@ -1,25 +1,10 @@
 #include "clock.h"
-
-bool clock_init(void)
-{
-  return 0;
-}
-
-void clock_time_proc(enum task_events ev)
-{
-	
-}
-
-uint32_t clock_get_now_sec(void)
-{
-	return 0;
-}
-
-
-uint32_t clock_diff_now_sec(uint32_t sec)
-{
-	return 0;
-}
+#include "cext.h"
+#include "display.h"
+#include "rtc.h"
+#include "debug.h"
+#include "config.h"
+#include "sm.h"
 
 static uint8_t date_table[2][12] = 
 {
@@ -27,13 +12,12 @@ static uint8_t date_table[2][12] =
 {31,28,31,30,31,30,31,31,30,31,30,31,},
 };
 
-static struct clock_struct idata clk;
+static struct clock_struct clk;
 static bool   clk_is12;
-static uint8_t sec_256; // 用于 time_diff
-static uint8_t giff;
+static uint32_t now_sec; // 用于 time_diff
 
 static bool display_enable;
-static uint8_t display_mode;
+static enum clock_display_mode display_mode;
 
 static bool in_shell;
 static bool clock_tick_enabled;
@@ -48,34 +32,22 @@ void clock_switch_display_mode(enum clock_display_mode mode)
   display_mode = mode;
 }
 
-static void clock_inc_ms39(void)
+// 1 / 256 = 0.00390625
+void clock_inc_ms39(void)
 {
-  uint8_t hour;
-  uint16_t y;
-  bool is_pm;
-  
+	int16_t y;
   clk.ms39 ++;
   
-  if((clk.ms39 % 6 ) == 0) {
-     set_task(EV_SCAN_KEY);
-  } 
-  
-  if((clk.ms39 % 64) == 0) {
-    set_task(EV_250MS);
-  }
-    
   if(clk.ms39 == 0 ) {
     clk.sec = (++ clk.sec) % 60;
-    lt_timer_dec_sec();
-    sec_256 ++;
-    alarm_play_radio_cb();
-    set_task(EV_1S);
+    now_sec ++;
+
     if(clk.sec == 0) {
       clk.min = (++ clk.min) % 60;
       if(clk.min == 0) {
         clk.hour = (++ clk.hour) % 24;
         if(clk.hour == 0) {
-          y = clk.year + CLOCK_YEAR_BASE;
+          y = clk.year + CEXT_YEAR_BASE;
           if(is_leap_year(y)) {
             clk.date = (++ clk.date) % date_table[0][clk.mon];
           } else {
@@ -91,87 +63,25 @@ static void clock_inc_ms39(void)
         }
       }
     } 
-  }
-  if(display_enable && !led_powersave) {
-    if(display_mode == CLOCK_DISPLAY_MODE_HHMMSS) {
-      hour = clk.hour;
-      is_pm = 0;
-      if(clk_is12 && clk.hour > 12) {
-        hour -= 12;
-        is_pm = 1;
-      } else if(clk_is12 && clk.hour == 12) { // 中午12点是PM。。
-        is_pm = 1;
-      }
-      
-      if(hour / 10 != 0) {
-        led_data[5] = led_code[hour / 10 + 4] | (is_pm ? 0 : 0x80);
-      } else {
-        led_data[5] = 0x7F | (is_pm ? 0 : 0x80);
-      }
-      led_data[4] = led_code[hour % 10 + 4];
-      led_data[3] = led_code[clk.min / 10 + 4];
-      led_data[2] = led_code[clk.min % 10 + 4];
-      led_data[1] = led_code[clk.sec / 10 + 4]; 
-      led_data[0] = led_code[clk.sec % 10 + 4]|0x80;
-    } else if(display_mode == CLOCK_DISPLAY_MODE_YYMMDD) {
-      led_data[5] = led_code[clk.year / 10 + 4] |0x80;
-      led_data[4] = led_code[clk.year % 10 + 4];
-      led_data[3] = led_code[(clk.mon + 1) / 10 + 4] |0x80;
-      led_data[2] = led_code[(clk.mon + 1) % 10 + 4];
-      led_data[1] = led_code[(clk.date + 1) / 10 + 4] |0x80; 
-      led_data[0] = led_code[(clk.date + 1) % 10 + 4]|0x80;
-    } else {
-      led_data[5] = led_code[0x18]|0x80; // D
-      led_data[4] = led_code[0x15]|0x80; // A
-      led_data[3] = led_code[0x2D]|0x80; // Y
-      led_data[2] = led_code[0x01]|0x80; // -
-      led_data[1] = led_code[(clk.day + 1) / 10 + 4] |0x80; 
-      led_data[0] = led_code[(clk.day + 1) % 10 + 4] |0x80;
-    }
-  }
+		
+		if(display_enable && !display_is_powersave()) {
+			display_format_clock(&clk, display_mode);
+		}
+	}
+
 }
 
 void clock_dump(void)
 {
-  CDBG(("clk.year = %bu\n", clk.year));
-  CDBG(("clk.mon  = %bu\n", clk.mon));
-  CDBG(("clk.date = %bu\n", clk.date)); 
-  CDBG(("clk.day  = %bu\n", clk.day));
-  CDBG(("clk.hour = %bu\n", clk.hour));
-  CDBG(("clk.min  = %bu\n", clk.min));
-  CDBG(("clk.sec  = %bu\n", clk.sec));  
-  CDBG(("clk.ms39 = %bu\n", clk.ms39));
-  CDBG(("clk.is12 = %s\n", clk_is12 ? "ON" : "OFF")); 
-}
-
-// 计算某年某月某日星期几,  经典的Zeller公式
-// year 0-99
-// mon 0-11
-// date 0-30
-// return 0-6, 0 is monday, 6 is sunday
-uint8_t clock_yymmdd_to_day(uint8_t year, uint8_t mon, uint8_t date)
-{
-  uint16_t d,m,y,c;
-  d = date + 1;
-  m = mon + 1;
-  y = CLOCK_YEAR_BASE + year;
-  
-  if(m < 3){
-    y -= 1;
-    m += 12;
-  }
-  
-  c = (uint16_t)(y / 100);
-  y = y - 100 * c;
-  
-  c = (uint16_t)(c / 4) - 2 * c + y + (uint16_t) ( y / 4 ) + (26 * (m + 1) / 10) + d - 1;
-  c = (c % 7 + 7) % 7;
-
-  if(c == 0) {
-    return 6;
-  }
-  
-  return c - 1;
+  IVDBG("clk.year = %u", clk.year);
+  IVDBG("clk.mon  = %u", clk.mon);
+  IVDBG("clk.date = %u", clk.date); 
+  IVDBG("clk.day  = %u", clk.day);
+  IVDBG("clk.hour = %u", clk.hour);
+  IVDBG("clk.min  = %u", clk.min);
+  IVDBG("clk.sec  = %u", clk.sec);  
+  IVDBG("clk.ms39 = %u", clk.ms39);
+  IVDBG("clk.is12 = %s", clk_is12 ? "ON" : "OFF"); 
 }
 
 bool clock_get_hour_12(void)
@@ -188,9 +98,15 @@ uint8_t clock_get_ms39(void)
   return clk.ms39;
 }
 
-uint8_t clock_get_sec_256(void)
+uint32_t clock_get_now_sec(void)
 {
-  return sec_256;
+	return now_sec;
+}
+
+
+uint32_t clock_diff_now_sec(uint32_t sec)
+{
+	return (uint32_t)(sec - now_sec);
 }
 
 uint8_t clock_get_sec(void)
@@ -228,7 +144,7 @@ uint8_t clock_get_date(void)
 void clock_inc_date(void)
 {
   clk.date = ( ++ clk.date) % clock_get_mon_date(clk.year, clk.mon);
-  clk.day = clock_yymmdd_to_day(clk.year, clk.mon, clk.date);
+  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
 }
 
 uint8_t clock_get_day(void)
@@ -243,7 +159,7 @@ uint8_t clock_get_month(void)
 void clock_inc_month(void)
 {
   clk.mon = (++ clk.mon) % 12;
-  clk.day = clock_yymmdd_to_day(clk.year, clk.mon, clk.date);
+  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
 }
 
 uint8_t clock_get_year(void)
@@ -253,49 +169,49 @@ uint8_t clock_get_year(void)
 void clock_inc_year(void)
 {
   clk.year = (++ clk.year) % 100;
-  clk.day = clock_yymmdd_to_day(clk.year, clk.mon, clk.date);
+  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
 }
 
 void clock_sync_from_rtc(enum clock_sync_type type)
 {
-  CDBG(("clock_sync_from_rtc = %bu\n", type));
-	clock_enable_tick(0);
+  IVDBG("clock_sync_from_rtc = %u", type);
+	clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
-    rtc_read_data(RTC_TYPE_TIME);
-    clk.hour = rtc_time_get_hour();   // 0 - 23
-    clk.min  = rtc_time_get_min();    // 0 - 59
-    clk.sec  = rtc_time_get_sec();    // 0 - 59
+    BSP_RTC_Read_Data(RTC_TYPE_TIME);
+    clk.hour = BSP_RTC_Time_Get_Hour();   // 0 - 23
+    clk.min  = BSP_RTC_Time_Get_Min();    // 0 - 59
+    clk.sec  = BSP_RTC_Time_Get_Sec();    // 0 - 59
     clk.ms39 = 255;   // 0 - 255
-    clk_is12     = rom_read(ROM_TIME_IS12);
+    clk_is12     = config_read(CONFIG_TIME_IS12);
   } else if(type == CLOCK_SYNC_DATE) {
-    rtc_read_data(RTC_TYPE_DATE);
-    clk.year = rtc_date_get_year();          // 0 - 99 (2000 ~ 2099)
-    clk.mon  = rtc_date_get_month() - 1;     // 0 - 11
-    clk.date = rtc_date_get_date() - 1;      // 0 - 30(29/28/27)
-    clk.day  = rtc_date_get_day() - 1;       // 0 - 6
+    BSP_RTC_Read_Data(RTC_TYPE_DATE);
+    clk.year = BSP_RTC_Date_Get_Year();          // 0 - 99 (2000 ~ 2099)
+    clk.mon  = BSP_RTC_Date_Get_Month() - 1;     // 0 - 11
+    clk.date = BSP_RTC_Date_Get_Date() - 1;      // 0 - 30(29/28/27)
+    clk.day  = BSP_RTC_Date_Get_Day() - 1;       // 0 - 6
   }
-	clock_enable_tick(1);
+	clock_enable_interrupt(TRUE);
 }
 
 void clock_sync_to_rtc(enum clock_sync_type type)
 {
-  CDBG(("clock_sync_to_rtc = %bu\n", type));
-  clock_enable_tick(0);
+  IVDBG("clock_sync_to_rtc = %u", type);
+  clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
-    rtc_read_data(RTC_TYPE_TIME);
-    rtc_time_set_hour(clk.hour);
-    rtc_time_set_min(clk.min);
-    rtc_time_set_sec(clk.sec);
-    rtc_write_data(RTC_TYPE_TIME);
+    BSP_RTC_Read_Data(RTC_TYPE_TIME);
+    BSP_RTC_Time_Set_Hour(clk.hour);
+    BSP_RTC_Time_Set_Min(clk.min);
+    BSP_RTC_Time_Set_Sec(clk.sec);
+    BSP_RTC_Write_Data(RTC_TYPE_TIME);
   } else if(type == CLOCK_SYNC_DATE) {
-    rtc_read_data(RTC_TYPE_DATE);
-    rtc_date_set_year(clk.year);             // 0 - 99 (2000 ~ 2099)
-    rtc_date_set_month(clk.mon + 1);         // 0 - 11
-    rtc_date_set_date(clk.date + 1);         // 0 - 30(29/28/27)
-		rtc_date_set_day(clk.day + 1);
-    rtc_write_data(RTC_TYPE_DATE);
+    BSP_RTC_Read_Data(RTC_TYPE_DATE);
+    BSP_RTC_Date_Set_Year(clk.year);             // 0 - 99 (2000 ~ 2099)
+    BSP_RTC_Date_Set_Month(clk.mon + 1);         // 0 - 11
+    BSP_RTC_Date_Set_Date(clk.date + 1);         // 0 - 30(29/28/27)
+		BSP_RTC_Date_Set_Day(clk.day + 1);
+    BSP_RTC_Write_Data(RTC_TYPE_DATE);
   }
-  clock_enable_tick(1);
+  clock_enable_interrupt(TRUE);
 }
 
 //static void clock0_ISR (void) interrupt 1 using 1
@@ -315,13 +231,17 @@ void clock_sync_to_rtc(enum clock_sync_type type)
 //  TF0 = 0;
 //}
 
+void clock_enable_interrupt(bool enable)
+{
+	BSP_RTC_Set_En32khz(enable);
+}
 
 // 辅助函数
 bool clock_is_leap_year(uint8_t year)
 {
   uint16_t y;
   if(year >= 100) year = 99;
-  y = year + CLOCK_YEAR_BASE;
+  y = year + CEXT_YEAR_BASE;
   return is_leap_year(y);
 }
 
@@ -336,52 +256,30 @@ uint8_t clock_get_mon_date(uint8_t year, uint8_t mon)
     return date_table[1][mon];
 }
 
-void clock_enable_interrupt(bool enable)
-{
-  ET0 = enable;
-  TR0 = enable;
-}
 
-void clock_enable_tick(bool enable)
+void clock_init(void)
 {
-	clock_tick_enabled = enable;
-}
-
-bool clock_init(void)
-{
-  CDBG(("clock_initialize\n"));
+  IVDBG(("clock_initialize"));
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
-  giff = 0;
-  // GATE = 0
-  // CT = 1
-  // M1 = 1
-  // M2 = 0
-  TMOD |= 0x06; // 工作在模式2
-  TL0 = (256 - 128 + 64); // 32768HZ方波输入，0.001953125s中断一次（512个中断是1s）
-  TH0 = (256 - 128 + 64);
-  PT0 = 1; // 最高优先级 
   display_mode = CLOCK_DISPLAY_MODE_HHMMSS;
   display_enable = 0;
-  clock_enable_interrupt(1);
-	clock_enable_tick(1);
   clock_dump();
-  return TRUE;
 }
 
 
 void clock_enter_powersave(void)
 {
-  CDBG(("clock_enter_powersave\n"));
-  clock_enable_interrupt(0);
+  IVDBG(("clock_enter_powersave"));
+  clock_enable_interrupt(FALSE);
 }
 
 void clock_leave_powersave(void)
 {
-  CDBG(("clock_leave_powersave\n"));
+  IVDBG(("clock_leave_powersave"));
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE);
-  clock_enable_interrupt(1);
+  clock_enable_interrupt(TRUE);
 }
 
 void clock_enter_shell(void)
@@ -392,16 +290,13 @@ void clock_enter_shell(void)
 void clock_leave_shell(void)
 {
   in_shell = 0;
-  clock_enable_interrupt(0);
+  clock_enable_interrupt(FALSE);
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE);
-  clock_enable_interrupt(1);
+  clock_enable_interrupt(TRUE);
 }
 
 void clock_time_proc(enum task_events ev)
 {
-  if(ev == EV_1S)
-    delay_task_call();
-  
   sm_run(ev);
 }

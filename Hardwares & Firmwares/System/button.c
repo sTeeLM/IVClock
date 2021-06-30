@@ -13,19 +13,18 @@
 #define KEY_LPRESS_DELAY 3 // 长按时间，3s
 #define KEY_2_KEY_LPRESS_DELAY 2 // 同时按下长按时间，2s
 
-static uint8_t last_mod_tmr_count; 
-static uint8_t last_set_tmr_count;
+static uint32_t last_mod_tmr_count; 
+static uint32_t last_set_tmr_count;
 static uint8_t mod_press;
 static uint8_t set_press;
 
-bool button_init(void)
+void button_init(void)
 {
   last_mod_tmr_count = 0;
   last_set_tmr_count = 0;
    
   mod_press = 0; 
   set_press = 0;
-  return 0;
 }
 
 void button_scan_proc(enum task_events ev)

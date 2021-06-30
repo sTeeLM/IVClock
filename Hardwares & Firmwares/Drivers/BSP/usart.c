@@ -1,5 +1,6 @@
 #include "usart.h"
 #include "bsp.h"
+#include "debug.h"
 
 static UART_HandleTypeDef huart1; // debug
 static UART_HandleTypeDef huart2; // MP3
@@ -35,6 +36,7 @@ BSP_Error_Type BSP_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+	IVDBG("BSP_USART1_UART_Init");
   return BSP_ERROR_NONE;
 }
 
@@ -45,7 +47,7 @@ BSP_Error_Type BSP_USART1_UART_Init(void)
   */
 BSP_Error_Type BSP_USART2_UART_Init(void)
 {
-
+	IVDBG("BSP_USART2_UART_Init");
   /* USER CODE BEGIN USART2_Init 0 */
 
   /* USER CODE END USART2_Init 0 */
@@ -78,7 +80,7 @@ BSP_Error_Type BSP_USART2_UART_Init(void)
   */
 BSP_Error_Type BSP_USART3_UART_Init(void)
 {
-
+	IVDBG("BSP_USART3_UART_Init");
   /* USER CODE BEGIN USART3_Init 0 */
 
   /* USER CODE END USART3_Init 0 */

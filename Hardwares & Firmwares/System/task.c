@@ -8,6 +8,8 @@
 #include "clock.h"
 #include "button.h"
 
+#include "console.h"
+
 /*
   EV_250MS            = 0, // 大约每250ms转一下
   EV_250MS            = 0, // 大约每250ms转一下
@@ -71,19 +73,17 @@ static const TASK_PROC task_procs[EV_COUNT] =
 uint16_t ev_bits0;
 uint16_t ev_bits1;
 
-bool task_init (void)
+void task_init (void)
 {
   ev_bits0 = 0;
   ev_bits1 = 0;
-	return TRUE;
 }
 
 void task_run(void)
 {
   unsigned char c;
 
- // while(com_try_get_key() == 0) {
-  while(1) {
+  while(console_try_get_key() == 0) {
     for(c = 0; c < EV_COUNT; c++) {
       if(task_test(c)) {
         task_clr(c);

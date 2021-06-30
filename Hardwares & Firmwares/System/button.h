@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 #include "task.h"
-#include "cext.h"
 
-bool button_init(void);
+void button_init(void);
 void button_scan_proc(enum task_events ev);
 void button_mod_proc(enum task_events ev);
 void button_set_proc(enum task_events ev);
 void button_mod_set_proc(enum task_events ev);
+
 #endif

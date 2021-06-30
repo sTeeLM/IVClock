@@ -1,5 +1,6 @@
 #include "tim.h"
 #include "bsp.h"
+#include "debug.h"
 
 static TIM_HandleTypeDef htim1;
 static TIM_HandleTypeDef htim3;
@@ -15,7 +16,7 @@ BSP_Error_Type BSP_TIM1_Init(void)
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
-
+	IVDBG("BSP_MP3_Init");
   /* USER CODE END TIM1_Init 0 */
 
   TIM_SlaveConfigTypeDef sSlaveConfig = {0};
@@ -65,7 +66,7 @@ BSP_Error_Type BSP_TIM3_Init(void)
 {
 
   /* USER CODE BEGIN TIM3_Init 0 */
-
+	IVDBG("BSP_TIM3_Init");
   /* USER CODE END TIM3_Init 0 */
 
   TIM_SlaveConfigTypeDef sSlaveConfig = {0};

@@ -21,9 +21,9 @@ static struct sm_trans ** sm_trans_table[] = {
 static uint8_t sm_cur_fuction;
 static uint8_t sm_cur_state;
 
-bool sm_init(void)
+void sm_init(void)
 {
-  return TRUE;
+
 }
 
 void sm_run(enum task_events ev)

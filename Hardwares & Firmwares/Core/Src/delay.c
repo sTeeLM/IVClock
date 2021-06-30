@@ -35,7 +35,7 @@ uint8_t delay_init(void)
   {
     return 1; /*clock cycle counter started*/
   }
-     else
+	else
   {
     return 0; /*clock cycle counter not started*/
   }
