@@ -2,7 +2,8 @@
 #define __IVCLOCK_CONFIG_H__
 
 #include <stdint.h>
+#include "cext.h"
 
-int8_t config_init(void);
+bool config_init(void);
 
 #endif

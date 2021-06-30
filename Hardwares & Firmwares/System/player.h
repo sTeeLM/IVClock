@@ -2,7 +2,8 @@
 #define __IVCLOCK_PLAYER_H__
 
 #include <stdint.h>
+#include "cext.h"
 
-int8_t player_init(void);
+bool player_init(void);
 
 #endif

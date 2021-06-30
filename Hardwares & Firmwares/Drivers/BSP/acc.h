@@ -2,7 +2,8 @@
 #define __IVCLOCK_BLUE_ACC_H__
 
 #include <stdint.h>
+#include "bsp.h"
 
-int8_t BSP_ACC_Init(void);
+BSP_Error_Type BSP_ACC_Init(void);
 
 #endif

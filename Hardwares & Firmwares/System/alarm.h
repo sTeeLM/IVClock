@@ -2,7 +2,8 @@
 #define __IVCLOCK_ALARM_H__
 
 #include <stdint.h>
+#include "cext.h"
 
-int8_t alarm_init(void);
+bool alarm_init(void);
 
 #endif

@@ -2,9 +2,10 @@
 #define __IVCLOCK_ROM_H__
 
 #include <stdint.h>
+#include "bsp.h"
 
-int8_t BSP_ROM_Init(void);
-int8_t BSP_ROM_Read(void * pData, uint32_t Size);
-int8_t BSP_ROM_Write(const void * pData, uint32_t Size);
+BSP_Error_Type BSP_ROM_Init(void);
+BSP_Error_Type BSP_ROM_Read(void * pData, uint32_t Size);
+BSP_Error_Type BSP_ROM_Write(const void * pData, uint32_t Size);
 
 #endif

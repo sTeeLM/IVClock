@@ -1,7 +1,7 @@
 #include "acc.h"
 #include "bsp.h"
 
-int8_t BSP_ACC_Init(void)
+BSP_Error_Type BSP_ACC_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	

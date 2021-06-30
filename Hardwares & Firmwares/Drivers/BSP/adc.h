@@ -2,8 +2,8 @@
 #define __IVCLOCK_ADC_H__
 
 #include <stdint.h>
+#include "bsp.h"
 
-int8_t BSP_ADC1_Init(void);
-int8_t BSP_ADC1_Init(void);
+BSP_Error_Type BSP_ADC1_Init(void);
 
 #endif

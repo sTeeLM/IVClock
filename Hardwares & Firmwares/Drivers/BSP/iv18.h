@@ -2,7 +2,8 @@
 #define __IVCLOCK_IV18_H__
 
 #include <stdint.h>
+#include "bsp.h"
 
-int8_t BSP_IV18_Init(void);
+BSP_Error_Type BSP_IV18_Init(void);
 	
 #endif

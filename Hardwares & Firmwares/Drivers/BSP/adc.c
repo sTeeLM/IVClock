@@ -8,7 +8,7 @@ static ADC_HandleTypeDef hadc1;
   * @param None
   * @retval None
   */
-int8_t BSP_ADC1_Init(void)
+BSP_Error_Type BSP_ADC1_Init(void)
 {
 
   /* USER CODE BEGIN ADC1_Init 0 */

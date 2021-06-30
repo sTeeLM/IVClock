@@ -2,8 +2,9 @@
 #define __IVCLOCK_TIM_H__
 
 #include <stdint.h>
+#include "bsp.h"
 
-int8_t BSP_TIM1_Init(void);
-int8_t BSP_TIM3_Init(void);
+BSP_Error_Type BSP_TIM1_Init(void);
+BSP_Error_Type BSP_TIM3_Init(void);
 
 #endif

@@ -1,7 +1,7 @@
 #include "key.h"
 #include "bsp.h"
 
-int8_t BSP_Key_Init(void)
+BSP_Error_Type BSP_Key_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	
@@ -30,7 +30,17 @@ int8_t BSP_Key_Init(void)
 	return BSP_ERROR_NONE;
 }
 
-int8_t BSP_Key_Is_Factory_Reset(void)
+bool BSP_Key_Is_Factory_Reset(void)
 {
-	return 0;
+	return FALSE;
+}
+
+bool BSP_Key_Set_Pressed(void)
+{
+	return FALSE;
+}
+
+bool BSP_Key_Mod_Pressed(void)
+{
+	return FALSE;
 }

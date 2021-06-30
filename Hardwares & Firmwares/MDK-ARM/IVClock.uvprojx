@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../System;../System/Console;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Drivers/BSP</IncludePath>
+              <IncludePath>../Core/Inc;../System;../System/Console;../System/State Machine;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Drivers/BSP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -578,6 +578,11 @@
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\rtc.c</FilePath>
             </File>
+            <File>
+              <FileName>extint.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\extint.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -643,6 +648,16 @@
               <FileType>1</FileType>
               <FilePath>..\System\console.c</FilePath>
             </File>
+            <File>
+              <FileName>task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\task.c</FilePath>
+            </File>
+            <File>
+              <FileName>sm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\sm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -652,6 +667,16 @@
               <FileName>con_help.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\System\Console\con_help.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Application/System/State Machine</GroupName>
+          <Files>
+            <File>
+              <FileName>sm_clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\State Machine\sm_clock.c</FilePath>
             </File>
           </Files>
         </Group>

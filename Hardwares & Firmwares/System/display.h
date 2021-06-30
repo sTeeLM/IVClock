@@ -2,7 +2,8 @@
 #define __IVCLOCK_DISPLAY_H__
 
 #include <stdint.h>
+#include "cext.h"
 
-int8_t display_init(void);
+bool display_init(void);
 
 #endif

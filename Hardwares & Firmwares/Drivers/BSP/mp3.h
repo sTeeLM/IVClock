@@ -2,7 +2,8 @@
 #define __IVCLOCK_MP3_H__
 
 #include <stdint.h>
+#include "bsp.h"
 
-int8_t BSP_MP3_Init(void);
+BSP_Error_Type BSP_MP3_Init(void);
 
 #endif

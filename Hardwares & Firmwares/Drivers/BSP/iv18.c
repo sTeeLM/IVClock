@@ -1,7 +1,7 @@
 #include "iv18.h"
 #include "bsp.h"
 
-int8_t BSP_IV18_Init(void)
+BSP_Error_Type BSP_IV18_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	

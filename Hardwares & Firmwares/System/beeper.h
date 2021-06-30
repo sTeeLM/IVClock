@@ -2,7 +2,9 @@
 #define __IVCLOCK_BEEPER_H__
 
 #include <stdint.h>
+#include "cext.h"
 
-int8_t beeper_init(void);
+bool beeper_init(void);
+void beeper_beep(void);
 
 #endif

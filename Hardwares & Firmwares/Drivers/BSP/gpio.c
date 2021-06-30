@@ -6,7 +6,7 @@
   * @param None
   * @retval None
   */
-int8_t BSP_GPIO_Init(void)
+BSP_Error_Type BSP_GPIO_Init(void)
 {
 
   /* USER CODE BEGIN ADC1_Init 0 */

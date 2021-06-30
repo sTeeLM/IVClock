@@ -9,7 +9,7 @@ static I2C_HandleTypeDef hi2c1;
   * @param None
   * @retval None
   */
-int8_t BSP_I2C_Init(void)
+BSP_Error_Type BSP_I2C_Init(void)
 {
 
   /* USER CODE BEGIN I2C1_Init 0 */
@@ -48,7 +48,7 @@ void BSP_I2C_DeInit(void)
   HAL_I2C_DeInit(&hi2c1);
 }
 
-int8_t BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
+BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
   uint32_t ret = BSP_ERROR_PERIPH_FAILURE;
   if(HAL_I2C_IsDeviceReady(&hi2c1, DevAddress, BSP_I2C_TRAILS, BSP_I2C_SEND_TIMEOUT) == HAL_OK)
@@ -59,7 +59,7 @@ int8_t BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSi
   return ret;
 }
 
-int8_t BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
+BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
   uint32_t ret = BSP_ERROR_PERIPH_FAILURE;
   if(HAL_I2C_IsDeviceReady(&hi2c1, DevAddress, BSP_I2C_TRAILS, BSP_I2C_SEND_TIMEOUT) == HAL_OK)

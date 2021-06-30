@@ -1,7 +1,7 @@
 #include "tim.h"
 #include "bsp.h"
 
-TIM_HandleTypeDef htim1;
+static TIM_HandleTypeDef htim1;
 static TIM_HandleTypeDef htim3;
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
@@ -11,7 +11,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
   * @param None
   * @retval None
   */
-int8_t BSP_TIM1_Init(void)
+BSP_Error_Type BSP_TIM1_Init(void)
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
@@ -61,7 +61,7 @@ int8_t BSP_TIM1_Init(void)
   * @param None
   * @retval None
   */
-int8_t BSP_TIM3_Init(void)
+BSP_Error_Type BSP_TIM3_Init(void)
 {
 
   /* USER CODE BEGIN TIM3_Init 0 */
@@ -238,4 +238,18 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM3_MspDeInit 1 */
   }
 
+}
+
+/**
+  * @brief This function handles TIM1 update interrupt.
+  */
+void TIM1_UP_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+
+  /* USER CODE END TIM1_UP_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  /* USER CODE BEGIN TIM1_UP_IRQn 1 */
+
+  /* USER CODE END TIM1_UP_IRQn 1 */
 }

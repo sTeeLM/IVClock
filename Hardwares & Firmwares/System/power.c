@@ -4,7 +4,7 @@
 #include "gpio.h"
 #include "adc.h"
 
-int8_t power_init(void)
+bool power_init(void)
 {
   return 0;
 }

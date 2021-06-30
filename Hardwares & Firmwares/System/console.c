@@ -7,7 +7,7 @@
 
 #define CONSOLE_BUFFER_SIZE 41
 
-int8_t console_init(void)
+bool console_init(void)
 {
   return 0;
 }

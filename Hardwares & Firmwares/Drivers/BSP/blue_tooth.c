@@ -1,7 +1,7 @@
 #include "blue_tooth.h"
 #include "bsp.h"
 
-int8_t BSP_Blue_Tooth_Init(void)
+BSP_Error_Type BSP_Blue_Tooth_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	

@@ -10,7 +10,7 @@ static UART_HandleTypeDef huart3; // Blue Tooth
   * @param None
   * @retval None
   */
-int8_t BSP_USART1_UART_Init(void)
+BSP_Error_Type BSP_USART1_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART1_Init 0 */
@@ -43,7 +43,7 @@ int8_t BSP_USART1_UART_Init(void)
   * @param None
   * @retval None
   */
-int8_t BSP_USART2_UART_Init(void)
+BSP_Error_Type BSP_USART2_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART2_Init 0 */
@@ -76,7 +76,7 @@ int8_t BSP_USART2_UART_Init(void)
   * @param None
   * @retval None
   */
-int8_t BSP_USART3_UART_Init(void)
+BSP_Error_Type BSP_USART3_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART3_Init 0 */
@@ -262,17 +262,17 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
 }
 
-int8_t BSP_USART1_Transmit(uint8_t *pData, uint16_t Size)
+BSP_Error_Type BSP_USART1_Transmit(uint8_t *pData, uint16_t Size)
 {
 	return HAL_UART_Transmit(&huart1, pData, Size, BSP_USART1_TRANSMIT_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_PERIPH_FAILURE;
 }
 
-int8_t BSP_USART1_Try_Get_Char(uint8_t * ch)
+BSP_Error_Type BSP_USART1_Try_Get_Char(uint8_t * ch)
 {
-	return HAL_UART_Receive(&huart1, ch, 1, BSP_USART1_TRY_RECEIVE_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_NOT_READY;
+	return HAL_UART_Receive(&huart1, ch, 1, BSP_USART1_TRY_RECEIVE_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_BUSY;
 }
 
-int8_t BSP_USART1_Get_Char(uint8_t * ch)
+BSP_Error_Type BSP_USART1_Get_Char(uint8_t * ch)
 {
-	return HAL_UART_Receive(&huart1, ch, 1, BSP_USART1_TRY_RECEIVE_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_NOT_READY;	
+	return HAL_UART_Receive(&huart1, ch, 1, BSP_USART1_TRY_RECEIVE_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_BUSY;	
 }

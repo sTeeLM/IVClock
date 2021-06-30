@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "cext.h"
+#include "bsp.h"
 
 enum BSP_RTC_Data_Type {
   RTC_TYPE_TIME    = 0, // 时间
@@ -43,7 +44,7 @@ enum BSP_RTC_Alarm_Index {
 };
 
 
-int8_t BSP_RTC_Init(void);
+BSP_Error_Type BSP_RTC_Init(void);
 bool BSP_RTC_Is_Lt_Timer(void);
 void BSP_RTC_Set_Lt_Timer(bool enable);
 

@@ -2,7 +2,8 @@
 #define __IVCLOCK_TIMER_H__
 
 #include <stdint.h>
+#include "cext.h"
 
-int8_t timer_init(void);
+bool timer_init(void);
 
 #endif

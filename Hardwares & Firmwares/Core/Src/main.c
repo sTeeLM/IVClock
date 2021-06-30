@@ -22,6 +22,7 @@
 #include "debug.h"
 #include "delay.h"
 
+/* bsp */
 #include "adc.h"
 #include "i2c.h"
 #include "iv18.h"
@@ -35,6 +36,7 @@
 #include "rom.h"
 #include "rtc.h"
 
+/* system software */
 #include "alarm.h"
 #include "beeper.h"
 #include "button.h"
@@ -45,6 +47,8 @@
 #include "power.h"
 #include "timer.h"
 #include "console.h"
+#include "task.h"
+#include "sm.h"
 
 
 /* Private includes ----------------------------------------------------------*/
@@ -133,7 +137,8 @@ int main(void)
 	beeper_init();
 	display_init();
 	player_init();
-	
+	task_init();
+	sm_init();
 	
 	power_33_enable(TRUE);
 	
@@ -141,7 +146,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+		task_run();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

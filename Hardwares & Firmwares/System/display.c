@@ -1,6 +1,6 @@
 #include "display.h"
 
-int8_t display_init(void)
+bool display_init(void)
 {
   return 0;
 }

@@ -151,7 +151,7 @@ static void _rtc_initialize (void)
   BSP_RTC_Dump();
 }
 
-int8_t BSP_RTC_Init(void)
+BSP_Error_Type BSP_RTC_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	
