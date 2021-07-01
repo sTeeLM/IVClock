@@ -13,7 +13,6 @@ static uint8_t date_table[2][12] =
 };
 
 static struct clock_struct clk;
-static bool   clk_is12;
 static uint32_t now_sec; // 用于 time_diff
 
 static bool display_enable;
@@ -81,16 +80,16 @@ void clock_dump(void)
   IVDBG("clk.min  = %u", clk.min);
   IVDBG("clk.sec  = %u", clk.sec);  
   IVDBG("clk.ms39 = %u", clk.ms39);
-  IVDBG("clk.is12 = %s", clk_is12 ? "ON" : "OFF"); 
+  IVDBG("clk.is12 = %s", clk.is12 ? "ON" : "OFF"); 
 }
 
 bool clock_get_hour_12(void)
 {
-  return clk_is12;
+  return clk.is12;
 }
 void clock_set_hour_12(bool enable)
 {
-  clk_is12 = enable;
+  clk.is12 = enable;
 }
 
 uint8_t clock_get_ms39(void)
@@ -182,7 +181,6 @@ void clock_sync_from_rtc(enum clock_sync_type type)
     clk.min  = BSP_RTC_Time_Get_Min();    // 0 - 59
     clk.sec  = BSP_RTC_Time_Get_Sec();    // 0 - 59
     clk.ms39 = 255;   // 0 - 255
-    clk_is12     = config_read(CONFIG_TIME_IS12);
   } else if(type == CLOCK_SYNC_DATE) {
     BSP_RTC_Read_Data(RTC_TYPE_DATE);
     clk.year = BSP_RTC_Date_Get_Year();          // 0 - 99 (2000 ~ 2099)
@@ -264,6 +262,7 @@ void clock_init(void)
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   display_mode = CLOCK_DISPLAY_MODE_HHMMSS;
   display_enable = 0;
+	clk.is12       = config_read(CONFIG_TIME_IS12);
   clock_dump();
 }
 
