@@ -18,7 +18,8 @@ void console_init(void);
 void console_run(void);
 void console_dump_cmd(void);
 int8_t console_search_cmd_by_name(char * cmd);
-uint8_t console_try_get_key(void);
+int16_t console_try_get_key(void);
+void console_printf(const char * fmt /*format*/, ...);
 
 extern char console_buf[];
 extern struct console_cmds cmds[];

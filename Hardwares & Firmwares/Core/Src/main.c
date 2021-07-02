@@ -87,6 +87,11 @@ void SystemClock_Config(void);
 
 /* USER CODE END 0 */
 
+void PrintBsp(const char * bsp, BSP_Error_Type res)
+{
+	IVINFO("%s %s", bsp, res == BSP_ERROR_NONE ? "OK" : "FAILED");
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -113,20 +118,20 @@ int main(void)
 
 	/* Hardware initialize */
 	BSP_GPIO_Init();	
-	BSP_USART1_UART_Init();
-	BSP_USART2_UART_Init();
-	BSP_USART3_UART_Init();
-	BSP_I2C_Init();
-	BSP_ROM_Init();	
-	BSP_RTC_Init();
-	BSP_ADC_Init();
-	BSP_IV18_Init();
-	BSP_Key_Init();
-	BSP_MP3_Init();
-	BSP_TIM1_Init();
-	BSP_TIM3_Init();
-	BSP_ACC_Init();
-	BSP_Blue_Tooth_Init();
+	PrintBsp("USART1", BSP_USART1_UART_Init());
+	PrintBsp("USART2", BSP_USART2_UART_Init());
+	PrintBsp("USART3", BSP_USART3_UART_Init());
+	PrintBsp("I2C   ", BSP_I2C_Init());
+	PrintBsp("ROM   ", BSP_ROM_Init());
+	PrintBsp("RTC   ", BSP_RTC_Init());
+	PrintBsp("ADC   ", BSP_ADC_Init());
+	PrintBsp("IV18  ", BSP_IV18_Init());
+	PrintBsp("Key   ", BSP_Key_Init());
+	PrintBsp("MP3   ", BSP_MP3_Init());
+	PrintBsp("TIM1  ", BSP_TIM1_Init());
+	PrintBsp("TIM3  ", BSP_TIM3_Init());
+	PrintBsp("ACC   ", BSP_ACC_Init());
+	PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
 	
 	IVDBG("initialize system...");
 	/* System initialize */
@@ -148,6 +153,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
 		task_run();
+		console_run();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

@@ -6,8 +6,6 @@ BSP_Error_Type BSP_Key_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	
-	IVDBG("BSP_Key_Init");
-	
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
 

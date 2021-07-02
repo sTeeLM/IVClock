@@ -83,7 +83,7 @@ void task_run(void)
 {
   unsigned char c;
 
-  while(console_try_get_key() == 0) {
+  while((c = console_try_get_key()) != 'c' || c == 0) {
     for(c = 0; c < EV_COUNT; c++) {
       if(task_test(c)) {
         task_clr(c);

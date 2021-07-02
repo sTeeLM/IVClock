@@ -54,8 +54,8 @@ static void _rtc_dump_raw(void)
 	BSP_Error_Type ret;
   IVDBG("RTC raw content:");
   for(addr = 0; addr < 0x12; addr ++) {
-    ret = BSP_I2C_Read(RTC_I2C_ADDRESS, addr, I2C_MEMADD_SIZE_8BIT, &c, 1);
-    IVDBG("rtc [%02x] = 0x%02x, ret %d", addr, c, ret);
+    BSP_I2C_Read(RTC_I2C_ADDRESS, addr, I2C_MEMADD_SIZE_8BIT, &c, 1);
+    IVDBG("rtc [%02x] = 0x%02x", addr, c);
   }
 }
 
@@ -157,9 +157,7 @@ static void _rtc_initialize (void)
 BSP_Error_Type BSP_RTC_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-	
-	IVDBG("BSP_RTC_Init");
-	
+
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -279,7 +277,7 @@ void BSP_RTC_Write_Data(enum BSP_RTC_Data_Type type)
       offset = RTC_CTL_OFFSET; break;       
   }
 	
-	BSP_I2C_Read(RTC_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _rtc_data, sizeof(_rtc_data));
+	BSP_I2C_Write(RTC_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _rtc_data, sizeof(_rtc_data));
    
 }
 

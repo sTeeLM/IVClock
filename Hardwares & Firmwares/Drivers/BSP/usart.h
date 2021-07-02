@@ -9,7 +9,7 @@ BSP_Error_Type BSP_USART2_UART_Init(void);
 BSP_Error_Type BSP_USART3_UART_Init(void);
 
 BSP_Error_Type BSP_USART1_Transmit(uint8_t *pData, uint16_t Size);
-BSP_Error_Type BSP_USART1_Try_Get_Char(uint8_t * ch);
-BSP_Error_Type BSP_USART1_Get_Char(uint8_t * ch);
+int16_t BSP_USART1_Get_Char(void);
+int16_t BSP_USART1_Try_Get_Char(void);
 
 #endif

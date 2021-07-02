@@ -8,3 +8,7 @@ int fputc(int ch, FILE* file)
 	return ch;
 }
 
+int fgetc(FILE* file)
+{
+	return BSP_USART1_Get_Char();
+}

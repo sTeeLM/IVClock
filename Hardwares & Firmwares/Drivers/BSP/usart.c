@@ -1,6 +1,7 @@
 #include "usart.h"
 #include "bsp.h"
 #include "debug.h"
+#include "delay.h"
 
 static UART_HandleTypeDef huart1; // debug
 static UART_HandleTypeDef huart2; // MP3
@@ -36,7 +37,6 @@ BSP_Error_Type BSP_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
-	IVDBG("BSP_USART1_UART_Init");
   return BSP_ERROR_NONE;
 }
 
@@ -47,7 +47,6 @@ BSP_Error_Type BSP_USART1_UART_Init(void)
   */
 BSP_Error_Type BSP_USART2_UART_Init(void)
 {
-	IVDBG("BSP_USART2_UART_Init");
   /* USER CODE BEGIN USART2_Init 0 */
 
   /* USER CODE END USART2_Init 0 */
@@ -80,7 +79,6 @@ BSP_Error_Type BSP_USART2_UART_Init(void)
   */
 BSP_Error_Type BSP_USART3_UART_Init(void)
 {
-	IVDBG("BSP_USART3_UART_Init");
   /* USER CODE BEGIN USART3_Init 0 */
 
   /* USER CODE END USART3_Init 0 */
@@ -266,15 +264,67 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
 BSP_Error_Type BSP_USART1_Transmit(uint8_t *pData, uint16_t Size)
 {
-	return HAL_UART_Transmit(&huart1, pData, Size, BSP_USART1_TRANSMIT_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_PERIPH_FAILURE;
+	HAL_StatusTypeDef res = HAL_UART_Transmit(&huart1, pData, Size, BSP_USART1_TRANSMIT_TIMEOUT);
+	BSP_Error_Type ret = BSP_ERROR_INTERNAL;
+	switch(res) {
+		case HAL_ERROR:
+			ret = BSP_ERROR_INTERNAL;
+			break;
+		case HAL_TIMEOUT:
+			ret = BSP_ERROR_TIMEOUT;
+			break;
+		case HAL_BUSY:
+			ret = BSP_ERROR_BUSY;
+			break;
+		case HAL_OK:
+			ret = BSP_ERROR_NONE;
+			break;
+	}
+	return ret;
 }
 
-BSP_Error_Type BSP_USART1_Try_Get_Char(uint8_t * ch)
+BSP_Error_Type BSP_USART1_Receive(uint8_t *pData, uint16_t Size)
 {
-	return HAL_UART_Receive(&huart1, ch, 1, BSP_USART1_TRY_RECEIVE_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_BUSY;
+	HAL_StatusTypeDef res = HAL_UART_Receive(&huart1, pData, Size, BSP_USART1_RECEIVE_TIMEOUT);
+	BSP_Error_Type ret = BSP_ERROR_INTERNAL;
+	switch(res) {
+		case HAL_ERROR:
+			ret = BSP_ERROR_INTERNAL;
+			break;
+		case HAL_TIMEOUT:
+			ret = BSP_ERROR_TIMEOUT;
+			break;
+		case HAL_BUSY:
+			ret = BSP_ERROR_BUSY;
+			break;
+		case HAL_OK:
+			ret = BSP_ERROR_NONE;
+			break;
+	}
+	return ret;
 }
 
-BSP_Error_Type BSP_USART1_Get_Char(uint8_t * ch)
+int16_t BSP_USART1_Try_Get_Char(void)
 {
-	return HAL_UART_Receive(&huart1, ch, 1, BSP_USART1_TRY_RECEIVE_TIMEOUT) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_BUSY;	
+	uint8_t ch = 0;
+	HAL_StatusTypeDef res = HAL_UART_Receive(&huart1, &ch, 1, 0);
+	if(res != HAL_OK) {
+		return 0;
+	} else {
+		return ch;
+	}
+}
+
+int16_t BSP_USART1_Get_Char(void)
+{
+	uint8_t ch = 0;
+	HAL_StatusTypeDef res;
+	while((res = HAL_UART_Receive(&huart1, &ch, 1, BSP_USART1_RECEIVE_TIMEOUT)) == HAL_TIMEOUT) {
+		delay_us(10);
+	}
+	if(res == HAL_OK) {
+		return ch;
+	} else {
+		return -1 ;
+	}
 }

@@ -11,9 +11,9 @@ int8_t con_help(char arg1, char arg2)
   } else {
     i = console_search_cmd_by_name(console_buf + arg1);
     if(i != -1) {
-      printf("usage:\n%s\n", cmds[i].usage);
+      console_printf("usage:\n%s\n", cmds[i].usage);
     } else {
-      printf("unknown cmd '%s'\n",console_buf + arg1);
+      console_printf("unknown cmd '%s'\n",console_buf + arg1);
     }
   }
   return 0;

@@ -13,7 +13,6 @@ static I2C_HandleTypeDef hi2c1;
   */
 BSP_Error_Type BSP_I2C_Init(void)
 {
-	IVDBG("BSP_I2C_Init");
   /* USER CODE BEGIN I2C1_Init 0 */
 
   /* USER CODE END I2C1_Init 0 */
@@ -22,8 +21,8 @@ BSP_Error_Type BSP_I2C_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 400000;
-  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_16_9;
+  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -32,13 +31,10 @@ BSP_Error_Type BSP_I2C_Init(void)
   hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;	
   if (HAL_I2C_Init(&hi2c1) != HAL_OK)
   {
-		IVDBG("BSP_I2C_Init FAILED!");
     return BSP_ERROR_INTERNAL;
   }
   /* USER CODE BEGIN I2C1_Init 2 */
-
   /* USER CODE END I2C1_Init 2 */
-	IVDBG("BSP_I2C_Init OK!");
   return BSP_ERROR_NONE;
 }
 
@@ -62,7 +58,8 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
 //		hi2c1.Instance->CR1 = 0;
 //		delay_us(10);		
 	};
-	return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_PERIPH_FAILURE;
+	if(ret != HAL_OK) IVERR("BSP_I2C_Write ret %d", ret);
+	return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
@@ -75,7 +72,8 @@ BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t M
 //		hi2c1.Instance->CR1 = 0;
 //		delay_us(10);		
 	};
-	return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_PERIPH_FAILURE;
+	if(ret != HAL_OK) IVERR("BSP_I2C_Read ret %d", ret);
+	return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 

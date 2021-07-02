@@ -19,7 +19,6 @@ BSP_Error_Type BSP_ADC_Init(void)
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
-	IVDBG("BSP_ADC_Init");
   /* USER CODE END ADC1_Init 1 */
   /** Common config
   */

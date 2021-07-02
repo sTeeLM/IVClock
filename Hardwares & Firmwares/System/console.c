@@ -1,7 +1,9 @@
 #include "console.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include "usart.h"
+#include "debug.h"
 
 #include "con_help.h"
 
@@ -17,7 +19,7 @@ char console_buf[CONSOLE_BUFFER_SIZE];
 
 static int8_t con_quit(char arg1, char arg2)
 {
-  printf("quit!\n");
+  console_printf("quit!\n");
   return 0;
 }
 
@@ -25,7 +27,7 @@ struct console_cmds cmds[] =
 {
   {"?",  "show help", "?: list cmd\n"
                       "? <cmd>: show usage of cmd", con_help},
-  {"!", "quit the console", "ex", con_quit},
+  {"!", "quit the console", "!", con_quit},
 }; 
 
 
@@ -44,7 +46,7 @@ void console_dump_cmd(void)
 {
   char i;
   for (i = 0 ; i < sizeof(cmds)/sizeof(struct console_cmds) ; i ++) {
-    printf("%s: %s\n", cmds[i].cmd, cmds[i].desc);
+    console_printf("%s: %s\n", cmds[i].cmd, cmds[i].desc);
   }
 }
 
@@ -54,30 +56,56 @@ static void _call_cmd(char * buf, char arg1, char arg2)
   i = console_search_cmd_by_name(buf);
   if(i != -1) {
     if(cmds[i].proc(arg1, arg2) != 0) { // C212
-      printf("%s:\n%s\n", cmds[i].cmd, cmds[i].usage);
+      console_printf("%s:\n%s\n", cmds[i].cmd, cmds[i].usage);
     }
   } else {
-    printf("unknown cmd '%s'\n", buf);
+    console_printf("unknown cmd '%s'\n", buf);
   }
 }
 
 static void _console_gets(char * buffer, uint16_t len)
 {
-	
+	uint16_t i = 0, c;
+	while((c = BSP_USART1_Get_Char()) > 0 && i < len) {
+		if(c != '\r' && c != '\n' && c != '\b') {
+			BSP_USART1_Transmit((uint8_t *)&c, 1);
+		} else if(c == '\b' && i > 0) {
+			BSP_USART1_Transmit((uint8_t *)&c, 1);
+			BSP_USART1_Transmit((uint8_t *)&"\e[K", 3);
+		}
+		if(c != '\r' && c != '\n' && c != '\b') {
+			buffer[i++] = c;
+		} else if(c == 0x8){ // backspace
+			if(i > 0)
+				buffer[--i] = 0;
+		} else if(c != '\r'){
+			BSP_USART1_Try_Get_Char();
+			break;
+		}
+	}
 }
 
-uint8_t console_try_get_key(void)
+int16_t console_try_get_key(void)
 {
+	return BSP_USART1_Try_Get_Char();
+}
+
+void console_printf(const char * fmt /*format*/, ...)
+{
+	va_list arg_ptr;
 	
+	va_start (arg_ptr, fmt); /* format string */
+	vprintf(fmt, arg_ptr);
+	va_end (arg_ptr);
 }
 
 void console_run(void)
 {
   char arg1_pos, arg2_pos;
   
-  printf("++++++++++++++++++++++++++++++++++++++++\n");
-  printf("+             tini CONSOLE             +\n");
-  printf("++++++++++++++++++++++++++++++++++++++++\n");
+  console_printf("++++++++++++++++++++++++++++++++++++++++\n");
+  console_printf("+             tini CONSOLE             +\n");
+  console_printf("++++++++++++++++++++++++++++++++++++++++\n");
   
   // stop the clock
 //  clock_enter_console();
@@ -89,12 +117,11 @@ void console_run(void)
 //  display_set_code(2, 'L'); 
 //  display_set_code(1, 'L');  
   do {
-    printf("console>");
-    
+    console_printf("console>");
+		memset(console_buf, 0, sizeof(console_buf));
     _console_gets(console_buf, sizeof(console_buf)-1);
-    
     console_buf[sizeof(console_buf)-1] = 0;
-    
+		console_printf("\r\n");
     if(console_buf[0] == 0)
       continue;
     
@@ -138,8 +165,10 @@ void console_run(void)
     }
     
     _call_cmd(console_buf, arg1_pos, arg2_pos);
+		
+		console_printf("\r\n");
     
-  } while (strcmp(console_buf, "ex") != 0);
+  } while (strcmp(console_buf, "!") != 0);
   
 //  display_clear();
 //  display_restore();

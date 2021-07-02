@@ -16,7 +16,6 @@ BSP_Error_Type BSP_TIM1_Init(void)
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
-	IVDBG("BSP_MP3_Init");
   /* USER CODE END TIM1_Init 0 */
 
   TIM_SlaveConfigTypeDef sSlaveConfig = {0};
