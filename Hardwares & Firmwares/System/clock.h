@@ -27,6 +27,7 @@ struct clock_struct
   uint8_t min;    // 0 - 59
   uint8_t sec;    // 0 - 59
   uint8_t ms39;   // 0 - 255
+	uint8_t is12;   // 12 hour format or 24 hour format
 };
 
 bool clock_get_hour_12();

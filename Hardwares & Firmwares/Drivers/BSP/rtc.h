@@ -96,16 +96,19 @@ const char * BSP_RTC_Alarm_Get_Mode_Str(void);
 bool BSP_RTC_Get_Temperature(uint8_t * integer, uint8_t * flt);
 
 
-
 // 在rtc_read_data(RTC_TYPE_CTL)之后调用
 void BSP_RTC_Enable_Alarm_Int(enum BSP_RTC_Alarm_Index index, bool enable);
 bool BSP_RTC_Test_Alarm_Int(enum BSP_RTC_Alarm_Index index);
 bool BSP_RTC_Test_Alarm_Int_Flag(enum BSP_RTC_Alarm_Index index);
 void BSP_RTC_Clr_Alarm_Int_Flag(enum BSP_RTC_Alarm_Index index);
 
+enum BSP_RTC_Square_Rate BSP_RTC_Get_Square_Rate(void);
+void BSP_RTC_Set_Square_Rate(enum BSP_RTC_Square_Rate rt);
+
+
 // EOSC:
 // Enable Oscillator (EOSC). When set to logic 0, the oscillator is started. 
-// When set to logic 1, the oscilla- tor is stopped when the DS3231 switches to VBAT. 
+// When set to logic 1, the oscillator is stopped when the DS3231 switches to VBAT. 
 // This bool is clear (logic 0) when power is first applied. 
 // When the DS3231 is powered by VCC, the oscillator is always on regardless of the status of the EOSC bool. 
 // When EOSC is disabled, all register data is static.

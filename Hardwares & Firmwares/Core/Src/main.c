@@ -114,6 +114,7 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 	
+	// 必须先初始化delay子系统
 	delay_init();
 
 	/* Hardware initialize */
@@ -133,7 +134,7 @@ int main(void)
 	PrintBsp("ACC   ", BSP_ACC_Init());
 	PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
 	
-	IVDBG("initialize system...");
+	IVDBG("initialize sub systems...");
 	/* System initialize */
 	config_init();
 	power_init();
@@ -147,6 +148,7 @@ int main(void)
 	player_init();
 	task_init();
 	sm_init();
+	IVDBG("sub systems initialize done");
 	
   /* USER CODE BEGIN WHILE */
   while (1)

@@ -75,7 +75,6 @@ static void _rtc_initialize (void)
 
   BSP_RTC_Read_Data(RTC_TYPE_TIME);
 
-  // 12/24格式按照rom设置来，需要转换一次
   // RTC 内部使用24小时制
   count = BSP_RTC_Time_Get_Hour();
   BSP_RTC_Time_Set_Hour_12(0);
@@ -87,7 +86,7 @@ static void _rtc_initialize (void)
   // BSP_RTC_Time_Set_Sec(30); 
   /////
   
-  if(BSP_Key_Is_Factory_Reset()) { //2014-08-19, 12:10:30 PM
+  if(BSP_Key_Is_Factory_Reset()) { //12:10:30 PM
 		IVDBG("RTC factory reset time");
     BSP_RTC_Time_Set_Hour(12);
     BSP_RTC_Time_Set_Min(10);
@@ -107,7 +106,7 @@ static void _rtc_initialize (void)
   // BSP_RTC_Date_Set_Date(19);
   /////
   
-  if(BSP_Key_Is_Factory_Reset()) { // 2000-1-1
+  if(BSP_Key_Is_Factory_Reset()) { // 2014-08-19
 		IVDBG("RTC factory reset date");
     BSP_RTC_Date_Set_Year(14);
     BSP_RTC_Date_Set_Month(8);
@@ -489,7 +488,7 @@ void BSP_RTC_Alarm_Set_Hour_12(bool enable)
   _rtc_set_hour_12(enable, _last_read == RTC_TYPE_ALARM0 ? &_rtc_data[2] : &_rtc_data[1]);
 }
 
-void rtc_alarm_set_hour(uint8_t hour)
+void BSP_RTC_Alarm_Set_Hour(uint8_t hour)
 {
   _rtc_set_hour(hour, _last_read == RTC_TYPE_ALARM0 ? &_rtc_data[2] : &_rtc_data[1]);
 }
@@ -509,7 +508,7 @@ uint8_t BSP_RTC_Alarm_Get_Day(void)
   return _last_read == RTC_TYPE_ALARM0 ? (_rtc_data[3] & 0x0F) : (_rtc_data[2] & 0x0F);
 }
 
-void rtc_alarm_set_day(uint8_t day)
+void BSP_RTC_Alarm_Set_Day(uint8_t day)
 {
   if(_last_read == RTC_TYPE_ALARM0) {
     _rtc_data[3] &= 0xF0;
@@ -526,7 +525,7 @@ uint8_t BSP_RTC_Alarm_Get_Date(void)
     _rtc_get_date(_rtc_data[3]) : _rtc_get_date(_rtc_data[2]);
 }
 
-void rtc_alarm_set_date(uint8_t date)
+void BSP_RTC_Alarm_Set_Date(uint8_t date)
 {
   _last_read == RTC_TYPE_ALARM0 ? _rtc_set_date(date, &_rtc_data[3]) : 
     _rtc_set_date(date, &_rtc_data[2]);
@@ -778,12 +777,12 @@ void BSP_RTC_Set_conv(bool val)
     _rtc_data[0] |= 0x20;
 }
 
-enum BSP_RTC_Square_Rate rtc_get_square_rate(void)
+enum BSP_RTC_Square_Rate BSP_RTC_Get_Square_Rate(void)
 {
   return (((_rtc_data[0] & 0x18) >> 3) & 0x3);
 }
 
-void rtc_set_square_rate(enum BSP_RTC_Square_Rate rt)
+void BSP_RTC_Set_Square_Rate(enum BSP_RTC_Square_Rate rt)
 {
   uint8_t val = rt;
   _rtc_data[0] &= ~0x18;
@@ -792,7 +791,7 @@ void rtc_set_square_rate(enum BSP_RTC_Square_Rate rt)
 
 const char * BSP_RTC_Get_Square_Rate_Str(void)
 {
-  return rtc_square_rate_str[rtc_get_square_rate()];
+  return rtc_square_rate_str[BSP_RTC_Get_Square_Rate()];
 }
 
 bool BSP_RTC_Test_Intcn(void)
