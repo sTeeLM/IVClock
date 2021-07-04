@@ -10,20 +10,22 @@ int8_t debug_init(void)
 
 static char buffer[1024];
 
-void debug_printf(ivlog_type_t level, const char * fmt, ...)
+void debug_printf(uint8_t raw, ivlog_type_t level, const char * fmt, ...)
 {
   va_list arg_ptr;
-  int len;
-  
-  len = snprintf(buffer, sizeof(buffer) - 1, "%s ",
-  level == IVLOG_ERROR ? "[ERR ]" : 
-  (level == IVLOG_INFO? "[INFO]" : "[DBG ]"));
+  uint32_t len = 0;
+  if(!raw) {
+		len = snprintf(buffer, sizeof(buffer) - 1, "%s ",
+			level == IVLOG_ERROR ? "[ERR ]" : 
+			(level == IVLOG_INFO? "[INFO]" : "[DBG ]"));
+	}
   
   va_start (arg_ptr, fmt); /* format string */
   len += vsnprintf (buffer + len, sizeof(buffer) - len - 5, fmt, arg_ptr);
   va_end (arg_ptr);
   
-  len += snprintf(buffer + len, sizeof(buffer) - len - 1, "%s", "\r\n");
+	if(!raw)
+		len += snprintf(buffer + len, sizeof(buffer) - len - 1, "%s", "\r\n");
   
   buffer[sizeof(buffer) - 1] = 0;
 

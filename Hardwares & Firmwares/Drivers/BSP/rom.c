@@ -4,7 +4,31 @@
 #include "i2c.h"
 #include "delay.h"
 
-#define ROM_ADDR 0xA0
+#define ROM_ADDR 0xAE
+// AT24C32
+// page Size is 32 bytes
+// total size is 4096 bytes (32768 bits)
+#define ROM_PAGE_SIZE 32
+#define ROM_TOTAL_SIZE 4096
+#define ROM_PAGES  128
+#define ROM_MEM_ADDRSIZE I2C_MEMADD_SIZE_16BIT
+
+
+void _rom_dump(void) 
+{
+	int32_t i, j;
+	uint8_t buf[ROM_PAGE_SIZE];
+	IVDBG("dump rom content begin------------------------");
+	for(i = 0 ; i < ROM_PAGES ; i ++) {
+			BSP_ROM_Read(i * ROM_PAGE_SIZE, buf, ROM_PAGE_SIZE);
+			IVDBG_N("[DBG ] ");
+			for(j = 0 ; j < ROM_PAGE_SIZE ; j ++) {
+				IVDBG_N("%02X ", buf[j]);
+			}
+			IVDBG_N("\r\n");
+	}
+	IVDBG("dump rom content end------------------------");
+}
 
 /**
   * @brief ROM Initialization Function
@@ -13,28 +37,51 @@
   */
 BSP_Error_Type BSP_ROM_Init(void)
 {
-	char buf [32] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
-	char buf1[32] = {0};
-	BSP_Error_Type res = 0;
-	int i;
-	res = BSP_ROM_Write(buf, sizeof(buf));
-	IVDBG("BSP_ROM_Write res %d", res);
-	delay_ms(10);
-	res = BSP_ROM_Read(buf1, sizeof(buf1));
-	IVDBG("BSP_ROM_Read res %d", res);
-	for(i  = 0 ; i < 8; i ++)
-		IVDBG("%d", buf1[i]);
+	_rom_dump();
   return BSP_ERROR_NONE;
 }
 
-BSP_Error_Type BSP_ROM_Read(void * pData, uint32_t Size)
+BSP_Error_Type BSP_ROM_Read(uint32_t Addr, uint8_t * pData, uint32_t Size)
 {
-	return BSP_I2C_Read(ROM_ADDR, 0, I2C_MEMADD_SIZE_16BIT, (uint8_t*)pData, 32);
+	if ((Addr + Size) > ROM_TOTAL_SIZE)
+		return BSP_ERROR_INTERNAL;
+	return BSP_I2C_Read(ROM_ADDR, Addr, ROM_MEM_ADDRSIZE, (uint8_t*)pData, Size);
 }
 
-
-BSP_Error_Type BSP_ROM_Write(const void * pData, uint32_t Size)
+BSP_Error_Type BSP_ROM_Write(uint32_t Addr, uint8_t * pData, uint32_t Size)
 {
-	delay_ms(20);
-	return BSP_I2C_Write(ROM_ADDR, 0, I2C_MEMADD_SIZE_16BIT, (uint8_t*)pData, 32);
+	uint32_t head_size, index, i;
+	if ((Addr + Size) > ROM_TOTAL_SIZE)
+		return BSP_ERROR_INTERNAL;
+	
+	head_size =(ROM_PAGE_SIZE - Addr % ROM_PAGE_SIZE) % ROM_PAGE_SIZE;
+	head_size = head_size > Size ? Size : head_size;
+
+	for(i = 0 ; i < head_size; i ++) {
+		if(BSP_I2C_Write(ROM_ADDR, Addr, ROM_MEM_ADDRSIZE, &(pData[index]), 1) != BSP_ERROR_NONE)
+			return BSP_ERROR_NONE;
+		delay_ms(10);
+		Size --;
+		Addr ++;
+		index ++;
+	}
+	
+	for(i = 0 ; i < Size / ROM_PAGE_SIZE; i ++) {
+		if(BSP_I2C_Write(ROM_ADDR, Addr, ROM_MEM_ADDRSIZE, &(pData[index]), ROM_PAGE_SIZE) != BSP_ERROR_NONE)
+			return BSP_ERROR_NONE;
+		delay_ms(10);
+		Size -= ROM_PAGE_SIZE;
+		Addr  += ROM_PAGE_SIZE;
+		index += ROM_PAGE_SIZE;
+	}
+	
+	for(i = 0 ; i < Size % ROM_PAGE_SIZE; i ++) {
+		if(BSP_I2C_Write(ROM_ADDR, Addr, ROM_MEM_ADDRSIZE, &(pData[index]), 1) != BSP_ERROR_NONE)
+			return BSP_ERROR_NONE;
+		delay_ms(10);
+		Size --;
+		Addr ++;
+		index ++;
+	}
+	return BSP_ERROR_NONE;
 }

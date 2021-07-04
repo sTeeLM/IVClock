@@ -262,7 +262,7 @@ void clock_init(void)
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   display_mode = CLOCK_DISPLAY_MODE_HHMMSS;
   display_enable = 0;
-	clk.is12       = config_read(CONFIG_TIME_IS12);
+	clk.is12       = config_read("time_fmt")->val8;
   clock_dump();
 }
 
