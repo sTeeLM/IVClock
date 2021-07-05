@@ -50,7 +50,7 @@ BSP_Error_Type BSP_ROM_Read(uint32_t Addr, uint8_t * pData, uint32_t Size)
 
 BSP_Error_Type BSP_ROM_Write(uint32_t Addr, uint8_t * pData, uint32_t Size)
 {
-	uint32_t head_size, index, i;
+	uint32_t head_size, index = 0, i;
 	if ((Addr + Size) > ROM_TOTAL_SIZE)
 		return BSP_ERROR_INTERNAL;
 	
