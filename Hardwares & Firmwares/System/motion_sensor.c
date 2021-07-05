@@ -2,6 +2,18 @@
 #include "acc.h"
 #include "task.h"
 #include "config.h"
+#include "console.h"
+
+void motion_sensor_show(void)
+{
+  console_printf("motion sensoris %s, th is %d\r\n", 
+  motion_sensor_is_on() ? "on" : "off", motion_sensor_get_th());
+}
+
+bool motion_sensor_is_on(void)
+{
+  return BSP_ACC_Is_Power_On();
+}
 
 void motion_sensor_init(void)
 {

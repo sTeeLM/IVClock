@@ -11,5 +11,6 @@ void BSP_ACC_Threshold_Set(uint8_t th);
 uint8_t BSP_ACC_Threshold_Get(void);
 void BSP_ACC_Power_On(void);
 void BSP_ACC_Power_Off(void);
+bool BSP_ACC_Is_Power_On(void);
 
 #endif

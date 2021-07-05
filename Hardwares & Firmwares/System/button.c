@@ -91,13 +91,13 @@ void button_mod_proc(enum task_events ev)
       beeper_beep();
       break;
     case EV_BUTTON_MOD_UP:
-      IVDBG("button_mod_proc EV_BUTTON_MOD_UP\n");
+      IVDBG("button_mod_proc EV_BUTTON_MOD_UP");
       break; 
     case EV_BUTTON_MOD_PRESS:
-      IVDBG("button_mod_proc EV_BUTTON_MOD_PRESS\n");
+      IVDBG("button_mod_proc EV_BUTTON_MOD_PRESS");
       break;
     case EV_BUTTON_MOD_LPRESS:
-      IVDBG("button_mod_proc EV_BUTTON_MOD_LPRESS\n");
+      IVDBG("button_mod_proc EV_BUTTON_MOD_LPRESS");
       break; 
 		default:
 			;
@@ -114,13 +114,13 @@ void button_set_proc(enum task_events ev)
       beeper_beep();
       break;
     case EV_BUTTON_SET_UP:
-      IVDBG("button_set_proc EV_BUTTON_SET_UP\n");
+      IVDBG("button_set_proc EV_BUTTON_SET_UP");
       break; 
     case EV_BUTTON_SET_PRESS:
-      IVDBG("button_set_proc EV_BUTTON_SET_PRESS\n");
+      IVDBG("button_set_proc EV_BUTTON_SET_PRESS");
       break;
     case EV_BUTTON_SET_LPRESS:
-      IVDBG("button_set_proc EV_BUTTON_SET_LPRESS\n");
+      IVDBG("button_set_proc EV_BUTTON_SET_LPRESS");
       break; 
 		default:
 			;
@@ -134,10 +134,10 @@ void button_mod_set_proc(enum task_events ev)
 {
   switch (ev) {
     case EV_BUTTON_MOD_SET_PRESS:
-      IVDBG("button_mod_set_proc EV_BUTTON_MOD_SET_PRESS\n");
+      IVDBG("button_mod_set_proc EV_BUTTON_MOD_SET_PRESS");
       break;
     case EV_BUTTON_MOD_SET_LPRESS:
-      IVDBG("button_mod_set_proc EV_BUTTON_MOD_SET_LPRESS\n");
+      IVDBG("button_mod_set_proc EV_BUTTON_MOD_SET_LPRESS");
       break;
 		default:
 			;    

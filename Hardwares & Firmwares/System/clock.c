@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "config.h"
 #include "sm.h"
+#include "console.h"
 
 static uint8_t date_table[2][12] = 
 {
@@ -68,6 +69,13 @@ void clock_inc_ms39(void)
 		}
 	}
 
+}
+
+void clock_show(void)
+{
+  console_printf("%02d-%02d-%02d %02d:%02d:%02d:%02d %s\r\n",
+    clk.year, clk.mon + 1, clk.date + 1,
+  clk.hour, clk.min, clk.sec, clk.ms39, clk.is12 ? "12":"24");
 }
 
 void clock_dump(void)

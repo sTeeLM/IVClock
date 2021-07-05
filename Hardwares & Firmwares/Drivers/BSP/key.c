@@ -38,10 +38,10 @@ bool BSP_Key_Is_Factory_Reset(void)
 
 bool BSP_Key_Set_Pressed(void)
 {
-	return HAL_GPIO_ReadPin(INT_KEY_SET_GPIO_Port, INT_KEY_SET_Pin) == GPIO_PIN_SET;
+	return HAL_GPIO_ReadPin(INT_KEY_SET_GPIO_Port, INT_KEY_SET_Pin) == GPIO_PIN_RESET;
 }
 
 bool BSP_Key_Mod_Pressed(void)
 {
-	return HAL_GPIO_ReadPin(INT_KEY_MOD_GPIO_Port, INT_KEY_MOD_Pin) == GPIO_PIN_SET;
+	return HAL_GPIO_ReadPin(INT_KEY_MOD_GPIO_Port, INT_KEY_MOD_Pin) == GPIO_PIN_RESET;
 }

@@ -63,7 +63,7 @@ void timer_inc_ms39(void)
 
 void timer_init(void)
 {
-  IVDBG("timer_initialize\n");
+  IVDBG("timer_initialize");
 	tmr_mode = TIMER_MODE_DEC;
 	display_mode = TIMER_DISP_MODE_HHMMSS;
   tmr_display = 0;
@@ -73,13 +73,13 @@ void timer_init(void)
 
 void timer_enter_powersave(void)
 {
-  IVDBG("timer_enter_powersave\n");
+  IVDBG("timer_enter_powersave");
   timer_clr(); // 一旦进入节电模式，自动清0，节电模式无法用！
 }
 
 void timer_leave_powersave(void)
 {
-  IVDBG("timer_leave_powersave\n");
+  IVDBG("timer_leave_powersave");
 }
 
 void timer_display(bool enable)
@@ -99,7 +99,7 @@ void timer_set_mode(enum timer_mode mode)
 
 void timer_start(void)
 {
-  IVDBG("timer_start mode is %u\n", tmr_mode);
+  IVDBG("timer_start mode is %u", tmr_mode);
   tmr_countdown_stop = 0;
   tmr_start = 1;
 }

@@ -683,6 +683,21 @@
               <FileType>1</FileType>
               <FilePath>..\System\Console\con_help.c</FilePath>
             </File>
+            <File>
+              <FileName>con_clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>con_motion_sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_motion_sensor.c</FilePath>
+            </File>
+            <File>
+              <FileName>con_power.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_power.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

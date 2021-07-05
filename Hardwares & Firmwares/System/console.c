@@ -6,6 +6,9 @@
 #include "debug.h"
 
 #include "con_help.h"
+#include "con_clock.h"
+#include "con_motion_sensor.h"
+#include "con_power.h"
 
 #define CONSOLE_BUFFER_SIZE 41
 
@@ -25,8 +28,20 @@ static int8_t con_quit(char arg1, char arg2)
 
 struct console_cmds cmds[] = 
 {
-  {"?",  "show help", "?: list cmd\n"
-                      "? <cmd>: show usage of cmd", con_help},
+  {"?",  "show help", "?: list cmd\r\n"
+                      "? <cmd>: show usage of cmd",
+                      con_help},
+  {"clk", "show clock", "clk", con_clock},
+  {"mon", "motion control", "mon: show motion sensor status\r\n"
+                        "mon on: motion sensor on\r\n"
+                        "mon off: motion sensor off\r\n" 
+                        "mon int: read motion sensor isr\r\n"
+                        "mon th x: set motion sensor th to x\r\n",     
+                        con_motion_sensor},
+  {"pow", "power control", "pow 33 on | off: 3.3v on/off\r\n"
+                        "pow 50 on | off: 5.0v on/off\r\n" 
+                        "pow 490 on | off: 49v on/off\r\n",    
+                        con_power},  
   {"!", "quit the console", "!", con_quit},
 }; 
 

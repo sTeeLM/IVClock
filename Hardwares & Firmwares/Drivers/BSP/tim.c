@@ -134,6 +134,10 @@ BSP_Error_Type BSP_TIM2_Init(void)
   }
   /* USER CODE BEGIN TIM2_Init 2 */
 
+  if (HAL_TIM_Base_Start_IT(&htim2) != HAL_OK) {
+    return BSP_ERROR_INTERNAL;
+  }
+  
   /* USER CODE END TIM2_Init 2 */
 	return BSP_ERROR_NONE;
 }
@@ -202,15 +206,15 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
     PA7     ------> TIM1_CH1N
     PB0     ------> TIM1_CH2N
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_7;
+    GPIO_InitStruct.Pin = IV18_BLANK_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(IV18_BLANK_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_0;
+    GPIO_InitStruct.Pin = BEEPER_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_Init(BEEPER_GPIO_Port, &GPIO_InitStruct);
 
     __HAL_AFIO_REMAP_TIM1_PARTIAL();
 

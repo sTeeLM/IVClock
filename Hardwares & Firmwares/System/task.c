@@ -46,7 +46,6 @@ const char * task_names[] =
   "EV_BUTTON_MOD_SET_LPRESS",
 	"EV_ACC",
 	"EV_TIMER",
-	"EV_COUNTER"
 };
 
 static void null_proc(enum task_events ev)
@@ -55,7 +54,7 @@ static void null_proc(enum task_events ev)
 }
 
 
-static const TASK_PROC task_procs[EV_COUNT] = 
+static const TASK_PROC task_procs[EV_CNT] = 
 {
   /* EV_250MS            = 0, // 大约每250ms转一下 */
   clock_time_proc,
@@ -78,7 +77,7 @@ static const TASK_PROC task_procs[EV_COUNT] =
   button_mod_set_proc, 
 	null_proc,
 	null_proc,
-	null_proc
+  
 };
 
 
@@ -96,7 +95,7 @@ void task_run(void)
   unsigned char c;
 
   while((c = console_try_get_key()) != 'c' || c == 0) {
-    for(c = 0; c < EV_COUNT; c++) {
+    for(c = 0; c < EV_CNT; c++) {
       if(task_test(c)) {
         task_clr(c);
         task_procs[c](c);
@@ -109,7 +108,7 @@ void task_run(void)
 void task_dump(void)
 {
   unsigned char i;
-  for (i = 0 ; i < EV_COUNT; i ++) {
+  for (i = 0 ; i < EV_CNT; i ++) {
     IVDBG("[%02bd][%s] %c\n", i, task_names[i], task_test(i) ? '1' : '0');
   }
 }

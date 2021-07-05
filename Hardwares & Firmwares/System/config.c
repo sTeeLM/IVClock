@@ -39,29 +39,36 @@ static config_slot_t * _find_config(const char * name, uint32_t * offset)
 
 static void _config_dump(void)
 {
-	uint32_t i, offset;
+	uint32_t i, offset = 0;
 	IVDBG("dump all config begin ----------------------");
 	for(i = 0 ; i < sizeof(_slot) / sizeof(config_slot_t) ; i ++) {	
 		switch(_slot[i].type) {
 			case CONFIG_TYPE_UINT8:
+        BSP_ROM_Read(offset, (uint8_t *)(&_val.val8), 1);
 				offset += 1;
 				break;
 			case CONFIG_TYPE_UINT16:
+        BSP_ROM_Read(offset, (uint8_t *)(&_val.val16), 2);
 				offset += 2;
 				break;
 			case CONFIG_TYPE_UINT32:
+        BSP_ROM_Read(offset, (uint8_t *)(&_val.val32), 4);
 				offset += 4;
 				break;
 			default: ;
 		}		
-		IVDBG("%s at %08x ");
+		IVDBG("[0x%08x] %s : %d", offset, _slot[i].name, 
+      _slot[i].type == CONFIG_TYPE_UINT8 ? _val.val8 : 
+      (_slot[i].type == CONFIG_TYPE_UINT16 ? _val.val16 : 
+      (_slot[i].type == CONFIG_TYPE_UINT32 ? _val.val32 : _val.val32))
+    );
 	}	
 	IVDBG("dump all config end ----------------------");
 }
 
 void config_init(void)
 {
-
+  _config_dump();
 }
 
 const config_val_t * config_read(const char * name)

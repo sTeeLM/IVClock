@@ -21,7 +21,7 @@ enum task_events
   EV_BUTTON_MOD_SET_LPRESS   = 12, // mod set 键同时长按 
 	EV_ACC,
   EV_TIMER,                      // timer 倒计时结束
-  EV_COUNT  
+  EV_CNT  
 };
 
 extern uint16_t ev_bits0;

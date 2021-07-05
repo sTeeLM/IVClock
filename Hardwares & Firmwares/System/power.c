@@ -6,7 +6,8 @@
 
 void power_init(void)
 {
-
+  power_50_enable(FALSE);
+  power_490_enable(FALSE);
 }
 
 void power_33_enable(bool enable)

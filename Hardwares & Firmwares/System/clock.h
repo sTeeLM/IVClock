@@ -30,6 +30,8 @@ struct clock_struct
 	uint8_t is12;   // 12 hour format or 24 hour format
 };
 
+void clock_show(void);
+
 bool clock_get_hour_12();
 void clock_set_hour_12(bool enable);
 uint8_t clock_get_sec(void);
