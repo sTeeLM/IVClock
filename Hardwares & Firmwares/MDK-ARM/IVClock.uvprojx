@@ -663,6 +663,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\sm.c</FilePath>
             </File>
+            <File>
+              <FileName>ticks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\ticks.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

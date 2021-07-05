@@ -33,15 +33,15 @@ BSP_Error_Type BSP_Key_Init(void)
 
 bool BSP_Key_Is_Factory_Reset(void)
 {
-	return FALSE;
+	return BSP_Key_Set_Pressed();
 }
 
 bool BSP_Key_Set_Pressed(void)
 {
-	return FALSE;
+	return HAL_GPIO_ReadPin(INT_KEY_SET_GPIO_Port, INT_KEY_SET_Pin) == GPIO_PIN_SET;
 }
 
 bool BSP_Key_Mod_Pressed(void)
 {
-	return FALSE;
+	return HAL_GPIO_ReadPin(INT_KEY_MOD_GPIO_Port, INT_KEY_MOD_Pin) == GPIO_PIN_SET;
 }

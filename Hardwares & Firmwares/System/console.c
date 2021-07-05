@@ -75,7 +75,7 @@ static void _console_gets(char * buffer, uint16_t len)
 		}
 		if(c != '\r' && c != '\n' && c != '\b') {
 			buffer[i++] = c;
-		} else if(c == 0x8){ // backspace
+		} else if(c == '\b'){ // backspace
 			if(i > 0)
 				buffer[--i] = 0;
 		} else if(c != '\r'){

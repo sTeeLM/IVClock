@@ -47,6 +47,7 @@
 #include "power.h"
 #include "timer.h"
 #include "console.h"
+#include "ticks.h"
 #include "task.h"
 #include "sm.h"
 
@@ -114,23 +115,24 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 	
-	// 必须先初始化delay子系统
+	// 必须先初始化delay子系统和ticks子系统
 	delay_init();
+	ticks_init();
 
 	/* Hardware initialize */
 	BSP_GPIO_Init();	
 	PrintBsp("USART1", BSP_USART1_UART_Init());
 	PrintBsp("USART2", BSP_USART2_UART_Init());
 	PrintBsp("USART3", BSP_USART3_UART_Init());
+	PrintBsp("Key   ", BSP_Key_Init());	
 	PrintBsp("I2C   ", BSP_I2C_Init());
 	PrintBsp("ROM   ", BSP_ROM_Init());
 	PrintBsp("RTC   ", BSP_RTC_Init());
 	PrintBsp("ADC   ", BSP_ADC_Init());
 	PrintBsp("IV18  ", BSP_IV18_Init());
-	PrintBsp("Key   ", BSP_Key_Init());
 	PrintBsp("MP3   ", BSP_MP3_Init());
 	PrintBsp("TIM1  ", BSP_TIM1_Init());
-	PrintBsp("TIM3  ", BSP_TIM3_Init());
+	PrintBsp("TIM2  ", BSP_TIM2_Init());
 	PrintBsp("ACC   ", BSP_ACC_Init());
 	PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
 	
