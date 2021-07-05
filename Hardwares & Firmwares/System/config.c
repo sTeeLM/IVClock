@@ -5,7 +5,9 @@
 #include <string.h>
 
 static config_slot_t _slot[] = {
-	{"time_fmt", CONFIG_TYPE_UINT8},
+	{"time_12", CONFIG_TYPE_UINT8},
+	{"acc_th",CONFIG_TYPE_UINT8},
+	{"acc_on",CONFIG_TYPE_UINT8},	
 };
 
 static config_val_t _val;

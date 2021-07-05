@@ -47,6 +47,7 @@
 #include "power.h"
 #include "timer.h"
 #include "console.h"
+#include "motion_sensor.h"
 #include "ticks.h"
 #include "task.h"
 #include "sm.h"
@@ -148,6 +149,7 @@ int main(void)
 	beeper_init();
 	display_init();
 	player_init();
+	motion_sensor_init();
 	task_init();
 	sm_init();
 	IVDBG("sub systems initialize done");

@@ -19,6 +19,7 @@ enum task_events
   EV_BUTTON_MOD_UP       = 10, // mod键抬起 
   EV_BUTTON_MOD_SET_PRESS    = 11, // mod set 键同时短按
   EV_BUTTON_MOD_SET_LPRESS   = 12, // mod set 键同时长按 
+	EV_ACC,
   EV_TIMER,                      // timer 倒计时结束
   EV_COUNT  
 };
