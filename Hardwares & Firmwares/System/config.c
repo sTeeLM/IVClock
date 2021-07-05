@@ -35,7 +35,7 @@ static config_slot_t * _find_config(const char * name, uint32_t * offset)
 	return NULL;
 }
 
-static _config_dump(void)
+static void _config_dump(void)
 {
 	uint32_t i, offset;
 	IVDBG("dump all config begin ----------------------");
@@ -52,7 +52,7 @@ static _config_dump(void)
 				break;
 			default: ;
 		}		
-		IVDBG("%s at%08x ");
+		IVDBG("%s at %08x ");
 	}	
 	IVDBG("dump all config end ----------------------");
 }
