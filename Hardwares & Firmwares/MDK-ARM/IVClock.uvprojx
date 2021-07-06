@@ -698,6 +698,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\Console\con_power.c</FilePath>
             </File>
+            <File>
+              <FileName>con_beeper.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_beeper.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

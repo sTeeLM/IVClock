@@ -5,5 +5,6 @@
 
 void beeper_init(void);
 void beeper_beep(void);
+void beeper_beep_beep(void);
 
 #endif

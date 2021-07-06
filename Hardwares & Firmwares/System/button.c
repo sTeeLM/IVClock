@@ -65,13 +65,13 @@ void button_scan_proc(enum task_events ev)
     }
   } else if(!BSP_Key_Mod_Pressed() && mod_press) {
     task_set(EV_BUTTON_MOD_UP);
+    mod_press = 0;
     if(clock_diff_now_sec(last_mod_tmr_count) < KEY_LPRESS_DELAY) {
       task_set(EV_BUTTON_MOD_PRESS);
       if(set_press) {
-        task_set(EV_BUTTON_SET_PRESS);    
+        task_set(EV_BUTTON_MOD_SET_PRESS);    
       }        
     }
-    mod_press = 0;
   }
   
   if(BSP_Key_Set_Pressed() && set_press 

@@ -9,6 +9,7 @@
 #include "con_clock.h"
 #include "con_motion_sensor.h"
 #include "con_power.h"
+#include "con_beeper.h"
 
 #define CONSOLE_BUFFER_SIZE 41
 
@@ -41,7 +42,12 @@ struct console_cmds cmds[] =
   {"pow", "power control", "pow 33 on | off: 3.3v on/off\r\n"
                         "pow 50 on | off: 5.0v on/off\r\n" 
                         "pow 490 on | off: 49v on/off\r\n",    
-                        con_power},  
+                        con_power}, 
+  {"be", "beeper control", "be b: be\r\n"
+                        "be bb: be ber\n" 
+                        "be on: beeper enable\r\n"
+                        "be off: beeper disable\r\n",    
+                        con_beeper},   
   {"!", "quit the console", "!", con_quit},
 }; 
 
