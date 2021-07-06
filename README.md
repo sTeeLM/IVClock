@@ -1,5 +1,5 @@
-# ** IVClock **
-clock by stm32 and iv18, 使用IV18荧光管的时钟
+# IVClock
+clock by stm32f103 and iv18, 使用IV18荧光管的时钟
 - 秒级别误差每年
 - 温度显示
 - 万年历
