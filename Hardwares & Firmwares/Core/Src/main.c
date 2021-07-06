@@ -134,6 +134,7 @@ int main(void)
 	PrintBsp("MP3   ", BSP_MP3_Init());
 	PrintBsp("TIM1  ", BSP_TIM1_Init());
 	PrintBsp("TIM2  ", BSP_TIM2_Init());
+	PrintBsp("TIM3  ", BSP_TIM3_Init());
 	PrintBsp("ACC   ", BSP_ACC_Init());
 	PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
 	
