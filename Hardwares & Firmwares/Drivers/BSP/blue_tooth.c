@@ -16,7 +16,7 @@ BSP_Error_Type BSP_Blue_Tooth_Init(void)
   HAL_GPIO_Init(INT_BT_GPIO_Port, &GPIO_InitStruct);
 	
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(INT_BT_EXTI_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(INT_BT_EXTI_IRQn, BSP_BT_IRQ_PRIORITY, BSP_BT_IRQ_SUB_PRIORITY);
   HAL_NVIC_EnableIRQ(INT_BT_EXTI_IRQn);
 	
 	return BSP_ERROR_NONE;

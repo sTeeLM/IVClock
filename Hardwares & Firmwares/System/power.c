@@ -25,5 +25,20 @@ void power_490_enable(bool enable)
 	BSP_GPIO_Power_490_Enable(enable == TRUE ? SET : RESET);
 }
 
+bool power_33_enabled(void)
+{
+	return BSP_GPIO_Power_33_Enabled();
+}
+
+bool power_50_enabled(void)
+{
+	return BSP_GPIO_Power_50_Enabled();	
+}
+
+bool power_490_enabled(void)
+{
+	return BSP_GPIO_Power_490_Enabled();
+}
+
 
 

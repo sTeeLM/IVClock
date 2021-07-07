@@ -55,6 +55,21 @@ BSP_Error_Type BSP_GPIO_Init(void)
 	return BSP_ERROR_NONE;
 }
 
+bool BSP_GPIO_Power_33_Enabled(void)
+{
+	return HAL_GPIO_ReadPin(POWER_33_EN_GPIO_Port, POWER_33_EN_Pin) == SET;
+}
+
+bool BSP_GPIO_Power_50_Enabled(void)
+{
+	return HAL_GPIO_ReadPin(POWER_50_EN_GPIO_Port, POWER_50_EN_Pin) == SET;
+}
+
+bool BSP_GPIO_Power_490_Enabled(void)
+{
+	return HAL_GPIO_ReadPin(POWER_490_EN_GPIO_Port, POWER_490_EN_Pin) == SET;
+}
+
 void BSP_GPIO_Power_33_Enable(FlagStatus enable)
 {
 	HAL_GPIO_WritePin(POWER_33_EN_GPIO_Port, POWER_33_EN_Pin, enable == SET ? GPIO_PIN_SET : GPIO_PIN_RESET);

@@ -248,7 +248,8 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     __HAL_AFIO_REMAP_TIM2_PARTIAL_1();
 
     /* TIM2 interrupt Init */
-    HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM2_IRQn, BSP_TIM2_IRQ_PRIORITY, BSP_TIM2_IRQ_SUB_PRIORITY);
+		
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
   /* USER CODE BEGIN TIM2_MspInit 1 */
 

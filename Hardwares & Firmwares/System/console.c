@@ -33,17 +33,22 @@ struct console_cmds cmds[] =
                       "? <cmd>: show usage of cmd",
                       con_help},
   {"clk", "show clock", "clk", con_clock},
-  {"mon", "motion control", "mon: show motion sensor status\r\n"
+  {"mon", "motion control",
+												"mon: show motion sensor status\r\n"
                         "mon on: motion sensor on\r\n"
                         "mon off: motion sensor off\r\n" 
                         "mon int: read motion sensor isr\r\n"
                         "mon th x: set motion sensor th to x\r\n",     
                         con_motion_sensor},
-  {"pow", "power control", "pow 33 on | off: 3.3v on/off\r\n"
+  {"pow", "power control", 
+												"pow: show power status\r\n"
+												"pow 33 on | off: 3.3v on/off\r\n"
                         "pow 50 on | off: 5.0v on/off\r\n" 
                         "pow 490 on | off: 49v on/off\r\n",    
                         con_power}, 
-  {"be", "beeper control", "be b: be\r\n"
+  {"be", "beeper control", 
+												"be: show status\r\n"
+												"be b: be\r\n"
                         "be bb: be ber\n" 
                         "be on: beeper enable\r\n"
                         "be off: beeper disable\r\n",    

@@ -7,7 +7,8 @@
 static config_slot_t _slot[] = {
 	{"time_12", CONFIG_TYPE_UINT8},
 	{"acc_th",CONFIG_TYPE_UINT8},
-	{"acc_on",CONFIG_TYPE_UINT8},	
+	{"acc_on",CONFIG_TYPE_UINT8},
+	{"bp_on",CONFIG_TYPE_UINT8},	
 };
 
 static config_val_t _val;

@@ -167,7 +167,7 @@ BSP_Error_Type BSP_RTC_Init(void)
   HAL_GPIO_Init(INT_ALARM_GPIO_Port, &GPIO_InitStruct);
 	
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(INT_ALARM_EXTI_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(INT_ALARM_EXTI_IRQn, BSP_ALARM_IRQ_PRIORITY, BSP_ALARM_IRQ_SUB_PRIORITY);
   HAL_NVIC_EnableIRQ(INT_ALARM_EXTI_IRQn);
 	
   _rtc_initialize();

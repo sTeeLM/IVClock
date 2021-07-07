@@ -266,11 +266,11 @@ uint8_t clock_get_mon_date(uint8_t year, uint8_t mon)
 void clock_init(void)
 {
   IVDBG(("clock_initialize"));
+	clk.is12       = config_read("time_12")->val8;
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   display_mode = CLOCK_DISPLAY_MODE_HHMMSS;
   display_enable = 0;
-	clk.is12       = config_read("time_12")->val8;
   clock_dump();
 }
 
