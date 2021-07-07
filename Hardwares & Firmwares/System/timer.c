@@ -56,7 +56,7 @@ void timer_inc_ms39(void)
       }
     }
   }
-	if(tmr_display && !display_is_powersave()) {
+	if(tmr_display && !display_is_on()) {
 		display_format_timer(&tmr[0], display_mode);
 	}	
 }

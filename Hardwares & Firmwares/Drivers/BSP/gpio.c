@@ -24,7 +24,7 @@ BSP_Error_Type BSP_GPIO_Init(void)
   HAL_GPIO_WritePin(POWER_33_EN_GPIO_Port, POWER_33_EN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(POWER_50_EN_GPIO_Port, POWER_50_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(POWER_50_EN_GPIO_Port, POWER_50_EN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(POWER_490_EN_GPIO_Port, POWER_490_EN_Pin, GPIO_PIN_RESET);

@@ -10,6 +10,16 @@ void power_init(void)
   power_490_enable(FALSE);
 }
 
+void power_display_enable(bool enable)
+{
+  power_50_enable(enable);
+}
+
+bool power_display_enabled(void)
+{
+  return power_50_enabled();
+}
+
 void power_33_enable(bool enable)
 {
 	BSP_GPIO_Power_33_Enable(enable == TRUE ? SET : RESET);

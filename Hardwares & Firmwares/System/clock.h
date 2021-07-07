@@ -25,6 +25,7 @@ struct clock_struct
   uint8_t day;    // 0 - 6
   uint8_t hour;   // 0 - 23
 	uint8_t ispm;   // 0 if 00:00:00-11:59:59, 1 if 12:00:00-23:59:59
+  uint8_t hour12; // 1-12
   uint8_t min;    // 0 - 59
   uint8_t sec;    // 0 - 59
   uint8_t ms39;   // 0 - 255

@@ -39,18 +39,31 @@
 #define INT_ACC_GPIO_Port GPIOB
 #define INT_ACC_EXTI_IRQn EXTI9_5_IRQn
 
+// beeper pmw
+#define BSP_TIM1_IRQ_PRIORITY     3
+#define BSP_TIM1_IRQ_SUB_PRIORITY 3
+
+// clock
 #define BSP_TIM2_IRQ_PRIORITY     1
 #define BSP_TIM2_IRQ_SUB_PRIORITY 0
 
-#define BSP_KEY_IRQ_PRIORITY      2
-#define BSP_KEY_IRQ_SUB_PRIORITY  0
+// display refresh
+#define BSP_TIM4_IRQ_PRIORITY     2
+#define BSP_TIM4_IRQ_SUB_PRIORITY 0
 
+// key
+#define BSP_KEY_IRQ_PRIORITY      2
+#define BSP_KEY_IRQ_SUB_PRIORITY  1
+
+// alarm
 #define BSP_ALARM_IRQ_PRIORITY        3
 #define BSP_ALARM_IRQ_SUB_PRIORITY    0
 
+// blue tooth
 #define BSP_BT_IRQ_PRIORITY       3
 #define BSP_BT_IRQ_SUB_PRIORITY   1
 
+// acc
 #define BSP_ACC_IRQ_PRIORITY      3
 #define BSP_ACC_IRQ_SUB_PRIORITY  2
 

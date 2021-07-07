@@ -11,4 +11,6 @@ void power_490_enable(bool enable);
 bool power_33_enabled(void);
 bool power_50_enabled(void);
 bool power_490_enabled(void);
+void power_display_enable(bool enable);
+bool power_display_enabled(void);
 #endif

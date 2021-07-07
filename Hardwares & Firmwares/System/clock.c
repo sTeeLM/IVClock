@@ -32,6 +32,26 @@ void clock_switch_display_mode(enum clock_display_mode mode)
   display_mode = mode;
 }
 
+
+// 0  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+// 12 1 2 3 4 5 6 7 8 9 10 11 12 1  2  3  4  5  6  7  8  9  10 11
+void static clk_cal_hour12(void)
+{
+  if(clk.hour == 0) {
+    clk.hour12 = 12;
+    clk.ispm = 0;
+  } else if(clk.hour >= 1 && clk.hour < 12) {
+    clk.hour12 = clk.hour;
+    clk.ispm = 0;
+  } else if(clk.hour == 12){
+    clk.hour12 = clk.hour;
+    clk.ispm = 1;
+  } else {
+    clk.hour12 = clk.hour - 12;
+    clk.ispm = 1;
+  }
+}
+
 // 1 / 256 = 0.00390625
 void clock_inc_ms39(void)
 {
@@ -46,6 +66,7 @@ void clock_inc_ms39(void)
       clk.min = (++ clk.min) % 60;
       if(clk.min == 0) {
         clk.hour = (++ clk.hour) % 24;
+        clk_cal_hour12();
         if(clk.hour == 0) {
           y = clk.year + CEXT_YEAR_BASE;
           if(is_leap_year(y)) {
@@ -64,7 +85,7 @@ void clock_inc_ms39(void)
       }
     } 
 		
-		if(display_enable && !display_is_powersave()) {
+		if(display_enable && !display_is_on()) {
 			display_format_clock(&clk, display_mode);
 		}
 	}
@@ -73,9 +94,10 @@ void clock_inc_ms39(void)
 
 void clock_show(void)
 {
-  console_printf("%02d-%02d-%02d %02d:%02d:%02d:%02d %s\r\n",
+  console_printf("%02d-%02d-%02d %02d(%02d):%02d:%02d:%02d %s %s r\n",
     clk.year, clk.mon + 1, clk.date + 1,
-  clk.hour, clk.min, clk.sec, clk.ms39, clk.is12 ? "12":"24");
+    clk.hour, clk.hour12, clk.min, clk.sec, clk.ms39, 
+    clk.ispm ? "PM" : "AM", clk.is12 ? "12":"24");
 }
 
 void clock_dump(void)
@@ -85,10 +107,12 @@ void clock_dump(void)
   IVDBG("clk.date = %u", clk.date); 
   IVDBG("clk.day  = %u", clk.day);
   IVDBG("clk.hour = %u", clk.hour);
+  IVDBG("clk.hour12 = %u", clk.hour12);  
   IVDBG("clk.min  = %u", clk.min);
   IVDBG("clk.sec  = %u", clk.sec);  
   IVDBG("clk.ms39 = %u", clk.ms39);
-  IVDBG("clk.is12 = %s", clk.is12 ? "ON" : "OFF"); 
+  IVDBG("clk.is12 = %s", clk.is12 ? "ON" : "OFF");
+  IVDBG("clk.ispm = %s", clk.ispm ? "PM" : "AM");  
 }
 
 bool clock_get_hour_12(void)
@@ -97,7 +121,10 @@ bool clock_get_hour_12(void)
 }
 void clock_set_hour_12(bool enable)
 {
+  config_val_t val;
   clk.is12 = enable;
+  val.val8 = enable ? 1 : 0;
+  config_write("time_12", &val);
 }
 
 uint8_t clock_get_ms39(void)
@@ -141,6 +168,7 @@ uint8_t clock_get_hour(void)
 void clock_inc_hour(void)
 {
   clk.hour = (++ clk.hour) % 24;
+  clk_cal_hour12();
 }
 
 
@@ -196,6 +224,7 @@ void clock_sync_from_rtc(enum clock_sync_type type)
     clk.date = BSP_RTC_Date_Get_Date() - 1;      // 0 - 30(29/28/27)
     clk.day  = BSP_RTC_Date_Get_Day() - 1;       // 0 - 6
   }
+  clk_cal_hour12();
 	clock_enable_interrupt(TRUE);
 }
 

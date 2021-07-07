@@ -40,19 +40,21 @@ e     c
 #define BSP_DP    0x40
 #define BSP_BLINK 0x20000
 
+static uint8_t BSP_IV18_Cur_Index;
+static uint16_t BSP_IV18_Cur_Loop;
 static uint32_t BSP_IV18_Data[9];
 
 static const uint16_t BSP_IV18_Scan_Code[9] = 
 {
-	0x080, // 010000000
-	0x001, // 000000001
-	0x040, // 001000000
-	0x002, // 000000010
-	0x020, // 000100000
-	0x004, // 000000100
+	0x100, // 100000000 
+	0x010, // 000010000 
 	0x008, // 000001000
-	0x010, // 000010000
-	0x100  // 100000000
+	0x004, // 000000100
+	0x020, // 000100000
+	0x002, // 000000010
+	0x040, // 001000000
+	0x001, // 000000001  
+	0x080, // 010000000
 };
 
 static const uint8_t BSP_IV18_Dig_Code[] =
@@ -98,7 +100,7 @@ static const uint8_t BSP_IV18_Dig_Code[] =
    0x9B, //10011011  N
    0x3C, //00111100  O
    0x8F, //10001111  P
-   0x00, //00000000  Q
+   0x00, //10010111  Q
    0x0C, //00001100  R
    0xB5, //10110101  S == 5
    0x2D, //00101101  T
@@ -113,13 +115,35 @@ static const uint8_t BSP_IV18_Dig_Code[] =
 static void BSP_IV18_Show_Data(uint32_t data)
 {
 	uint8_t i;
-	for(i = 0 ; i < 17 ; i ++) {
+	for(i = 0 ; i < 17 ; i ++) {   
 		HAL_GPIO_WritePin(IV18_DIN_GPIO_Port, IV18_DIN_Pin, (data & 0x1) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(IV18_CLK_GPIO_Port, IV18_CLK_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(IV18_CLK_GPIO_Port, IV18_CLK_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(IV18_CLK_GPIO_Port, IV18_CLK_Pin, GPIO_PIN_RESET);    
 		data >>= 1;
 	}
+		HAL_GPIO_WritePin(IV18_LOAD_GPIO_Port, IV18_LOAD_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IV18_LOAD_GPIO_Port, IV18_LOAD_Pin, GPIO_PIN_RESET);  
 };
+
+void BSP_IV18_Scan(void)
+{
+  uint32_t empty;
+  if(BSP_IV18_Data[BSP_IV18_Cur_Index] & BSP_BLINK) {
+    if(BSP_IV18_Cur_Loop % 128 < 64) {
+      BSP_IV18_Load_Data(BSP_IV18_Cur_Index);
+    } else {
+      empty = BSP_IV18_Data[BSP_IV18_Cur_Index];
+      empty &= 0x1FF40; // keep scan code and dp
+      BSP_IV18_Show_Data(empty);
+    }
+  } else {
+    BSP_IV18_Load_Data(BSP_IV18_Cur_Index);
+  }
+  BSP_IV18_Cur_Index ++;
+  BSP_IV18_Cur_Index %= 9;
+  if(BSP_IV18_Cur_Index == 8)
+    BSP_IV18_Cur_Loop ++;
+}
 
 static void BSP_IV18_Dev_Init(void)
 {
@@ -128,31 +152,11 @@ static void BSP_IV18_Dev_Init(void)
 	
 	memset(BSP_IV18_Data, 0, sizeof(BSP_IV18_Data));
 	
-	/* test */
-	for(i = 0 ; i < sizeof(BSP_IV18_Dig_Code) / sizeof(uint16_t) ; i++) {
-		for(j = 0 ; j < 9 ; j++) {
-			data = BSP_IV18_Scan_Code[j];
-			data <<= 8;
-			data |= BSP_IV18_Dig_Code[i];
-			BSP_IV18_Show_Data(data);
-			delay_ms(10);
-		}
-	}
-	
-	/* test */
-	for(i = 0 ; i < sizeof(BSP_IV18_Dig_Code) / sizeof(uint16_t) ; i++) {
-		for(j = 0 ; j < 9 ; j++) {
-			data = BSP_IV18_Scan_Code[j];
-			data <<= 8;
-			data |= BSP_IV18_Dig_Code[i];
-			data |= BSP_DP;
-			BSP_IV18_Show_Data(data);
-			delay_ms(10);			
-		}
-	}
-	
 	for(i = 0 ; i < 9 ; i ++)
 		BSP_IV18_Set_Dig(i, 0);
+  
+  BSP_IV18_Cur_Index = 0;
+  BSP_IV18_Cur_Loop = 0;
 }
 
 BSP_Error_Type BSP_IV18_Init(void)
@@ -237,7 +241,7 @@ void BSP_IV18_Set_Blink(uint8_t index)
 	if(index > 8)
 		index = 8;
 	
-	BSP_IV18_Data[index] &= ~BSP_BLINK;
+	BSP_IV18_Data[index] |= BSP_BLINK;
 }
 
 void BSP_IV18_Clr_Blink(uint8_t index)

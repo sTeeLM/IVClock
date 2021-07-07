@@ -135,6 +135,7 @@ int main(void)
 	PrintBsp("TIM1  ", BSP_TIM1_Init());
 	PrintBsp("TIM2  ", BSP_TIM2_Init());
 	PrintBsp("TIM3  ", BSP_TIM3_Init());
+	PrintBsp("TIM4  ", BSP_TIM4_Init());  
 	PrintBsp("ACC   ", BSP_ACC_Init());
 	PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
 	

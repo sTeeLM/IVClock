@@ -10,6 +10,7 @@
 #include "con_motion_sensor.h"
 #include "con_power.h"
 #include "con_beeper.h"
+#include "con_display.h"
 
 #define CONSOLE_BUFFER_SIZE 41
 
@@ -53,6 +54,16 @@ struct console_cmds cmds[] =
                         "be on: beeper enable\r\n"
                         "be off: beeper disable\r\n",    
                         con_beeper},   
+  {"dis", "display control", 
+												"dis: show status\r\n"
+                        "dis on: display on\r\n"
+                        "dis off: display off\r\n"  
+                        "dis sdp n: set dp\r\n"
+                        "dis cdp n: clr dp off\r\n" 
+                        "dis sbl n: set blink\r\n"
+                        "dis cbl n: clr blink off\r\n"
+                        "dis n c: set dig\r\n",     
+                        con_display},     
   {"!", "quit the console", "!", con_quit},
 }; 
 

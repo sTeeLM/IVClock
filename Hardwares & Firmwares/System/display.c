@@ -1,101 +1,119 @@
 #include "display.h"
 #include "iv18.h"
 #include "debug.h"
+#include "power.h"
+#include "tim.h"
 
-static uint8_t index;
-
+static bool _display_is_on;
+  
 void display_init(void)
 {
-	index = 0;
-}
-
-void display_scan(void)
-{
-	BSP_IV18_Load_Data(index ++);
-	index %= 9;
+  _display_is_on = FALSE;
 }
 
 void display_format_clock(struct clock_struct * clk, enum clock_display_mode display_mode)
 {
-	uint8_t hour, show_pm;
 	if(display_mode == CLOCK_DISPLAY_MODE_HHMMSS) {
-		hour = clk->hour;
-		show_pm = 0;
-		if(clk->is12 && clk->hour > 12) {
-			hour -= 12;
-			show_pm = 1;
+    if(clk->is12) {
+      clk->ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
+      BSP_IV18_Set_Dig(2, (clk->hour / 10) == 0 ? BSP_IV18_BLANK : (clk->hour / 10 + 0x30));
+      BSP_IV18_Set_Dig(2, (clk->hour % 10 + 0x30));      
+    } else {
+      BSP_IV18_Set_Dig(2, (clk->hour / 10 + 0x30));
+      BSP_IV18_Set_Dig(2, (clk->hour % 10 + 0x30)); 
     }
-		
-//		if(hour / 10 != 0) {
-//			led_data[5] = led_code[hour / 10 + 4] | (is_pm ? 0 : 0x80);
-//		} else {
-//			led_data[5] = 0x7F | (is_pm ? 0 : 0x80);
-//		}
-	}
-	
-//    if(display_mode == CLOCK_DISPLAY_MODE_HHMMSS) {
-//      hour = clk.hour;
-//      is_pm = 0;
-//      if(clk_is12 && clk.hour > 12) {
-//        hour -= 12;
-//        is_pm = 1;
-//      } else if(clk_is12 && clk.hour == 12) { // ??12??PM??
-//        is_pm = 1;
-//      }
-//      
-//      if(hour / 10 != 0) {
-//        led_data[5] = led_code[hour / 10 + 4] | (is_pm ? 0 : 0x80);
-//      } else {
-//        led_data[5] = 0x7F | (is_pm ? 0 : 0x80);
-//      }
-//      led_data[4] = led_code[hour % 10 + 4];
-//      led_data[3] = led_code[clk.min / 10 + 4];
-//      led_data[2] = led_code[clk.min % 10 + 4];
-//      led_data[1] = led_code[clk.sec / 10 + 4]; 
-//      led_data[0] = led_code[clk.sec % 10 + 4]|0x80;
-//    } else if(display_mode == CLOCK_DISPLAY_MODE_YYMMDD) {
-//      led_data[5] = led_code[clk.year / 10 + 4] |0x80;
-//      led_data[4] = led_code[clk.year % 10 + 4];
-//      led_data[3] = led_code[(clk.mon + 1) / 10 + 4] |0x80;
-//      led_data[2] = led_code[(clk.mon + 1) % 10 + 4];
-//      led_data[1] = led_code[(clk.date + 1) / 10 + 4] |0x80; 
-//      led_data[0] = led_code[(clk.date + 1) % 10 + 4]|0x80;
-//    } else {
-//      led_data[5] = led_code[0x18]|0x80; // D
-//      led_data[4] = led_code[0x15]|0x80; // A
-//      led_data[3] = led_code[0x2D]|0x80; // Y
-//      led_data[2] = led_code[0x01]|0x80; // -
-//      led_data[1] = led_code[(clk.day + 1) / 10 + 4] |0x80; 
-//      led_data[0] = led_code[(clk.day + 1) % 10 + 4] |0x80;
-//    }
+    BSP_IV18_Set_DP(2);
+    
+    BSP_IV18_Set_Dig(3, (clk->min / 10 + 0x30));
+    BSP_IV18_Set_Dig(4, (clk->min % 10 + 0x30)); 
+    BSP_IV18_Set_DP(4);
+    
+    BSP_IV18_Set_Dig(5, (clk->sec / 10 + 0x30));
+    BSP_IV18_Set_Dig(6, (clk->sec % 10 + 0x30));   
+	} else if(display_mode == CLOCK_DISPLAY_MODE_YYMMDD) {
+    BSP_IV18_Set_Dig(1, (clk->year / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (clk->year % 10 + 0x30)); 
+    BSP_IV18_Set_Dig(3, '-');  
+    BSP_IV18_Set_Dig(4, ((clk->mon + 1) / 10 + 0x30));
+    BSP_IV18_Set_Dig(5, ((clk->mon + 1) % 10 + 0x30)); 
+    BSP_IV18_Set_Dig(5, '-');  
+    BSP_IV18_Set_Dig(6, ((clk->date + 1) / 10 + 0x30));
+    BSP_IV18_Set_Dig(7, ((clk->date + 1) % 10 + 0x30));     
+  }
 }
 
 void display_format_timer(struct timer_struct * tmr, enum timer_display_mode display_mode)
 {
-//  if(tmr_display) {
-//    ms10 = (uint8_t)(((float)(tmr[0].ms39) * 3.9) / 10);
-//    if(tmr_disp_mmssms) {    
-//      led_data[5] = led_code[(tmr[0].min / 10) + 4]; 
-//      led_data[4] = led_code[(tmr[0].min % 10) + 4];      
-//      led_data[3] = led_code[(tmr[0].sec / 10) + 4]; 
-//      led_data[2] = led_code[(tmr[0].sec % 10) + 4];    
-//      led_data[1] = led_code[(ms10 / 10) + 4]; 
-//      led_data[0] = led_code[(ms10 % 10) + 4]; 
-//    } else {
-//      led_data[5] = led_code[(tmr[0].hour / 10) + 4]; 
-//      led_data[4] = led_code[(tmr[0].hour % 10) + 4];      
-//      led_data[3] = led_code[(tmr[0].min / 10) + 4]; 
-//      led_data[2] = led_code[(tmr[0].min % 10) + 4];    
-//      led_data[1] = led_code[(tmr[0].sec / 10) + 4]; 
-//      led_data[0] = led_code[(tmr[0].sec % 10) + 4]; 
-//    }
-//    led_data[0] |= 0x80;
-//    led_data[5] |= 0x80;  
-//  }
+  uint8_t ms10 = (uint8_t)(((float)(tmr[0].ms39) * 3.9) / 10);
+  if(display_mode == TIMER_DISP_MODE_HHMMSS) {
+    BSP_IV18_Set_Dig(2, (tmr->hour / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (tmr->hour % 10 + 0x30)); 
+    BSP_IV18_Set_DP(2);
+    BSP_IV18_Set_Dig(2, (tmr->min / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (tmr->min % 10 + 0x30)); 
+    BSP_IV18_Set_DP(2); 
+    BSP_IV18_Set_Dig(2, (tmr->sec / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (tmr->sec % 10 + 0x30)); 
+  } else if(display_mode == TIMER_DISP_MODE_HHMMSS) {
+    BSP_IV18_Set_Dig(2, (tmr->min / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (tmr->min % 10 + 0x30)); 
+    BSP_IV18_Set_DP(2);
+    BSP_IV18_Set_Dig(2, (tmr->sec / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (tmr->sec % 10 + 0x30)); 
+    BSP_IV18_Set_DP(2); 
+    BSP_IV18_Set_Dig(2, (ms10 / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (ms10 % 10 + 0x30));
+  }
 }
 
-bool display_is_powersave(void)
+bool display_is_on(void)
 {
-	return 0;
+	return _display_is_on;
 }
 
+void display_on(void)
+{
+  power_display_enable(TRUE);
+  power_490_enable(TRUE);
+  //BSP_TIM3_Start(); 
+  BSP_TIM4_Start();
+  _display_is_on = TRUE;
+}
+
+void display_off(void)
+{
+  power_display_enable(FALSE);
+  power_490_enable(FALSE);
+  //BSP_TIM3_Stop(); 
+  BSP_TIM4_Stop();
+}
+
+void display_set_dig(uint8_t index, uint8_t code)
+{
+  IVDBG("display_set_dig %d %c", index, code);
+  BSP_IV18_Set_Dig(index, code);
+}
+
+void display_set_dp(uint8_t index)
+{
+  IVDBG("display_set_dp %d", index);
+  BSP_IV18_Set_DP(index);  
+}
+
+void display_clr_dp(uint8_t index)
+{
+  IVDBG("display_clr_dp %d", index);  
+  BSP_IV18_Clr_DP(index);
+}
+
+void display_set_blink(uint8_t index)
+{
+  IVDBG("display_set_blink %d", index);  
+  BSP_IV18_Set_Blink(index);  
+}
+
+void display_clr_blink(uint8_t index)
+{
+  IVDBG("display_clr_blink %d", index); 
+  BSP_IV18_Clr_Blink(index);  
+}

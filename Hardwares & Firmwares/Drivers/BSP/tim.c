@@ -3,10 +3,12 @@
 #include "debug.h"
 #include "timer.h"
 #include "clock.h"
+#include "iv18.h"
 
-static TIM_HandleTypeDef htim1;
-static TIM_HandleTypeDef htim2;
-static TIM_HandleTypeDef htim3;
+static TIM_HandleTypeDef htim1; // beeper pmw
+static TIM_HandleTypeDef htim2; // clock int
+static TIM_HandleTypeDef htim3; // iv18 light pmw
+static TIM_HandleTypeDef htim4; // iv18 refresh
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 
@@ -57,7 +59,7 @@ BSP_Error_Type BSP_TIM1_Init(void)
     return BSP_ERROR_INTERNAL;
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 32768;
+  sConfigOC.Pulse = 32767;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -193,7 +195,7 @@ BSP_Error_Type BSP_TIM3_Init(void)
     return BSP_ERROR_INTERNAL;
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 32767;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
@@ -206,6 +208,71 @@ BSP_Error_Type BSP_TIM3_Init(void)
   HAL_TIM_MspPostInit(&htim3);
 	
 	return BSP_ERROR_NONE;
+}
+
+BSP_Error_Type BSP_TIM3_Start(void)
+{
+  return HAL_TIMEx_PWMN_Start(&htim3, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+}
+
+BSP_Error_Type BSP_TIM3_Stop(void)
+{
+  return HAL_TIMEx_PWMN_Stop(&htim3, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+}
+
+/**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+BSP_Error_Type BSP_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 0;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 65535;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    return BSP_ERROR_INTERNAL;
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    return BSP_ERROR_INTERNAL;
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    return BSP_ERROR_INTERNAL;
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+  return BSP_ERROR_NONE;
+}
+
+BSP_Error_Type BSP_TIM4_Start(void)
+{
+  return HAL_TIM_Base_Start_IT(&htim4) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+}
+
+BSP_Error_Type BSP_TIM4_Stop(void)
+{
+  return HAL_TIM_Base_Stop_IT(&htim4) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 /**
@@ -225,7 +292,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /* Peripheral clock enable */
     __HAL_RCC_TIM1_CLK_ENABLE();
   /* USER CODE BEGIN TIM1_MspInit 1 */
-
+    HAL_NVIC_SetPriority(TIM1_UP_IRQn, BSP_TIM1_IRQ_PRIORITY, BSP_TIM1_IRQ_SUB_PRIORITY);
+    
+    HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
   /* USER CODE END TIM1_MspInit 1 */
   }
   else if(htim_base->Instance==TIM2)
@@ -263,6 +332,18 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE BEGIN TIM3_MspInit 1 */
 
   /* USER CODE END TIM3_MspInit 1 */
+  }  else if(htim_base->Instance==TIM4) {
+  /* USER CODE BEGIN TIM4_MspInit 0 */
+
+  /* USER CODE END TIM4_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_TIM4_CLK_ENABLE();
+    /* TIM4 interrupt Init */
+    HAL_NVIC_SetPriority(TIM4_IRQn, BSP_TIM4_IRQ_PRIORITY, BSP_TIM4_IRQ_SUB_PRIORITY);
+    HAL_NVIC_EnableIRQ(TIM4_IRQn);
+  /* USER CODE BEGIN TIM4_MspInit 1 */
+
+  /* USER CODE END TIM4_MspInit 1 */
   }
 }
 
@@ -325,6 +406,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM1_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM1_CLK_DISABLE();
+    HAL_NVIC_DisableIRQ(TIM1_UP_IRQn);
   /* USER CODE BEGIN TIM1_MspDeInit 1 */
     HAL_GPIO_DeInit(BEEPER_GPIO_Port, BEEPER_Pin);
   /* USER CODE END TIM1_MspDeInit 1 */
@@ -357,9 +439,23 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
     __HAL_RCC_TIM3_CLK_DISABLE();
   /* USER CODE BEGIN TIM3_MspDeInit 1 */
     HAL_GPIO_DeInit(IV18_BLANK_GPIO_Port, IV18_BLANK_Pin);
+    HAL_NVIC_DisableIRQ(TIM4_IRQn);
   /* USER CODE END TIM3_MspDeInit 1 */
   }
 
+}
+/**
+  * @brief This function handles TIM1 update interrupt.
+  */
+void TIM1_UP_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+
+  /* USER CODE END TIM1_UP_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  /* USER CODE BEGIN TIM1_UP_IRQn 1 */
+
+  /* USER CODE END TIM1_UP_IRQn 1 */
 }
 
 /**
@@ -376,4 +472,20 @@ void TIM2_IRQHandler(void)
   timer_inc_ms39();
   /* USER CODE END TIM2_IRQn 1 */
 }
+
+/**
+  * @brief This function handles TIM4 global interrupt.
+  */
+void TIM4_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM4_IRQn 0 */
+
+  /* USER CODE END TIM4_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim4);
+  /* USER CODE BEGIN TIM4_IRQn 1 */
+  BSP_IV18_Scan();
+  /* USER CODE END TIM4_IRQn 1 */
+}
+
+
 

@@ -8,7 +8,7 @@
 int8_t con_power(char arg1, char arg2)
 {
   if(arg1 == 0) {
-    console_printf("power_33: %s power_50: %s power_490: %s",
+    console_printf("power_33: %s power_50: %s power_490: %s\r\n",
 		power_33_enabled() ? "on" : "off",
 		power_50_enabled() ? "on" : "off",
 		power_490_enabled() ? "on" : "off"		

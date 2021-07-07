@@ -703,6 +703,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\Console\con_beeper.c</FilePath>
             </File>
+            <File>
+              <FileName>con_display.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_display.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
