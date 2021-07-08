@@ -16,10 +16,10 @@ static bool _is_power_on;
 
 bool BSP_Read_Int_Status(void)
 {
-	uint8_t val;
-	BSP_I2C_Read(ACC_I2C_ADDRESS, 0x30, I2C_MEMADD_SIZE_8BIT, &val, 1);
+  uint8_t val;
+  BSP_I2C_Read(ACC_I2C_ADDRESS, 0x30, I2C_MEMADD_SIZE_8BIT, &val, 1);
   IVDBG("Acc int port status %02x", val);
-	return (val & 0x80) != 0;
+  return (val & 0x80) != 0;
 }
 
 uint8_t BSP_ACC_Threshold_Get(void)
@@ -38,8 +38,8 @@ void BSP_ACC_Threshold_Set(uint8_t th)
     if(th < ACC_THRESHOLD_MIN) {
       th = ACC_THRESHOLD_MIN;
     }
-  }	
-	BSP_I2C_Write(ACC_I2C_ADDRESS, 0x24, I2C_MEMADD_SIZE_8BIT, &th, 1);
+  } 
+  BSP_I2C_Write(ACC_I2C_ADDRESS, 0x24, I2C_MEMADD_SIZE_8BIT, &th, 1);
 }
 
 bool BSP_ACC_Is_Power_On(void)
@@ -49,9 +49,9 @@ bool BSP_ACC_Is_Power_On(void)
 
 void BSP_ACC_Power_On(void)
 {
-	uint8_t val;
+  uint8_t val;
   
-	IVDBG("BSP_ACC_Power_On");
+  IVDBG("BSP_ACC_Power_On");
   
   BSP_ACC_Threshold_Set(config_read("acc_th")->val8);
   
@@ -69,9 +69,9 @@ void BSP_ACC_Power_On(void)
   val = 0x08;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2D, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
-	delay_ms(10);
-	
-	BSP_Read_Int_Status();
+  delay_ms(10);
+  
+  BSP_Read_Int_Status();
 
   _is_power_on = TRUE;
 }
@@ -95,8 +95,8 @@ void BSP_ACC_Power_Off(void)
   val = 0x40;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2D, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
-	delay_ms(10);
-	
+  delay_ms(10);
+  
   BSP_Read_Int_Status();
 
   _is_power_on = FALSE;
@@ -104,20 +104,20 @@ void BSP_ACC_Power_Off(void)
 
 static void BSP_ACC_Init_Device(void)
 {
-	uint8_t val;
-	
+  uint8_t val;
+  
   // Register 0x31—DATA_FORMAT (Read/Write)
   // INT_INVERT = 1， interrupts to active low
   // Range Bits = 00， +-2G
-	val = 0x20;
+  val = 0x20;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x31, I2C_MEMADD_SIZE_8BIT, &val, 1);
 
   // Register 0x2E—INT_ENABLE (Read/Write), all DISABLE
-	val = 0;
+  val = 0;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2E, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
   // Register 0x2F—INT_MAP (R/W), all to INT1
-	val = 0;
+  val = 0;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2F, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
   // THRESH_ACT (Read/Write)
@@ -132,16 +132,16 @@ static void BSP_ACC_Init_Device(void)
   // INACT_X enable = 0
   // INACT_Y enable = 0
   // INACT_Z enable = 0
-	val = 0xF0;
+  val = 0xF0;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x27, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
   // Register 0x25—THRESH_INACT (Read/Write) -> disable
-	val = 0;
+  val = 0;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x25, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
   // Register 0x26—TIME_INACT (Read/Write) -> disable
-	val = 0;
-	BSP_I2C_Write(ACC_I2C_ADDRESS, 0x26, I2C_MEMADD_SIZE_8BIT, &val, 1);
+  val = 0;
+  BSP_I2C_Write(ACC_I2C_ADDRESS, 0x26, I2C_MEMADD_SIZE_8BIT, &val, 1);
 
   // Register 0x2D—POWER_CTL (Read/Write) into stand by
   // 00
@@ -150,7 +150,7 @@ static void BSP_ACC_Init_Device(void)
   // Measure = 0
   // Sleep = 1
   // Wakeup = 00
-	val = 0x40;
+  val = 0x40;
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2D, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
   delay_ms(10);
@@ -163,7 +163,7 @@ static void BSP_ACC_Init_Device(void)
 BSP_Error_Type BSP_ACC_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-	
+  
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -172,12 +172,12 @@ BSP_Error_Type BSP_ACC_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(INT_ACC_GPIO_Port, &GPIO_InitStruct);
-	
+  
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(INT_ACC_EXTI_IRQn, BSP_ACC_IRQ_PRIORITY, BSP_ACC_IRQ_SUB_PRIORITY);
   HAL_NVIC_EnableIRQ(INT_ACC_EXTI_IRQn);
-	
+  
   BSP_ACC_Init_Device();
   
-	return BSP_ERROR_NONE;
+  return BSP_ERROR_NONE;
 }

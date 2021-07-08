@@ -48,6 +48,7 @@
 #include "timer.h"
 #include "console.h"
 #include "motion_sensor.h"
+#include "remote_control.h"
 #include "ticks.h"
 #include "task.h"
 #include "sm.h"
@@ -91,7 +92,7 @@ void SystemClock_Config(void);
 
 void PrintBsp(const char * bsp, BSP_Error_Type res)
 {
-	IVINFO("%s %s", bsp, res == BSP_ERROR_NONE ? "OK" : "FAILED");
+  IVINFO("%s %s", bsp, res == BSP_ERROR_NONE ? "OK" : "FAILED");
 }
 
 /**
@@ -115,53 +116,54 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
-	
-	// 必须先初始化delay子系统和ticks子系统
-	delay_init();
-	ticks_init();
+  
+  // 必须先初始化delay子系统和ticks子系统
+  delay_init();
+  ticks_init();
 
-	/* Hardware initialize */
-	BSP_GPIO_Init();	
-	PrintBsp("USART1", BSP_USART1_UART_Init());
-	PrintBsp("USART2", BSP_USART2_UART_Init());
-	PrintBsp("USART3", BSP_USART3_UART_Init());
-	PrintBsp("Key   ", BSP_Key_Init());	
-	PrintBsp("I2C   ", BSP_I2C_Init());
-	PrintBsp("ROM   ", BSP_ROM_Init());
-	PrintBsp("RTC   ", BSP_RTC_Init());
-	PrintBsp("ADC   ", BSP_ADC_Init());
-	PrintBsp("IV18  ", BSP_IV18_Init());
-	PrintBsp("MP3   ", BSP_MP3_Init());
-	PrintBsp("TIM1  ", BSP_TIM1_Init());
-	PrintBsp("TIM2  ", BSP_TIM2_Init());
-	PrintBsp("TIM3  ", BSP_TIM3_Init());
-	PrintBsp("TIM4  ", BSP_TIM4_Init());  
-	PrintBsp("ACC   ", BSP_ACC_Init());
-	PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
-	
-	IVDBG("initialize sub systems...");
-	/* System initialize */
-	config_init();
-	power_init();
-	console_init();
-	alarm_init();
-	clock_init();
-	timer_init();
-	button_init();
-	beeper_init();
-	display_init();
-	player_init();
-	motion_sensor_init();
-	task_init();
-	sm_init();
-	IVDBG("sub systems initialize done");
-	
+  /* Hardware initialize */
+  BSP_GPIO_Init();  
+  PrintBsp("USART1", BSP_USART1_UART_Init());
+  PrintBsp("USART2", BSP_USART2_UART_Init());
+  PrintBsp("USART3", BSP_USART3_UART_Init());
+  PrintBsp("Key   ", BSP_Key_Init());  
+  PrintBsp("I2C   ", BSP_I2C_Init());
+  PrintBsp("ROM   ", BSP_ROM_Init());
+  PrintBsp("RTC   ", BSP_RTC_Init());
+  PrintBsp("ADC   ", BSP_ADC_Init());
+  PrintBsp("IV18  ", BSP_IV18_Init());
+  PrintBsp("MP3   ", BSP_MP3_Init());
+  PrintBsp("TIM1  ", BSP_TIM1_Init());
+  PrintBsp("TIM2  ", BSP_TIM2_Init());
+  PrintBsp("TIM3  ", BSP_TIM3_Init());
+  PrintBsp("TIM4  ", BSP_TIM4_Init());  
+  PrintBsp("ACC   ", BSP_ACC_Init());
+  PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
+  
+  IVDBG("initialize sub systems...");
+  /* System initialize */
+  config_init();
+  power_init();
+  console_init();
+  alarm_init();
+  clock_init();
+  timer_init();
+  button_init();
+  beeper_init();
+  display_init();
+  player_init();
+  motion_sensor_init();
+  remote_control_init();
+  task_init();
+  sm_init();
+  IVDBG("sub systems initialize done");
+  
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-		task_run();
-		console_run();
+    task_run();
+    console_run();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

@@ -44,15 +44,15 @@ const char * task_names[] =
   "EV_BUTTON_MOD_UP",
   "EV_BUTTON_MOD_SET_PRESS",
   "EV_BUTTON_MOD_SET_LPRESS",
-	"EV_ACC",
-	"EV_TIMER",
-	"EV_ALARM0",
-	"EV_ALARM1",	
+  "EV_ACC",
+  "EV_TIMER",
+  "EV_ALARM0",
+  "EV_ALARM1",  
 };
 
 static void null_proc(enum task_events ev)
 {
-	sm_run(ev);
+  sm_run(ev);
 }
 
 
@@ -77,10 +77,10 @@ static const TASK_PROC task_procs[EV_CNT] =
   /* EV_KEY_MOD_SET_XX */
   button_mod_set_proc,
   button_mod_set_proc, 
-	null_proc,
-	null_proc,
-	alarm_proc,
-	alarm_proc,  
+  null_proc,
+  null_proc,
+  alarm_proc,
+  alarm_proc,  
 };
 
 

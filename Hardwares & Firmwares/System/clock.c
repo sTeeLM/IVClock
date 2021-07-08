@@ -55,7 +55,7 @@ void static clk_cal_hour12(void)
 // 1 / 256 = 0.00390625
 void clock_inc_ms39(void)
 {
-	int16_t y;
+  int16_t y;
   clk.ms39 ++;
   
   if(clk.ms39 == 0 ) {
@@ -84,11 +84,11 @@ void clock_inc_ms39(void)
         }
       }
     } 
-		
-		if(display_enable && !display_is_on()) {
-			display_format_clock(&clk, display_mode);
-		}
-	}
+    
+    if(display_enable && !display_is_on()) {
+      display_format_clock(&clk, display_mode);
+    }
+  }
 
 }
 
@@ -134,13 +134,13 @@ uint8_t clock_get_ms39(void)
 
 uint32_t clock_get_now_sec(void)
 {
-	return now_sec;
+  return now_sec;
 }
 
 
 uint32_t clock_diff_now_sec(uint32_t sec)
 {
-	return (uint32_t)(sec - now_sec);
+  return (uint32_t)(sec - now_sec);
 }
 
 uint8_t clock_get_sec(void)
@@ -210,7 +210,7 @@ void clock_inc_year(void)
 void clock_sync_from_rtc(enum clock_sync_type type)
 {
   IVDBG("clock_sync_from_rtc = %u", type);
-	clock_enable_interrupt(FALSE);
+  clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
     BSP_RTC_Read_Data(RTC_TYPE_TIME);
     clk.hour = BSP_RTC_Time_Get_Hour();   // 0 - 23
@@ -225,7 +225,7 @@ void clock_sync_from_rtc(enum clock_sync_type type)
     clk.day  = BSP_RTC_Date_Get_Day() - 1;       // 0 - 6
   }
   clk_cal_hour12();
-	clock_enable_interrupt(TRUE);
+  clock_enable_interrupt(TRUE);
 }
 
 void clock_sync_to_rtc(enum clock_sync_type type)
@@ -243,7 +243,7 @@ void clock_sync_to_rtc(enum clock_sync_type type)
     BSP_RTC_Date_Set_Year(clk.year);             // 0 - 99 (2000 ~ 2099)
     BSP_RTC_Date_Set_Month(clk.mon + 1);         // 0 - 11
     BSP_RTC_Date_Set_Date(clk.date + 1);         // 0 - 30(29/28/27)
-		BSP_RTC_Date_Set_Day(clk.day + 1);
+    BSP_RTC_Date_Set_Day(clk.day + 1);
     BSP_RTC_Write_Data(RTC_TYPE_DATE);
   }
   clock_enable_interrupt(TRUE);
@@ -268,7 +268,7 @@ void clock_sync_to_rtc(enum clock_sync_type type)
 
 void clock_enable_interrupt(bool enable)
 {
-	BSP_RTC_Set_En32khz(enable);
+  BSP_RTC_Set_En32khz(enable);
 }
 
 // 辅助函数
@@ -295,7 +295,7 @@ uint8_t clock_get_mon_date(uint8_t year, uint8_t mon)
 void clock_init(void)
 {
   IVDBG(("clock_initialize"));
-	clk.is12       = config_read("time_12")->val8;
+  clk.is12       = config_read("time_12")->val8;
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   display_mode = CLOCK_DISPLAY_MODE_HHMMSS;

@@ -8,7 +8,7 @@
 enum sm_functions
 {
   SM_CLOCK  = 0,         // 时钟功能
-	SM_ALARM,							 // 闹钟功能
+  SM_ALARM,              // 闹钟功能
   SM_STOP_WATCH,         // 跑表功能
   SM_TIMER,              // 计时器功能
   SM_CONFIG,             // 全局设置

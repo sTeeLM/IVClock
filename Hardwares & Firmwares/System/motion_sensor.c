@@ -17,8 +17,8 @@ bool motion_sensor_is_on(void)
 
 void motion_sensor_init(void)
 {
-	if(config_read("acc_on")->val8)
-		motion_sensor_on();
+  if(config_read("acc_on")->val8)
+    motion_sensor_on();
 }
 
 void motion_sensor_on(void)
@@ -44,8 +44,8 @@ uint8_t motion_sensor_get_th(void)
 
 void motion_sensor_set_th(uint8_t th)
 {
-	config_val_t val;
+  config_val_t val;
   BSP_ACC_Threshold_Set(th);
   val.val8 = th;
-	config_write("acc_th", &val);
+  config_write("acc_th", &val);
 }

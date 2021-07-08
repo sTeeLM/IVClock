@@ -5,7 +5,7 @@
 BSP_Error_Type BSP_Blue_Tooth_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-	
+  
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -14,10 +14,10 @@ BSP_Error_Type BSP_Blue_Tooth_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(INT_BT_GPIO_Port, &GPIO_InitStruct);
-	
+  
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(INT_BT_EXTI_IRQn, BSP_BT_IRQ_PRIORITY, BSP_BT_IRQ_SUB_PRIORITY);
   HAL_NVIC_EnableIRQ(INT_BT_EXTI_IRQn);
-	
-	return BSP_ERROR_NONE;
+  
+  return BSP_ERROR_NONE;
 }

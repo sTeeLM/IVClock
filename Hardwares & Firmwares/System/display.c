@@ -13,7 +13,7 @@ void display_init(void)
 
 void display_format_clock(struct clock_struct * clk, enum clock_display_mode display_mode)
 {
-	if(display_mode == CLOCK_DISPLAY_MODE_HHMMSS) {
+  if(display_mode == CLOCK_DISPLAY_MODE_HHMMSS) {
     if(clk->is12) {
       clk->ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(2, (clk->hour / 10) == 0 ? BSP_IV18_BLANK : (clk->hour / 10 + 0x30));
@@ -30,7 +30,7 @@ void display_format_clock(struct clock_struct * clk, enum clock_display_mode dis
     
     BSP_IV18_Set_Dig(5, (clk->sec / 10 + 0x30));
     BSP_IV18_Set_Dig(6, (clk->sec % 10 + 0x30));   
-	} else if(display_mode == CLOCK_DISPLAY_MODE_YYMMDD) {
+  } else if(display_mode == CLOCK_DISPLAY_MODE_YYMMDD) {
     BSP_IV18_Set_Dig(1, (clk->year / 10 + 0x30));
     BSP_IV18_Set_Dig(2, (clk->year % 10 + 0x30)); 
     BSP_IV18_Set_Dig(3, '-');  
@@ -68,7 +68,7 @@ void display_format_timer(struct timer_struct * tmr, enum timer_display_mode dis
 
 bool display_is_on(void)
 {
-	return _display_is_on;
+  return _display_is_on;
 }
 
 void display_on(void)
@@ -120,5 +120,5 @@ void display_clr_blink(uint8_t index)
 
 void display_set_light(uint8_t percent)
 {
-	
+  
 }

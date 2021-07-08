@@ -35,34 +35,34 @@ struct console_cmds cmds[] =
                       con_help},
   {"clk", "show clock", "clk", con_clock},
   {"mon", "motion control",
-												"mon: show motion sensor status\r\n"
+                        "mon: show motion sensor status\r\n"
                         "mon on: motion sensor on\r\n"
                         "mon off: motion sensor off\r\n" 
                         "mon int: read motion sensor isr\r\n"
                         "mon th x: set motion sensor th to x\r\n",     
                         con_motion_sensor},
   {"pow", "power control", 
-												"pow: show power status\r\n"
-												"pow 33 on | off: 3.3v on/off\r\n"
+                        "pow: show power status\r\n"
+                        "pow 33 on | off: 3.3v on/off\r\n"
                         "pow 50 on | off: 5.0v on/off\r\n" 
                         "pow 490 on | off: 49v on/off\r\n",    
                         con_power}, 
   {"be", "beeper control", 
-												"be: show status\r\n"
-												"be b: be\r\n"
+                        "be: show status\r\n"
+                        "be b: be\r\n"
                         "be bb: be ber\n" 
                         "be on: beeper enable\r\n"
                         "be off: beeper disable\r\n",    
                         con_beeper},   
   {"dis", "display control", 
-												"dis: show status\r\n"
+                        "dis: show status\r\n"
                         "dis on: display on\r\n"
                         "dis off: display off\r\n"  
                         "dis sdp n: set dp\r\n"
                         "dis cdp n: clr dp off\r\n" 
                         "dis sbl n: set blink\r\n"
                         "dis cbl n: clr blink off\r\n"
-                        "dis lt n: set light 1 ~ 100\r\n"		
+                        "dis lt n: set light 1 ~ 100\r\n"   
                         "dis n c: set dig\r\n",     
                         con_display},     
   {"!", "quit the console", "!", con_quit},
@@ -103,38 +103,38 @@ static void _call_cmd(char * buf, char arg1, char arg2)
 
 static void _console_gets(char * buffer, uint16_t len)
 {
-	uint16_t i = 0, c;
-	while((c = BSP_USART1_Get_Char()) > 0 && i < len) {
-		if(c != '\r' && c != '\n' && c != '\b') {
-			BSP_USART1_Transmit((uint8_t *)&c, 1);
-		} else if(c == '\b' && i > 0) {
-			BSP_USART1_Transmit((uint8_t *)&c, 1);
-			BSP_USART1_Transmit((uint8_t *)&"\e[K", 3);
-		}
-		if(c != '\r' && c != '\n' && c != '\b') {
-			buffer[i++] = c;
-		} else if(c == '\b'){ // backspace
-			if(i > 0)
-				buffer[--i] = 0;
-		} else if(c != '\r'){
-			BSP_USART1_Try_Get_Char();
-			break;
-		}
-	}
+  uint16_t i = 0, c;
+  while((c = BSP_USART1_Get_Char()) > 0 && i < len) {
+    if(c != '\r' && c != '\n' && c != '\b') {
+      BSP_USART1_Transmit((uint8_t *)&c, 1);
+    } else if(c == '\b' && i > 0) {
+      BSP_USART1_Transmit((uint8_t *)&c, 1);
+      BSP_USART1_Transmit((uint8_t *)&"\e[K", 3);
+    }
+    if(c != '\r' && c != '\n' && c != '\b') {
+      buffer[i++] = c;
+    } else if(c == '\b'){ // backspace
+      if(i > 0)
+        buffer[--i] = 0;
+    } else if(c != '\r'){
+      BSP_USART1_Try_Get_Char();
+      break;
+    }
+  }
 }
 
 int16_t console_try_get_key(void)
 {
-	return BSP_USART1_Try_Get_Char();
+  return BSP_USART1_Try_Get_Char();
 }
 
 void console_printf(const char * fmt /*format*/, ...)
 {
-	va_list arg_ptr;
-	
-	va_start (arg_ptr, fmt); /* format string */
-	vprintf(fmt, arg_ptr);
-	va_end (arg_ptr);
+  va_list arg_ptr;
+  
+  va_start (arg_ptr, fmt); /* format string */
+  vprintf(fmt, arg_ptr);
+  va_end (arg_ptr);
 }
 
 void console_run(void)
@@ -156,10 +156,10 @@ void console_run(void)
 //  display_set_code(1, 'L');  
   do {
     console_printf("console>");
-		memset(console_buf, 0, sizeof(console_buf));
+    memset(console_buf, 0, sizeof(console_buf));
     _console_gets(console_buf, sizeof(console_buf)-1);
     console_buf[sizeof(console_buf)-1] = 0;
-		console_printf("\r\n");
+    console_printf("\r\n");
     if(console_buf[0] == 0)
       continue;
     
@@ -203,8 +203,8 @@ void console_run(void)
     }
     
     _call_cmd(console_buf, arg1_pos, arg2_pos);
-		
-		console_printf("\r\n");
+    
+    console_printf("\r\n");
     
   } while (strcmp(console_buf, "!") != 0);
   

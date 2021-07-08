@@ -51,7 +51,7 @@ static void _rtc_dump_raw(void)
 {
   uint8_t addr;
   uint8_t c;
-	BSP_Error_Type ret;
+  BSP_Error_Type ret;
   IVDBG("RTC raw content:");
   for(addr = 0; addr < 0x12; addr ++) {
     BSP_I2C_Read(RTC_I2C_ADDRESS, addr, I2C_MEMADD_SIZE_8BIT, &c, 1);
@@ -87,16 +87,16 @@ static void _rtc_initialize (void)
   /////
   
   if(BSP_Key_Is_Factory_Reset()) { //12:10:30 PM
-		IVDBG("RTC factory reset time");
+    IVDBG("RTC factory reset time");
     BSP_RTC_Time_Set_Hour(12);
     BSP_RTC_Time_Set_Min(10);
     BSP_RTC_Time_Set_Sec(30); 
   }
   BSP_RTC_Write_Data(RTC_TYPE_TIME);
-	
+  
   IVDBG("before delay");
   delay_ms(10);
-	IVDBG("after delay");
+  IVDBG("after delay");
   
   BSP_RTC_Read_Data(RTC_TYPE_DATE);
  
@@ -107,7 +107,7 @@ static void _rtc_initialize (void)
   /////
   
   if(BSP_Key_Is_Factory_Reset()) { // 2014-08-19
-		IVDBG("RTC factory reset date");
+    IVDBG("RTC factory reset date");
     BSP_RTC_Date_Set_Year(14);
     BSP_RTC_Date_Set_Month(8);
     BSP_RTC_Date_Set_Date(19);
@@ -165,14 +165,14 @@ BSP_Error_Type BSP_RTC_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(INT_ALARM_GPIO_Port, &GPIO_InitStruct);
-	
+  
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(INT_ALARM_EXTI_IRQn, BSP_ALARM_IRQ_PRIORITY, BSP_ALARM_IRQ_SUB_PRIORITY);
   HAL_NVIC_EnableIRQ(INT_ALARM_EXTI_IRQn);
-	
+  
   _rtc_initialize();
 
-	return BSP_ERROR_NONE;
+  return BSP_ERROR_NONE;
 }
 
 
@@ -254,7 +254,7 @@ void BSP_RTC_Read_Data(enum BSP_RTC_Data_Type type)
   
   _last_read = type;
   
-	BSP_I2C_Read(RTC_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _rtc_data, sizeof(_rtc_data));
+  BSP_I2C_Read(RTC_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _rtc_data, sizeof(_rtc_data));
   
 }
 
@@ -275,8 +275,8 @@ void BSP_RTC_Write_Data(enum BSP_RTC_Data_Type type)
     case RTC_TYPE_CTL:
       offset = RTC_CTL_OFFSET; break;       
   }
-	
-	BSP_I2C_Write(RTC_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _rtc_data, sizeof(_rtc_data));
+  
+  BSP_I2C_Write(RTC_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _rtc_data, sizeof(_rtc_data));
    
 }
 
@@ -628,8 +628,8 @@ void BSP_RTC_Alarm_Set_Mode(enum BSP_RTC_Alarm_Mode mode)
         break;
       case RTC_ALARM0_MOD_MATCH_DAY_HOUR_MIN_SEC:
         _rtc_data[3] |= 0x40;
-			default:
-				;
+      default:
+        ;
     }
   } else if(mode > RTC_ALARM0_MOD_CNT && _last_read == RTC_TYPE_ALARM1) {
     _rtc_data[0] &= ~0x80;
@@ -647,8 +647,8 @@ void BSP_RTC_Alarm_Set_Mode(enum BSP_RTC_Alarm_Mode mode)
         break;
       case RTC_ALARM1_MOD_MATCH_DAY_HOUR_MIN:
         _rtc_data[2] |= 0x40;
-			default:
-				;
+      default:
+        ;
     }
   }
 }

@@ -66,14 +66,14 @@ void EXTI9_5_IRQHandler(void)
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-//	if(GPIO_Pin == GPIO_PIN_3 || GPIO_Pin == GPIO_PIN_3) {
-//		task_set(EV_BUTTON_SCAN);
-//	}
-	if(GPIO_Pin == INT_ALARM_Pin ) {
-		alarm_scan();
-	} else if(GPIO_Pin == INT_ACC_Pin ) {
-		motion_sensor_scan();
-	} else if(GPIO_Pin == INT_BT_Pin ) {
-		remote_control_scan();
-	}
+//  if(GPIO_Pin == GPIO_PIN_3 || GPIO_Pin == GPIO_PIN_3) {
+//    task_set(EV_BUTTON_SCAN);
+//  }
+  if(GPIO_Pin == INT_ALARM_Pin ) {
+    alarm_scan();
+  } else if(GPIO_Pin == INT_ACC_Pin ) {
+    motion_sensor_scan();
+  } else if(GPIO_Pin == INT_BT_Pin ) {
+    remote_control_scan();
+  }
 }

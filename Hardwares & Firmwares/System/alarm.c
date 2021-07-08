@@ -78,26 +78,26 @@ void alarm_load_config(void)
 
 void alarm_save_config(enum alarm_sync_type t)
 {
-	config_val_t val;
+  config_val_t val;
   switch (t) {
     case ALARM_SYNC_ALARM0_DAY_MASK:
-			val.val8 = alarm0.day_mask;
+      val.val8 = alarm0.day_mask;
       config_write("alm0_day_mask", &val);
     break;
     case ALARM_SYNC_ALARM0_HOUR:
-			val.val8 = alarm0.hour;
+      val.val8 = alarm0.hour;
       config_write("alm0_hour", &val);
     break;
     case ALARM_SYNC_ALARM0_MIN:
-			val.val8 = alarm0.min;
+      val.val8 = alarm0.min;
       config_write("alm0_min", &val);
     break;
     case ALARM_SYNC_ALARM0_DUR:
-			val.val8 = alarm0.dur;
+      val.val8 = alarm0.dur;
       config_write("alm0_dur", &val);
     break;
     case ALARM_SYNC_ALARM1_ENABLE:
-			val.val8 = alarm1_enable;
+      val.val8 = alarm1_enable;
       config_write("alm1_on", &val);
     break;
   }

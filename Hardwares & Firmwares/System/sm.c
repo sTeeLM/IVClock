@@ -4,7 +4,7 @@
 
 static const char * sm_functions_names[] = {
   "SM_CLOCK",
-	"SM_ALARM",
+  "SM_ALARM",
   "SM_STOP_WATCH",
   "SM_TIMER",
   "SM_CONFIG"

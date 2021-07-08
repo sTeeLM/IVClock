@@ -5,23 +5,23 @@
 
 
 typedef enum config_type {
-	CONFIG_TYPE_UINT8,
-	CONFIG_TYPE_UINT16,	
-	CONFIG_TYPE_UINT32,
-	CONFIG_TYPE_CNT
+  CONFIG_TYPE_UINT8,
+  CONFIG_TYPE_UINT16, 
+  CONFIG_TYPE_UINT32,
+  CONFIG_TYPE_CNT
 }config_type_t;
 
 typedef union {
-		uint8_t  val8;
-		uint16_t val16;
-		uint32_t val32;
+    uint8_t  val8;
+    uint16_t val16;
+    uint32_t val32;
 }config_val_t;
 
 #define CONFIG_NAME_LEN 16
 typedef struct
 {
-	const char name[CONFIG_NAME_LEN];
-	config_type_t type;
+  const char name[CONFIG_NAME_LEN];
+  config_type_t type;
 }config_slot_t;
 
 

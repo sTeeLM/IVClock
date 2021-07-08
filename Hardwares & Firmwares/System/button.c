@@ -99,8 +99,8 @@ void button_mod_proc(enum task_events ev)
     case EV_BUTTON_MOD_LPRESS:
       IVDBG("button_mod_proc EV_BUTTON_MOD_LPRESS");
       break; 
-		default:
-			;
+    default:
+      ;
   }
   
   sm_run(ev);
@@ -122,8 +122,8 @@ void button_set_proc(enum task_events ev)
     case EV_BUTTON_SET_LPRESS:
       IVDBG("button_set_proc EV_BUTTON_SET_LPRESS");
       break; 
-		default:
-			;
+    default:
+      ;
   }
   
   sm_run(ev);
@@ -139,8 +139,8 @@ void button_mod_set_proc(enum task_events ev)
     case EV_BUTTON_MOD_SET_LPRESS:
       IVDBG("button_mod_set_proc EV_BUTTON_MOD_SET_LPRESS");
       break;
-		default:
-			;    
+    default:
+      ;    
   }
 
   sm_run(ev);

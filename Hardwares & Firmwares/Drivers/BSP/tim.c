@@ -146,7 +146,7 @@ BSP_Error_Type BSP_TIM2_Init(void)
   }
   
   /* USER CODE END TIM2_Init 2 */
-	return BSP_ERROR_NONE;
+  return BSP_ERROR_NONE;
 }
 
 
@@ -206,8 +206,8 @@ BSP_Error_Type BSP_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 2 */
   HAL_TIM_MspPostInit(&htim3);
-	
-	return BSP_ERROR_NONE;
+  
+  return BSP_ERROR_NONE;
 }
 
 BSP_Error_Type BSP_TIM3_Start(void)
@@ -318,7 +318,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
     /* TIM2 interrupt Init */
     HAL_NVIC_SetPriority(TIM2_IRQn, BSP_TIM2_IRQ_PRIORITY, BSP_TIM2_IRQ_SUB_PRIORITY);
-		
+    
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
   /* USER CODE BEGIN TIM2_MspInit 1 */
 
