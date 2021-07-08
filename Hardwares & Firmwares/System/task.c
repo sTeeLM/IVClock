@@ -8,7 +8,7 @@
 /* hardware*/
 #include "clock.h"
 #include "button.h"
-
+#include "alarm.h"
 #include "console.h"
 
 /*
@@ -46,6 +46,8 @@ const char * task_names[] =
   "EV_BUTTON_MOD_SET_LPRESS",
 	"EV_ACC",
 	"EV_TIMER",
+	"EV_ALARM0",
+	"EV_ALARM1",	
 };
 
 static void null_proc(enum task_events ev)
@@ -77,7 +79,8 @@ static const TASK_PROC task_procs[EV_CNT] =
   button_mod_set_proc, 
 	null_proc,
 	null_proc,
-  
+	alarm_proc,
+	alarm_proc,  
 };
 
 

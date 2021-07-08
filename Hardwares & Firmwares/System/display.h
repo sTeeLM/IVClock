@@ -16,5 +16,6 @@ void display_set_dp(uint8_t index);
 void display_clr_dp(uint8_t index);
 void display_set_blink(uint8_t index);
 void display_clr_blink(uint8_t index);
+void display_set_light(uint8_t percent);
 
 #endif

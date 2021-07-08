@@ -38,6 +38,12 @@ int8_t con_display(char arg1, char arg2)
     } else {
       display_clr_blink(atoi(console_buf + arg2));
     }
+  } else if(!strcmp(console_buf + arg1, "lt")) {
+    if(arg2 == 0) {
+      return -1;
+    } else {
+      display_set_light(atoi(console_buf + arg2));
+    }
   } else if(console_buf[arg1] <= 0x30 && console_buf[arg1] >= 0x39) {
     if(arg2 == 0) {
       return -1;

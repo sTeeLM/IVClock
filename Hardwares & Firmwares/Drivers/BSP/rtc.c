@@ -607,7 +607,7 @@ enum BSP_RTC_Alarm_Mode BSP_RTC_Alarm_Get_Mode(void)
   }
   return RTC_ALARM0_MOD_CNT;
 }
-void BSP_RTC_Alarm_Set_Mod(enum BSP_RTC_Alarm_Mode mode)
+void BSP_RTC_Alarm_Set_Mode(enum BSP_RTC_Alarm_Mode mode)
 {
   if(mode < RTC_ALARM0_MOD_CNT && _last_read == RTC_TYPE_ALARM0) {
     _rtc_data[0] &= ~0x80;

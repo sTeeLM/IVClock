@@ -31,7 +31,7 @@ void motion_sensor_off(void)
   BSP_ACC_Power_Off();
 }
 
-void motion_sensor_isr(void)
+void motion_sensor_scan(void)
 {
   if(BSP_Read_Int_Status())
     task_set(EV_ACC);

@@ -1,6 +1,9 @@
 #include "extint.h"
 #include "bsp.h"
 #include "task.h"
+#include "alarm.h"
+#include "motion_sensor.h"
+#include "remote_control.h"
 
 /**
   * @brief ROM Initialization Function
@@ -20,7 +23,7 @@ void EXTI3_IRQHandler(void)
   /* USER CODE BEGIN EXTI3_IRQn 0 */
 
   /* USER CODE END EXTI3_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+  HAL_GPIO_EXTI_IRQHandler(INT_KEY_SET_Pin);
   /* USER CODE BEGIN EXTI3_IRQn 1 */
 
   /* USER CODE END EXTI3_IRQn 1 */
@@ -34,7 +37,7 @@ void EXTI4_IRQHandler(void)
   /* USER CODE BEGIN EXTI4_IRQn 0 */
 
   /* USER CODE END EXTI4_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
+  HAL_GPIO_EXTI_IRQHandler(INT_KEY_MOD_Pin);
   /* USER CODE BEGIN EXTI4_IRQn 1 */
 
   /* USER CODE END EXTI4_IRQn 1 */
@@ -48,9 +51,9 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
 
   /* USER CODE END EXTI9_5_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
+  HAL_GPIO_EXTI_IRQHandler(INT_BT_Pin);
+  HAL_GPIO_EXTI_IRQHandler(INT_ALARM_Pin);
+  HAL_GPIO_EXTI_IRQHandler(INT_ACC_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
   /* USER CODE END EXTI9_5_IRQn 1 */
@@ -66,4 +69,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 //	if(GPIO_Pin == GPIO_PIN_3 || GPIO_Pin == GPIO_PIN_3) {
 //		task_set(EV_BUTTON_SCAN);
 //	}
+	if(GPIO_Pin == INT_ALARM_Pin ) {
+		alarm_scan();
+	} else if(GPIO_Pin == INT_ACC_Pin ) {
+		motion_sensor_scan();
+	} else if(GPIO_Pin == INT_BT_Pin ) {
+		remote_control_scan();
+	}
 }

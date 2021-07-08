@@ -16,7 +16,7 @@ int8_t con_motion_sensor(char arg1, char arg2)
   } else if(!strcmp(console_buf + arg1, "off")) {
     motion_sensor_off();
   }	else if(!strcmp(console_buf + arg1, "int")) {
-    motion_sensor_isr();
+    motion_sensor_scan();
   } else if(!strcmp(console_buf + arg1, "th")) {
     if(arg2 == 0) {
       return -1;

@@ -62,6 +62,7 @@ struct console_cmds cmds[] =
                         "dis cdp n: clr dp off\r\n" 
                         "dis sbl n: set blink\r\n"
                         "dis cbl n: clr blink off\r\n"
+                        "dis lt n: set light 1 ~ 100\r\n"		
                         "dis n c: set dig\r\n",     
                         con_display},     
   {"!", "quit the console", "!", con_quit},

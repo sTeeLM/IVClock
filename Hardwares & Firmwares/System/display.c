@@ -117,3 +117,8 @@ void display_clr_blink(uint8_t index)
   IVDBG("display_clr_blink %d", index); 
   BSP_IV18_Clr_Blink(index);  
 }
+
+void display_set_light(uint8_t percent)
+{
+	
+}
