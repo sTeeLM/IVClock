@@ -6,6 +6,7 @@
 #include "config.h"
 #include "sm.h"
 #include "console.h"
+#include "display.h"
 
 static uint8_t date_table[2][12] = 
 {
@@ -94,7 +95,7 @@ void clock_inc_ms39(void)
 
 void clock_show(void)
 {
-  console_printf("%02d-%02d-%02d %02d(%02d):%02d:%02d:%02d %s %s r\n",
+  console_printf("%02d-%02d-%02d %02d(%02d):%02d:%02d:%03d %s %s \r\n",
     clk.year, clk.mon + 1, clk.date + 1,
     clk.hour, clk.hour12, clk.min, clk.sec, clk.ms39, 
     clk.ispm ? "PM" : "AM", clk.is12 ? "12":"24");
@@ -334,5 +335,8 @@ void clock_leave_shell(void)
 
 void clock_time_proc(enum task_events ev)
 {
+  if(ev == EV_1S) {
+    display_mon_light();
+  }
   sm_run(ev);
 }

@@ -10,7 +10,9 @@
 int8_t con_display(char arg1, char arg2)
 {
   if(arg1 == 0) {
-    console_printf("display is %s\r\n", display_is_on() ? "on" : "off");
+    console_printf("display is %s mon light %s\r\n", 
+    display_is_on() ? "on" : "off",
+    display_mon_light_enabled() ? "on" : "off");
   } else if(!strcmp(console_buf + arg1, "on")) {
     display_on();
   } else if(!strcmp(console_buf + arg1, "off")) {
@@ -39,12 +41,27 @@ int8_t con_display(char arg1, char arg2)
     } else {
       display_clr_blink(atoi(console_buf + arg2));
     }
+  } else if(!strcmp(console_buf + arg1, "mon")) {
+    if(arg2 == 0) {
+      console_printf("mon light is %s\r\n", 
+      display_mon_light_enabled() ? "on" : "off");
+    } else if(!strcmp(console_buf + arg2, "on")) {
+      display_mon_light_enable(TRUE);
+    } else if(!strcmp(console_buf + arg2, "off")) {
+      display_mon_light_enable(FALSE);
+    } else {
+      return -1;
+    }
   } else if(!strcmp(console_buf + arg1, "lt")) {
     if(arg2 == 0) {
-      return -1;
+      console_printf("light percent %d\r\n", display_get_light_percent());
     } else {
-      display_set_light(atoi(console_buf + arg2));
+      display_set_brightness(atoi(console_buf + arg2));
     }
+  } else if(!strcmp(console_buf + arg1, "cal0")) {
+    display_cal_0();
+  } else if(!strcmp(console_buf + arg1, "cal100")) {
+    display_cal_100();
   } else if(console_buf[arg1] <= 0x39 && console_buf[arg1] >= 0x30) {
     if(arg2 == 0) {
       return -1;

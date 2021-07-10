@@ -5,20 +5,20 @@
 
 void beeper_init(void)
 {
-
+  BSP_TIM1_Stop_PMW(TIM_CHANNEL_2);
 }
 
 void beeper_beep(void)
 {
   if(beeper_enabled()) {
-    BSP_TIM1_Start(64, 0);
+    BSP_TIM1_Start_Beeper(64, 0);
   }
 }
 
 void beeper_beep_beep(void)
 {
   if(beeper_enabled()) {
-    BSP_TIM1_Start(84, 1); 
+    BSP_TIM1_Start_Beeper(84, 1); 
   }   
 }
 

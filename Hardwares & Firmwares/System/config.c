@@ -14,6 +14,11 @@ static config_slot_t _slot[] = {
   {"alm0_min", CONFIG_TYPE_UINT8},
   {"alm0_dur", CONFIG_TYPE_UINT8},
   {"alm1_on", CONFIG_TYPE_UINT8}, 
+  {"bat_65", CONFIG_TYPE_UINT16},
+  {"bat_90", CONFIG_TYPE_UINT16},   
+  {"lt_0", CONFIG_TYPE_UINT16},
+  {"lt_100", CONFIG_TYPE_UINT16}, 
+  {"mon_lt_on", CONFIG_TYPE_UINT8},
 };
 
 static config_val_t _val;

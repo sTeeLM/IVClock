@@ -227,7 +227,7 @@ HAL_TIM_ChannelStateTypeDef HAL_TIMEx_GetChannelNState(TIM_HandleTypeDef *htim, 
 /**
   * @}
   */
-
+void TIM_CCxNChannelCmd(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ChannelNState);
 /**
   * @}
   */

@@ -95,8 +95,6 @@
 /* Private function prototypes -----------------------------------------------*/
 static void TIM_DMADelayPulseNCplt(DMA_HandleTypeDef *hdma);
 static void TIM_DMAErrorCCxN(DMA_HandleTypeDef *hdma);
-static void TIM_CCxNChannelCmd(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ChannelNState);
-
 /* Exported functions --------------------------------------------------------*/
 /** @defgroup TIMEx_Exported_Functions TIM Extended Exported Functions
   * @{
@@ -2268,7 +2266,7 @@ static void TIM_DMAErrorCCxN(DMA_HandleTypeDef *hdma)
   *          This parameter can be: TIM_CCxN_ENABLE or TIM_CCxN_Disable.
   * @retval None
   */
-static void TIM_CCxNChannelCmd(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ChannelNState)
+void TIM_CCxNChannelCmd(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ChannelNState)
 {
   uint32_t tmp;
 
