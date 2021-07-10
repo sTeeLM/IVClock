@@ -7,6 +7,10 @@
 #define POWER_33_EN_GPIO_Port GPIOC
 #define POWER_50_EN_Pin GPIO_PIN_1
 #define POWER_50_EN_GPIO_Port GPIOA
+#define POWER_490_EN_Pin GPIO_PIN_11
+#define POWER_490_EN_GPIO_Port GPIOA
+#define POWER_IV18_EN_Pin GPIO_PIN_12
+#define POWER_IV18_EN_GPIO_Port GPIOA
 #define BATTERY_MON_Pin GPIO_PIN_4
 #define BATTERY_MON_GPIO_Port GPIOA
 #define BEEPER_Pin GPIO_PIN_0
@@ -21,8 +25,6 @@
 #define IV18_CLK_GPIO_Port GPIOB
 #define IV18_DIN_Pin GPIO_PIN_8
 #define IV18_DIN_GPIO_Port GPIOA
-#define POWER_490_EN_Pin GPIO_PIN_11
-#define POWER_490_EN_GPIO_Port GPIOA
 #define INT_KEY_SET_Pin GPIO_PIN_3
 #define INT_KEY_SET_GPIO_Port GPIOB
 #define INT_KEY_SET_EXTI_IRQn EXTI3_IRQn
@@ -66,6 +68,10 @@
 // acc
 #define BSP_ACC_IRQ_PRIORITY      3
 #define BSP_ACC_IRQ_SUB_PRIORITY  2
+
+// adc
+#define BSP_ADC_IRQ_PRIORITY      3
+#define BSP_ADC_IRQ_SUB_PRIORITY  3
 
 #define BSP_I2C_TRAILS       5U
 #define BSP_I2C_SEND_TIMEOUT 50000U

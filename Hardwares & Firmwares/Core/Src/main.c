@@ -130,7 +130,8 @@ int main(void)
   PrintBsp("I2C   ", BSP_I2C_Init());
   PrintBsp("ROM   ", BSP_ROM_Init());
   PrintBsp("RTC   ", BSP_RTC_Init());
-  PrintBsp("ADC   ", BSP_ADC_Init());
+  PrintBsp("ADC1  ", BSP_ADC1_Init());
+  PrintBsp("ADC2  ", BSP_ADC2_Init());  
   PrintBsp("IV18  ", BSP_IV18_Init());
   PrintBsp("MP3   ", BSP_MP3_Init());
   PrintBsp("TIM1  ", BSP_TIM1_Init());

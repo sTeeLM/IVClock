@@ -12,6 +12,10 @@ static TIM_HandleTypeDef htim4; // iv18 refresh
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 
+static uint8_t BSP_TIM1_Cnt;
+static uint8_t BSP_TIM1_Dur;
+static uint8_t BSP_TIM1_Loop;
+
 /**
   * @brief TIM1 Initialization Function
   * @param None
@@ -88,14 +92,17 @@ BSP_Error_Type BSP_TIM1_Init(void)
   return BSP_ERROR_NONE;
 }
 
-BSP_Error_Type BSP_TIM1_Start(void)
+BSP_Error_Type BSP_TIM1_Start(uint8_t Dur, uint8_t Loop)
 {
-  return HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+  BSP_TIM1_Cnt = Dur;
+  BSP_TIM1_Dur = Dur;
+  BSP_TIM1_Loop = Loop;
+  return HAL_TIMEx_PWMN_Start_IT(&htim1, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 BSP_Error_Type BSP_TIM1_Stop(void)
 {
-  return HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+  return HAL_TIMEx_PWMN_Stop_IT(&htim1, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 /**
@@ -174,7 +181,7 @@ BSP_Error_Type BSP_TIM3_Init(void)
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 65535;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
     return BSP_ERROR_INTERNAL;
@@ -212,12 +219,32 @@ BSP_Error_Type BSP_TIM3_Init(void)
 
 BSP_Error_Type BSP_TIM3_Start(void)
 {
-  return HAL_TIMEx_PWMN_Start(&htim3, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+  return HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 BSP_Error_Type BSP_TIM3_Stop(void)
 {
-  return HAL_TIMEx_PWMN_Stop(&htim3, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+  return HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+}
+
+BSP_Error_Type BSP_TIM3_Set_Duty_Cycle(uint8_t dc)
+{
+  TIM_OC_InitTypeDef sConfigOC = {0};
+  
+  IVDBG("BSP_TIM3_Set_Duty_Cycle %d", dc);
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = (htim3.Init.Period * dc / 100);
+  IVDBG("BSP_TIM3_Set_Duty_Cycle Pulse = %d", sConfigOC.Pulse);
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    return BSP_ERROR_INTERNAL;
+  }
+  
+  TIM_CCxChannelCmd(TIM3, TIM_CHANNEL_2, ENABLE);
+  
+  return BSP_ERROR_NONE;
 }
 
 /**
@@ -292,9 +319,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /* Peripheral clock enable */
     __HAL_RCC_TIM1_CLK_ENABLE();
   /* USER CODE BEGIN TIM1_MspInit 1 */
-    HAL_NVIC_SetPriority(TIM1_UP_IRQn, BSP_TIM1_IRQ_PRIORITY, BSP_TIM1_IRQ_SUB_PRIORITY);
+    HAL_NVIC_SetPriority(TIM1_CC_IRQn, BSP_TIM1_IRQ_PRIORITY, BSP_TIM1_IRQ_SUB_PRIORITY);
     
-    HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
+    HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
   /* USER CODE END TIM1_MspInit 1 */
   }
   else if(htim_base->Instance==TIM2)
@@ -406,7 +433,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM1_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM1_CLK_DISABLE();
-    HAL_NVIC_DisableIRQ(TIM1_UP_IRQn);
+    HAL_NVIC_DisableIRQ(TIM1_CC_IRQn);
   /* USER CODE BEGIN TIM1_MspDeInit 1 */
     HAL_GPIO_DeInit(BEEPER_GPIO_Port, BEEPER_Pin);
   /* USER CODE END TIM1_MspDeInit 1 */
@@ -447,14 +474,26 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 /**
   * @brief This function handles TIM1 update interrupt.
   */
-void TIM1_UP_IRQHandler(void)
+void TIM1_CC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
 
   /* USER CODE END TIM1_UP_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */
-
+  BSP_TIM1_Cnt --;
+  if(BSP_TIM1_Cnt < BSP_TIM1_Dur / 2) {
+    TIM_CCxChannelCmd(TIM1, TIM_CHANNEL_2, DISABLE);
+  }
+  if(BSP_TIM1_Cnt == 0) {
+    if(BSP_TIM1_Loop == 0) {
+      BSP_TIM1_Stop();
+    } else {
+      BSP_TIM1_Loop --;
+      BSP_TIM1_Cnt = BSP_TIM1_Dur;
+      TIM_CCxChannelCmd(TIM1, TIM_CHANNEL_2, ENABLE);
+    }
+  }
   /* USER CODE END TIM1_UP_IRQn 1 */
 }
 

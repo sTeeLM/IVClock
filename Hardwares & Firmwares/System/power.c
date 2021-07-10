@@ -6,18 +6,7 @@
 
 void power_init(void)
 {
-  power_50_enable(FALSE);
-  power_490_enable(FALSE);
-}
-
-void power_display_enable(bool enable)
-{
-  power_50_enable(enable);
-}
-
-bool power_display_enabled(void)
-{
-  return power_50_enabled();
+  power_50_enable(TRUE);
 }
 
 void power_33_enable(bool enable)
@@ -35,6 +24,11 @@ void power_490_enable(bool enable)
   BSP_GPIO_Power_490_Enable(enable == TRUE ? SET : RESET);
 }
 
+void power_iv18_enable(bool enable)
+{
+  BSP_GPIO_Power_IV18_Enable(enable == TRUE ? SET : RESET);
+}
+
 bool power_33_enabled(void)
 {
   return BSP_GPIO_Power_33_Enabled();
@@ -49,6 +43,13 @@ bool power_490_enabled(void)
 {
   return BSP_GPIO_Power_490_Enabled();
 }
+
+bool power_iv18_enabled(void)
+{
+  return BSP_GPIO_Power_IV18_Enabled();
+}
+
+
 
 
 

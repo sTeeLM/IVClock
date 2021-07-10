@@ -8,10 +8,11 @@
 int8_t con_power(char arg1, char arg2)
 {
   if(arg1 == 0) {
-    console_printf("power_33: %s power_50: %s power_490: %s\r\n",
+    console_printf("power_33: %s power_50: %s power_490: %s power_iv18: %s\r\n",
 		power_33_enabled() ? "on" : "off",
 		power_50_enabled() ? "on" : "off",
-		power_490_enabled() ? "on" : "off"		
+		power_490_enabled() ? "on" : "off",
+		power_iv18_enabled() ? "on" : "off"	    
 		);
   } else if(!strcmp(console_buf + arg1, "33")) {
     if(!strcmp(console_buf + arg2, "on")) {
@@ -34,6 +35,14 @@ int8_t con_power(char arg1, char arg2)
       power_490_enable(TRUE);
     } else  if(!strcmp(console_buf + arg2, "off")) {
       power_490_enable(FALSE);
+    } else {
+      return -1;
+    }
+  } else if(!strcmp(console_buf + arg1, "iv18")) {
+    if(!strcmp(console_buf + arg2, "on")) {
+      power_iv18_enable(TRUE);
+    } else  if(!strcmp(console_buf + arg2, "off")) {
+      power_iv18_enable(FALSE);
     } else {
       return -1;
     }

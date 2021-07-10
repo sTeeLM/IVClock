@@ -9,8 +9,10 @@ BSP_Error_Type BSP_GPIO_Init(void);
 void BSP_GPIO_Power_33_Enable(FlagStatus enable);
 void BSP_GPIO_Power_50_Enable(FlagStatus enable);
 void BSP_GPIO_Power_490_Enable(FlagStatus enable);
+void BSP_GPIO_Power_IV18_Enable(FlagStatus enable);
 bool BSP_GPIO_Power_33_Enabled(void);
 bool BSP_GPIO_Power_50_Enabled(void);
 bool BSP_GPIO_Power_490_Enabled(void);
+bool BSP_GPIO_Power_IV18_Enabled(void);
 
 #endif

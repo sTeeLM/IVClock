@@ -11,22 +11,14 @@ void beeper_init(void)
 void beeper_beep(void)
 {
   if(beeper_enabled()) {
-    BSP_TIM1_Start();
-    delay_ms(40);
-    BSP_TIM1_Stop();
+    BSP_TIM1_Start(64, 0);
   }
 }
 
 void beeper_beep_beep(void)
 {
   if(beeper_enabled()) {
-    BSP_TIM1_Start();
-    delay_ms(40);
-    BSP_TIM1_Stop();
-    delay_ms(30);
-    BSP_TIM1_Start();
-    delay_ms(40);  
-    BSP_TIM1_Stop(); 
+    BSP_TIM1_Start(84, 1); 
   }   
 }
 

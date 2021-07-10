@@ -1,6 +1,7 @@
 #include "con_display.h"
 #include "console.h"
 #include "display.h"
+#include "debug.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -44,7 +45,7 @@ int8_t con_display(char arg1, char arg2)
     } else {
       display_set_light(atoi(console_buf + arg2));
     }
-  } else if(console_buf[arg1] <= 0x30 && console_buf[arg1] >= 0x39) {
+  } else if(console_buf[arg1] <= 0x39 && console_buf[arg1] >= 0x30) {
     if(arg2 == 0) {
       return -1;
     } else {

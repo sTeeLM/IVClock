@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "power.h"
 #include "tim.h"
+#include "adc.h"
 
 static bool _display_is_on;
   
@@ -73,19 +74,21 @@ bool display_is_on(void)
 
 void display_on(void)
 {
-  power_display_enable(TRUE);
+  power_iv18_enable(TRUE);
   power_490_enable(TRUE);
-  //BSP_TIM3_Start(); 
+  BSP_TIM3_Start(); 
   BSP_TIM4_Start();
+  BSP_ADC2_Start();
   _display_is_on = TRUE;
 }
 
 void display_off(void)
 {
-  power_display_enable(FALSE);
+  power_iv18_enable(FALSE);
   power_490_enable(FALSE);
-  //BSP_TIM3_Stop(); 
+  BSP_TIM3_Stop(); 
   BSP_TIM4_Stop();
+  BSP_ADC2_Stop();
 }
 
 void display_set_dig(uint8_t index, uint8_t code)
@@ -120,5 +123,9 @@ void display_clr_blink(uint8_t index)
 
 void display_set_light(uint8_t percent)
 {
-  
+  if(percent > 100)
+    percent = 100;
+  if(percent == 0 )
+    percent = 1;
+  BSP_TIM3_Set_Duty_Cycle(100 - percent);
 }
