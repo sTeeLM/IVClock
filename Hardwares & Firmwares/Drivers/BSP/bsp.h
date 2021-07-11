@@ -59,6 +59,9 @@
 #define BSP_KEY_IRQ_PRIORITY      2
 #define BSP_KEY_IRQ_SUB_PRIORITY  1
 
+#define BSP_USART2_IRQ_PRIORITY   2
+#define BSP_USART2_IRQ_SUB_PRIORITY   2
+
 // alarm
 #define BSP_ALARM_IRQ_PRIORITY        3
 #define BSP_ALARM_IRQ_SUB_PRIORITY    0

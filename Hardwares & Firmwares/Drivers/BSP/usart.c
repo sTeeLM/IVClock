@@ -6,7 +6,11 @@
 static UART_HandleTypeDef huart1; // debug
 static UART_HandleTypeDef huart2; // MP3
 static UART_HandleTypeDef huart3; // Blue Tooth
-
+static uint8_t BSP_USART2_Tx_Cplt;
+static uint8_t BSP_USART2_Rx_Cplt;
+static uint8_t BSP_USART2_Error;
+static USART_TRANSMIT_CPLT_CB BSP_USART2_Tx_Cplt_CB;
+static USART_RECEIVE_CPLT_CB BSP_USART2_Rx_Cplt_CB;
 /**
   * @brief USART1 Initialization Function
   * @param None
@@ -55,7 +59,7 @@ BSP_Error_Type BSP_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 9600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -164,7 +168,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN USART2_MspInit 1 */
-
+    HAL_NVIC_SetPriority(USART2_IRQn, BSP_USART2_IRQ_PRIORITY, BSP_USART2_IRQ_SUB_PRIORITY);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE END USART2_MspInit 1 */
   }
   else if(huart->Instance==USART3)
@@ -238,7 +243,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
 
   /* USER CODE BEGIN USART2_MspDeInit 1 */
-
+  HAL_NVIC_DisableIRQ(USART2_IRQn);
   /* USER CODE END USART2_MspDeInit 1 */
   }
   else if(huart->Instance==USART3)
@@ -327,4 +332,172 @@ int16_t BSP_USART1_Get_Char(void)
   } else {
     return -1 ;
   }
+}
+
+
+BSP_Error_Type BSP_USART2_Transmit(uint8_t *pData, uint16_t Size)
+{
+  HAL_StatusTypeDef res = HAL_UART_Transmit(&huart2, pData, Size, BSP_USART1_TRANSMIT_TIMEOUT);
+  BSP_Error_Type ret = BSP_ERROR_INTERNAL;
+  switch(res) {
+    case HAL_ERROR:
+      ret = BSP_ERROR_INTERNAL;
+      break;
+    case HAL_TIMEOUT:
+      ret = BSP_ERROR_TIMEOUT;
+      break;
+    case HAL_BUSY:
+      ret = BSP_ERROR_BUSY;
+      break;
+    case HAL_OK:
+      ret = BSP_ERROR_NONE;
+      break;
+  }
+  return ret;
+}
+
+BSP_Error_Type BSP_USART2_Receive(uint8_t *pData, uint16_t Size)
+{
+  HAL_StatusTypeDef res = HAL_UART_Receive(&huart2, pData, Size, BSP_USART1_RECEIVE_TIMEOUT);
+  BSP_Error_Type ret = BSP_ERROR_INTERNAL;
+  switch(res) {
+    case HAL_ERROR:
+      ret = BSP_ERROR_INTERNAL;
+      break;
+    case HAL_TIMEOUT:
+      ret = BSP_ERROR_TIMEOUT;
+      break;
+    case HAL_BUSY:
+      ret = BSP_ERROR_BUSY;
+      break;
+    case HAL_OK:
+      ret = BSP_ERROR_NONE;
+      break;
+  }
+  return ret;
+}
+
+
+BSP_Error_Type BSP_USART2_Transmit_IT(uint8_t *pData, uint16_t Size)
+{
+  BSP_Error_Type ret = BSP_ERROR_INTERNAL;
+  HAL_StatusTypeDef res;
+  
+  BSP_USART2_Tx_Cplt = 0;
+  BSP_USART2_Error   = 0;  
+  res = HAL_UART_Transmit_IT(&huart1, pData, Size);
+  switch(res) {
+    case HAL_ERROR:
+      ret = BSP_ERROR_INTERNAL;
+      break;
+    case HAL_BUSY:
+      ret = BSP_ERROR_BUSY;
+      break;
+    case HAL_OK:
+      ret = BSP_ERROR_NONE;
+      break;
+    default:;
+  }
+  return ret;
+}
+
+BSP_Error_Type BSP_USART2_Receive_IT(uint8_t *pData, uint16_t Size)
+{
+  BSP_Error_Type ret = BSP_ERROR_INTERNAL;
+  HAL_StatusTypeDef res;
+  
+  BSP_USART2_Rx_Cplt = 0;
+  BSP_USART2_Error   = 0;
+  res = HAL_UART_Receive_IT(&huart1, pData, Size);
+  switch(res) {
+    case HAL_ERROR:
+      ret = BSP_ERROR_INTERNAL;
+      break;
+    case HAL_BUSY:
+      ret = BSP_ERROR_BUSY;
+      break;
+    case HAL_OK:
+      ret = BSP_ERROR_NONE;
+      break;
+    default:;
+  }
+  return ret;
+}
+
+void BSP_USART2_Set_Transmit_CB(USART_TRANSMIT_CPLT_CB cb)
+{
+  BSP_USART2_Tx_Cplt_CB = cb;
+}
+
+void BSP_USART2_Set_Receive_CB(USART_RECEIVE_CPLT_CB cb)
+{
+  BSP_USART2_Rx_Cplt_CB = cb;
+}
+
+BSP_Error_Type BSP_USART2_Wait_Transmit_Cplt(uint16_t Timeout)
+{
+  while(BSP_USART2_Tx_Cplt != 1) {
+    delay_us(10);
+    if(Timeout == 0)
+      break;
+    Timeout --;    
+  }
+  if(BSP_USART2_Error)
+    return BSP_ERROR_INTERNAL;
+  else if(BSP_USART2_Tx_Cplt != 1 && Timeout == 0)
+    return BSP_ERROR_TIMEOUT;
+  return BSP_ERROR_NONE;  
+}
+
+BSP_Error_Type BSP_USART2_Wait_Receive_Cplt(uint16_t Timeout)
+{
+  while(BSP_USART2_Rx_Cplt != 1) {
+    delay_us(10);
+    if(Timeout == 0)
+      break;
+    Timeout --;
+  }
+  if(BSP_USART2_Error)
+    return BSP_ERROR_INTERNAL;
+  else if(BSP_USART2_Rx_Cplt != 1 && Timeout == 0)
+    return BSP_ERROR_TIMEOUT;  
+  return BSP_ERROR_NONE;
+}
+
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) 
+{
+  if(huart == &huart2) {
+    BSP_USART2_Tx_Cplt = 1;
+  }
+  if(BSP_USART2_Tx_Cplt_CB)
+  {
+    BSP_USART2_Tx_Cplt_CB();
+  }  
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if(huart == &huart2) {
+    BSP_USART2_Rx_Cplt = 1;
+  }
+  if(BSP_USART2_Rx_Cplt_CB)
+  {
+    BSP_USART2_Rx_Cplt_CB();
+  }
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  BSP_USART2_Error = 1;
 }
