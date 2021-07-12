@@ -6,9 +6,6 @@
 #include <string.h>
 
 static struct BSP_MP3_Msg _Cmd;
-static struct BSP_MP3_Msg _Res;
-static uint8_t _Buf;
-static uint8_t _Index;
 
 void BSP_MP3_Dump_Msg(struct BSP_MP3_Msg* Msg)
 {
@@ -68,6 +65,54 @@ bool BSP_MP3_Check_Checksum(struct BSP_MP3_Msg* Msg)
   return TRUE;
 }
 
+bool BSP_MP3_Wait_Response(struct BSP_MP3_Msg * Msg)
+{
+  uint8_t * p;
+  uint8_t buf, index;
+  BSP_Error_Type err;
+  
+  index = 0;
+  p = (uint8_t *)Msg;
+  while( (err = BSP_USART2_Receive(&buf, 1) ) == BSP_ERROR_NONE) {
+    if(buf == 0x7E && index != 0 && (p[0] != 0x7E || p[1] != 0xFF)) {
+      index = 0;
+    }
+    p[index ++] = buf;
+    if(index >= sizeof(struct BSP_MP3_Msg))
+      break;
+  }
+  
+  if(err != BSP_ERROR_NONE || index != sizeof(struct BSP_MP3_Msg))
+    return FALSE;
+  
+  IVDBG("BSP_MP3_Wait_Response receive new msg");
+  BSP_MP3_Dump_Msg(Msg);
+  
+  if(!BSP_MP3_Check_Checksum(Msg)) {
+    IVERR("checksum error");
+    return FALSE;
+  }
+  return TRUE;
+}
+
+BSP_Error_Type BSP_MP3_Send_Message(struct BSP_MP3_Msg* Msg)
+{
+  IVDBG("BSP_MP3_Send_Message send new msg");
+  BSP_MP3_Fill_Checksum(&_Cmd);
+  BSP_MP3_Dump_Msg(Msg);
+  BSP_USART2_Transmit((uint8_t *)&_Cmd, sizeof(_Cmd));
+  memset(&_Cmd, 0, sizeof(_Cmd));
+  if(BSP_MP3_Wait_Response(&_Cmd)) {
+    if(_Cmd.Command != BSP_MP3_CMD_QUERY_REPLY) {
+      IVERR("BSP_MP3_Send_Message failed!");
+      return BSP_ERROR_INTERNAL;
+    }
+  }
+  return BSP_ERROR_NONE;
+}
+
+
+
 void BSP_MP3_Reset(void)
 {
   _Cmd.Signature = 0x7E;
@@ -78,46 +123,20 @@ void BSP_MP3_Reset(void)
   _Cmd.Parament1  = 0;
   _Cmd.Parament2  = 0; 
   _Cmd.End        = 0xEF;
-  BSP_MP3_Cal_Checksum(&_Cmd);
-  BSP_MP3_Dump_Msg(&_Cmd);
-  BSP_USART2_Transmit((uint8_t *)&_Cmd, sizeof(_Cmd));
   
-  delay_ms(10); 
-  memset(&_Cmd, 0 , sizeof(_Cmd));
-  BSP_USART2_Receive((uint8_t *)&_Cmd, sizeof(_Cmd)); 
-  BSP_MP3_Dump_Msg(&_Cmd);
+  BSP_MP3_Send_Message(&_Cmd);
 }
 
-void BSP_MP3_Receive_Byte(void)
-{
-  uint8_t * res = (uint8_t *) &_Res;
-  if(_Buf == 0x7E && _Index == 0) { // a new mesg!
-    ;
-  }
-  
-  res[_Index++] = _Buf;
-  
-  if(_Index == sizeof(_Buf)) { // drop some bytes
-    _Index = 0;
-  }
-  
-  if(_Buf == 0xEF) { // a whole mesg!
-    _Index = 0;
-    IVDBG("receive a new message!");
-    BSP_MP3_Dump_Msg(&_Res);
-    if(BSP_MP3_Check_Checksum(&_Res)) {
-      
-    }
-  }
-}
+
 
 BSP_Error_Type BSP_MP3_Init(void)
 {
-  _Index = 0;
-  BSP_USART2_Set_Receive_CB(BSP_MP3_Receive_Byte);
-  BSP_USART2_Receive_IT((uint8_t *)&_Buf, 1);
-  
-  BSP_MP3_Reset();  
+
+  BSP_MP3_Reset();
  
+  while(!BSP_MP3_Wait_Response(&_Cmd)){
+    delay_ms(10);
+  }
+  
   return BSP_ERROR_NONE;
 }
