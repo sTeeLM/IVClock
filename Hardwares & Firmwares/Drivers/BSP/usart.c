@@ -337,7 +337,7 @@ int16_t BSP_USART1_Get_Char(void)
 
 BSP_Error_Type BSP_USART2_Transmit(uint8_t *pData, uint16_t Size)
 {
-  HAL_StatusTypeDef res = HAL_UART_Transmit(&huart2, pData, Size, BSP_USART1_TRANSMIT_TIMEOUT);
+  HAL_StatusTypeDef res = HAL_UART_Transmit(&huart2, pData, Size, BSP_USART2_TRANSMIT_TIMEOUT);
   BSP_Error_Type ret = BSP_ERROR_INTERNAL;
   switch(res) {
     case HAL_ERROR:
@@ -358,7 +358,7 @@ BSP_Error_Type BSP_USART2_Transmit(uint8_t *pData, uint16_t Size)
 
 BSP_Error_Type BSP_USART2_Receive(uint8_t *pData, uint16_t Size)
 {
-  HAL_StatusTypeDef res = HAL_UART_Receive(&huart2, pData, Size, BSP_USART1_RECEIVE_TIMEOUT);
+  HAL_StatusTypeDef res = HAL_UART_Receive(&huart2, pData, Size, BSP_USART2_RECEIVE_TIMEOUT);
   BSP_Error_Type ret = BSP_ERROR_INTERNAL;
   switch(res) {
     case HAL_ERROR:

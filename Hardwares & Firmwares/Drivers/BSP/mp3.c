@@ -11,6 +11,12 @@
 #define BSP_MP3_MAX_FILE_INDEX 255
 #define BSP_MP3_MIN_FILE_INDEX 1
 
+#define BSP_MP3_MAX_HUGE_DIR_INDEX 15
+#define BSP_MP3_MIN_HUGE_DIR_INDEX 1
+
+#define BSP_MP3_MAX_HUGE_FILE_INDEX 3000
+#define BSP_MP3_MIN_HUGE_FILE_INDEX 1
+
 #define BSP_MP3_MAX_TRACK_INDEX 2999
 #define BSP_MP3_MIN_TRACK_INDEX 0
 
@@ -19,6 +25,8 @@
 
 #define BSP_MP3_MAX_RESET_WAIT_MS 4000
 
+#define BSP_MP3_MAX_AMP_GAIN 31
+#define BSP_MP3_MIN_AMP_GAIN 0
 
 #define BSP_MP3_DEV_MASK_U      1
 #define BSP_MP3_DEV_MASK_TF     2
@@ -118,15 +126,21 @@ static bool BSP_MP3_Wait_Response(BSP_MP3_Msg_Type * Msg)
 static bool BSP_MP3_Send_Message(BSP_MP3_Msg_Type * Msg)
 {
   IVDBG("BSP_MP3_Send_Message send new msg");
-  BSP_MP3_Fill_Checksum(&BSP_MP3_Cmd);
+  BSP_MP3_Fill_Checksum(Msg);
   BSP_MP3_Dump_Msg(Msg);
-  BSP_USART2_Transmit((uint8_t *)&BSP_MP3_Cmd, sizeof(BSP_MP3_Cmd));
-  memset(&BSP_MP3_Cmd, 0, sizeof(BSP_MP3_Cmd));
-  if(BSP_MP3_Wait_Response(&BSP_MP3_Cmd)) {
-    if(BSP_MP3_Cmd.Command != BSP_MP3_RES_REPLY) {
-      IVERR("BSP_MP3_Send_Message failed!");
-      return FALSE;
+  if(BSP_USART2_Transmit((uint8_t *)Msg, sizeof(BSP_MP3_Msg_Type)) == BSP_ERROR_NONE)
+  {
+    if(Msg->Feedback) {
+      memset(Msg, 0, sizeof(BSP_MP3_Msg_Type));
+      if(BSP_MP3_Wait_Response(Msg)) {
+        if(Msg->Command != BSP_MP3_RES_REPLY) {
+          IVERR("BSP_MP3_Send_Message failed!");
+          return FALSE;
+        }
+      }
     }
+  } else {
+    return FALSE;
   }
   return TRUE;
 }
@@ -142,7 +156,7 @@ static void BSP_MP3_Fill_Msg(BSP_MP3_Msg_Type * Msg)
   Msg->DL  = 0; 
   Msg->ChecksumHi = 0;
   Msg->ChecksumLow = 0;  
-  Msg->End        = 0xEF;  
+  Msg->End        = 0xEF;    
 }
 
 bool BSP_MP3_Reset(void)
@@ -156,6 +170,7 @@ bool BSP_MP3_Standby(void)
 {
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
   BSP_MP3_Cmd.Command   = BSP_MP3_CMD_STANDBY;
+  BSP_MP3_Cmd.Feedback = 0;
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
@@ -163,6 +178,7 @@ bool BSP_MP3_Wakeup(void)
 {
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
   BSP_MP3_Cmd.Command   = BSP_MP3_CMD_NORMAL;
+  BSP_MP3_Cmd.Feedback = 0;
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
@@ -207,7 +223,7 @@ bool BSP_MP3_Dec_Volume(void)
 bool BSP_MP3_Set_Volume(uint8_t Volume)
 {
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
-  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_DEC_VOL;
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_SET_VOL;
   if(Volume > BSP_MP3_MAX_VOLUME) Volume = BSP_MP3_MAX_VOLUME;
   BSP_MP3_Cmd.DL = Volume;
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
@@ -221,14 +237,6 @@ bool BSP_MP3_Set_Eq(BSP_MP3_Eq_Type Eq)
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
-bool BSP_MP3_Set_Mode(BSP_MP3_Mode_Type Mode)
-{
-  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
-  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_SET_MODE;
-  BSP_MP3_Cmd.DL = Mode;
-  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
-}
-
 bool BSP_MP3_Set_Dev(BSP_MP3_Dev_Type Dev)
 {
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
@@ -237,13 +245,6 @@ bool BSP_MP3_Set_Dev(BSP_MP3_Dev_Type Dev)
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
-bool BSP_MP3_Set_Repeat(bool repeat)
-{
-  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
-  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_REPEAT;
-  BSP_MP3_Cmd.DL = repeat ? 1 : 0;
-  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
-}
 
 bool BSP_MP3_Play(void)
 {
@@ -259,22 +260,166 @@ bool BSP_MP3_Pause(void)
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
-bool BSP_MP3_Select_File(uint16_t Dir, uint16_t File)
+bool BSP_MP3_Stop(void)
 {
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
-  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_SET_TARGET;
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_STOP;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+
+bool BSP_MP3_Play_Dir_File(uint8_t Dir, uint8_t File)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_PlAY_DIR_FILE;
   if(Dir > BSP_MP3_MAX_DIR_INDEX) Dir = BSP_MP3_MAX_DIR_INDEX;
   if(Dir < BSP_MP3_MIN_DIR_INDEX) Dir = BSP_MP3_MIN_DIR_INDEX;  
-  if(File > BSP_MP3_MAX_FILE_INDEX) Dir = BSP_MP3_MAX_FILE_INDEX;
-  if(File < BSP_MP3_MIN_FILE_INDEX) Dir = BSP_MP3_MIN_FILE_INDEX;  
+  if(File > BSP_MP3_MAX_FILE_INDEX) File = BSP_MP3_MAX_FILE_INDEX;
+  if(File < BSP_MP3_MIN_FILE_INDEX) File = BSP_MP3_MIN_FILE_INDEX;  
   BSP_MP3_Cmd.DH = Dir;
   BSP_MP3_Cmd.DL = File;  
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
+bool BSP_MP3_Play_MP3_Dir_File(uint16_t File)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_PlAY_DIR_FILE; 
+  BSP_MP3_Cmd.DH = (File & 0xFF) >> 8;
+  BSP_MP3_Cmd.DL = File & 0xFF;  
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Play_ADVERT_Dir_File(uint16_t File)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_PLAY_DIR_ADVERT; 
+  BSP_MP3_Cmd.DH = (File & 0xFF) >> 8;
+  BSP_MP3_Cmd.DL = File & 0xFF;  
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Stop_Advert(void)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_STOP_ADVERT;  
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Play_Huge_Dir_File(uint8_t Dir, uint16_t File)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_PLAY_HUGE_DIR;
+  if(Dir > BSP_MP3_MAX_HUGE_DIR_INDEX) Dir = BSP_MP3_MAX_HUGE_DIR_INDEX;
+  if(Dir < BSP_MP3_MIN_HUGE_DIR_INDEX) Dir = BSP_MP3_MIN_HUGE_DIR_INDEX;  
+  if(File > BSP_MP3_MAX_HUGE_FILE_INDEX) File = BSP_MP3_MAX_HUGE_FILE_INDEX;
+  if(File < BSP_MP3_MIN_HUGE_FILE_INDEX) File = BSP_MP3_MIN_HUGE_FILE_INDEX;  
+  BSP_MP3_Cmd.DH = (Dir << 4) | ((File & 0xF00) >> 8);
+  BSP_MP3_Cmd.DL = File & 0xFF;  
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Set_Audio_AMP(bool Enable, uint8_t Gain)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_AUDIO_AMP;
+  BSP_MP3_Cmd.DH = Enable ? 1 : 0;
+  if(Gain > BSP_MP3_MAX_AMP_GAIN) Gain = BSP_MP3_MAX_AMP_GAIN;
+  BSP_MP3_Cmd.DL = Gain;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Repeat_Dev(bool Start)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_REPEAT_DEV;
+  BSP_MP3_Cmd.DL = Start ? 1 : 0;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Repeat_Dir(uint8_t Dir)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_REPEAT_DIR;
+  BSP_MP3_Cmd.DL = Dir;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Random_Dev(void)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_RANDOM_DEV;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Repeat_Current_Track(bool On)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_REPEAT_CUR_TRACK;
+  BSP_MP3_Cmd.DL = On ? 0 : 1;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Set_DAC(bool On)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_SET_DAC;
+  BSP_MP3_Cmd.DL = On ? 0 : 1;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Query_Status(BSP_MP3_Status_Type * Status)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_QUERY_STATUS;
+  BSP_MP3_Cmd.Feedback = 0;
+  if(BSP_MP3_Send_Message(&BSP_MP3_Cmd)) {
+    if(BSP_MP3_Wait_Response(&BSP_MP3_Cmd)) {
+      if(BSP_MP3_Cmd.Command == BSP_MP3_CMD_QUERY_STATUS) {
+        *Status = BSP_MP3_Cmd.DL;
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+bool BSP_MP3_Query_Volume(uint8_t * Volume)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_QUERY_VOL;
+  BSP_MP3_Cmd.Feedback = 0;
+  if(BSP_MP3_Send_Message(&BSP_MP3_Cmd)) {
+    if(BSP_MP3_Wait_Response(&BSP_MP3_Cmd)) {
+      if(BSP_MP3_Cmd.Command == BSP_MP3_CMD_QUERY_VOL) {
+        *Volume = BSP_MP3_Cmd.DL;
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+bool BSP_MP3_Query_Eq(BSP_MP3_Eq_Type * Eq)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_QUERY_EQ;
+  BSP_MP3_Cmd.Feedback = 0;
+  if(BSP_MP3_Send_Message(&BSP_MP3_Cmd)) {
+    if(BSP_MP3_Wait_Response(&BSP_MP3_Cmd)) {
+      if(BSP_MP3_Cmd.Command == BSP_MP3_CMD_QUERY_EQ) {
+        *Eq = BSP_MP3_Cmd.DL;
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
 BSP_Error_Type BSP_MP3_Init(void)
 {
   uint32_t ResetSaveMS;
+  uint8_t temp;
   
   while(1) {
     if(!BSP_MP3_Reset()) {
@@ -298,23 +443,14 @@ BSP_Error_Type BSP_MP3_Init(void)
         IVERR("BSP_MP3_Init: no TF found!");
         return BSP_ERROR_INTERNAL;
       }
+      break;
     }
   }
- 
-  if(!BSP_MP3_Set_Dev(BSP_MP3_DEV_TF)) {
-    IVERR("BSP_MP3_Init: can not set dev to TF");
-    return BSP_ERROR_INTERNAL;
-  }
-  
-  if(!BSP_MP3_Set_Mode(BSP_MP3_MODE_SINGAL_REPEAT)) {
-    IVERR("BSP_MP3_Init: can not set mode");
-    return BSP_ERROR_INTERNAL;
-  }
-  
+
   if(!BSP_MP3_Standby()) {
     IVERR("BSP_MP3_Init: can not into standby");
     return BSP_ERROR_INTERNAL;
-  }
+  } 
   
   return BSP_ERROR_NONE;
 }
