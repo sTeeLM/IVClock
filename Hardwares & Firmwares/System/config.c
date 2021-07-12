@@ -19,6 +19,7 @@ static config_slot_t _slot[] = {
   {"lt_0", CONFIG_TYPE_UINT16},
   {"lt_100", CONFIG_TYPE_UINT16}, 
   {"mon_lt_on", CONFIG_TYPE_UINT8},
+  {"alm0_snd", CONFIG_TYPE_UINT8}
 };
 
 static config_val_t _val;
