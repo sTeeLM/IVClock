@@ -416,10 +416,30 @@ bool BSP_MP3_Query_Eq(BSP_MP3_Eq_Type * Eq)
   return FALSE;
 }
 
+static void BSP_MP3_Pin_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pins : INT_KEY_MOD_Pin */
+  GPIO_InitStruct.Pin = INT_MP3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(INT_MP3_GPIO_Port, &GPIO_InitStruct);
+  
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(INT_MP3_EXTI_IRQn, BSP_MP3_IRQ_PRIORITY, BSP_MP3_IRQ_SUB_PRIORITY);
+  HAL_NVIC_EnableIRQ(INT_MP3_EXTI_IRQn);  
+}
+
 BSP_Error_Type BSP_MP3_Init(void)
 {
   uint32_t ResetSaveMS;
   uint8_t temp;
+  
+  BSP_MP3_Pin_Init();
   
   while(1) {
     if(!BSP_MP3_Reset()) {

@@ -4,6 +4,7 @@
 #include "alarm.h"
 #include "motion_sensor.h"
 #include "remote_control.h"
+#include "player.h"
 
 /**
   * @brief ROM Initialization Function
@@ -13,6 +14,20 @@
 BSP_Error_Type BSP_ExtInt_Init(void)
 {
   return BSP_ERROR_NONE;
+}
+
+/**
+  * @brief This function handles EXTI line3 interrupt.
+  */
+void EXTI2_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI3_IRQn 0 */
+
+  /* USER CODE END EXTI3_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(INT_MP3_Pin);
+  /* USER CODE BEGIN EXTI3_IRQn 1 */
+
+  /* USER CODE END EXTI3_IRQn 1 */
 }
 
 /**
@@ -75,5 +90,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     motion_sensor_scan();
   } else if(GPIO_Pin == INT_BT_Pin ) {
     remote_control_scan();
+  } else if(GPIO_Pin == INT_MP3_Pin) {
+    player_scan();
   }
 }

@@ -42,6 +42,9 @@
 #define INT_ACC_Pin GPIO_PIN_9
 #define INT_ACC_GPIO_Port GPIOB
 #define INT_ACC_EXTI_IRQn EXTI9_5_IRQn
+#define INT_MP3_Pin GPIO_PIN_2
+#define INT_MP3_GPIO_Port GPIOB
+#define INT_MP3_EXTI_IRQn EXTI2_IRQn
 
 // beeper pmw
 #define BSP_TIM1_IRQ_PRIORITY     3
@@ -59,8 +62,11 @@
 #define BSP_KEY_IRQ_PRIORITY      2
 #define BSP_KEY_IRQ_SUB_PRIORITY  1
 
-#define BSP_USART2_IRQ_PRIORITY   2
+#define BSP_USART2_IRQ_PRIORITY       2
 #define BSP_USART2_IRQ_SUB_PRIORITY   2
+
+#define BSP_MP3_IRQ_PRIORITY          2
+#define BSP_MP3_IRQ_SUB_PRIORITY      3
 
 // alarm
 #define BSP_ALARM_IRQ_PRIORITY        3

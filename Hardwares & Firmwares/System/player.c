@@ -2,12 +2,14 @@
 #include "mp3.h"
 #include "clock.h"
 #include "config.h"
+#inlcude "delay.h"
+#include <string.h>
 
 #define PLAYER_MAX_ALARM_INDEX 9
 
 #define PLAYER_DIR_MISC 1
 /*
-dir 1（misc）:
+dir 01（misc）:
 001: 年
 002: 月
 003：日
@@ -17,37 +19,64 @@ dir 1（misc）:
 007: 上午
 008: 下午
 009：整
-010: 二零
-011：气温
-012：摄氏
+010：气温
+011：摄氏
+012：华氏
 013：负
 014：点
+015：现在时间
 */
 
 #define PLAYER_DIR_NUM1 2
 /*
-dir 2（年、气温小数）:
-001 ~ 100: 零零-九九
+dir 02：
+001 ~ 003: 十、百、千
 */
 
 #define PLAYER_DIR_NUM2 3
 /*
-dir 3（月日时分秒）:
-001 ~ 100: 零-九十九
+dir 03:
+001 ~ 010: 零-九
 */
 
 #define PLAYER_DIR_ALARM 4
 /*
-dir 4（闹钟）：
+dir 04（闹钟）：
 001 ~ 010：闹钟声音
 */
 
+/*
+现在时间            1
+二 零 一 二         4
+年                  1
+十 一               2
+月                  1
+十 一               2
+日                  1
+上午                1
+十 一               2
+点                  1
+三 十 七            3
+分                  1
+气温                1
+华氏                1
+一 百 二 十 三      5
+点                  1
+三 七               2
+度                  1
+*/
 
+#define PLAYER_MAX_SEQ_LEN 32
 
-
+static struct player_seq_node player_seq[PLAYER_MAX_SEQ_LEN];
+static uint8_t player_seq_current_index;
+static bool player_seq_in_playing;
+  
 void player_init(void)
 {
-  
+  memset(player_seq, 0 ,sizeof(player_seq));
+  player_seq_current_index = 0;
+  player_seq_in_playing = FALSE;
 }
 
 void player_on(void)
@@ -74,9 +103,37 @@ void player_set_alarm_index(uint8_t alarm_index)
   config_write("alm0_snd", &val);
 }
 
-static void player_play_sequence(void)
+static void player_play_sequence_start(void)
 {
-  
+  player_seq_in_playing = TRUE;
+  player_seq_current_index = 0;
+  if(player_seq[0].dir && player_seq[0].file)
+    BSP_MP3_Play_Dir_File(player_seq[0].dir, player_seq[0].file);
+}
+
+static void player_play_sequence_stop(void)
+{
+  BSP_MP3_Stop();
+  player_seq_in_playing = FALSE;
+  player_seq_current_index = 0;   
+}
+
+void player_scan(void)
+{
+  if(player_seq_in_playing) {
+    player_seq_current_index ++;
+    if(player_seq_current_index < PLAYER_MAX_SEQ_LEN) {
+      if(player_seq[player_seq_current_index].dir 
+        && player_seq[player_seq_current_index].file) {
+          BSP_MP3_Play_Dir_File(player_seq[player_seq_current_index].dir, 
+          player_seq[player_seq_current_index].file);
+        } else {
+          player_play_sequence_stop();
+        }
+    } else {
+      player_play_sequence_stop();
+    }
+  }
 }
 
 void player_play_alarm(void)
