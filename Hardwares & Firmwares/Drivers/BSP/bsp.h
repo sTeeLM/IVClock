@@ -42,9 +42,9 @@
 #define INT_ACC_Pin GPIO_PIN_9
 #define INT_ACC_GPIO_Port GPIOB
 #define INT_ACC_EXTI_IRQn EXTI9_5_IRQn
-#define INT_MP3_Pin GPIO_PIN_2
+#define INT_MP3_Pin GPIO_PIN_1
 #define INT_MP3_GPIO_Port GPIOB
-#define INT_MP3_EXTI_IRQn EXTI2_IRQn
+#define INT_MP3_EXTI_IRQn EXTI1_IRQn
 
 // beeper pmw
 #define BSP_TIM1_IRQ_PRIORITY     3

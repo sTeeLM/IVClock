@@ -202,7 +202,7 @@ bool BSP_MP3_Play_Track(uint16_t Track)
   BSP_MP3_Cmd.Command   = BSP_MP3_CMD_PLAY_TRACK;
   if(Track > BSP_MP3_MAX_TRACK_INDEX) Track = BSP_MP3_MAX_TRACK_INDEX;
   BSP_MP3_Cmd.DH = (Track & 0xFF00) >> 8;
-  BSP_MP3_Cmd.DH = Track & 0xFF;
+  BSP_MP3_Cmd.DL = Track & 0xFF;
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
@@ -270,6 +270,7 @@ bool BSP_MP3_Stop(void)
 
 bool BSP_MP3_Play_Dir_File(uint8_t Dir, uint8_t File)
 {
+  IVDBG("BSP_MP3_Play_Dir_File Dir = %d File = %d", Dir, File);
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
   BSP_MP3_Cmd.Command   = BSP_MP3_CMD_PlAY_DIR_FILE;
   if(Dir > BSP_MP3_MAX_DIR_INDEX) Dir = BSP_MP3_MAX_DIR_INDEX;
@@ -342,6 +343,15 @@ bool BSP_MP3_Repeat_Dir(uint8_t Dir)
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
   BSP_MP3_Cmd.Command   = BSP_MP3_CMD_REPEAT_DIR;
   BSP_MP3_Cmd.DL = Dir;
+  return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
+}
+
+bool BSP_MP3_Repeat_File(uint16_t File)
+{
+  BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);
+  BSP_MP3_Cmd.Command   = BSP_MP3_CMD_REPEAT_TRACK;
+  BSP_MP3_Cmd.DL = File & 0xFF;
+  BSP_MP3_Cmd.DH = (File & 0xFF00) >> 8;  
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
@@ -441,36 +451,35 @@ BSP_Error_Type BSP_MP3_Init(void)
   
   BSP_MP3_Pin_Init();
   
-  while(1) {
-    if(!BSP_MP3_Reset()) {
-      IVERR("BSP_MP3_Reset Error!");
+  if(!BSP_MP3_Reset()) {
+    IVERR("BSP_MP3_Reset Error!");
+    return BSP_ERROR_INTERNAL;
+  } else {
+    ResetSaveMS = HAL_GetTick();
+    while(!BSP_MP3_Wait_Response(&BSP_MP3_Cmd)){
+      if(((uint32_t)(HAL_GetTick() - ResetSaveMS)) > BSP_MP3_MAX_RESET_WAIT_MS) {
+        IVERR("BSP_MP3_Init: wait online msg time out!");
+        return BSP_ERROR_INTERNAL; 
+      }
+    }
+    IVINFO("MP3 Dev Online: U[%d]|TF[%d]|PC[%d]|Flash[%d]",
+      BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_U ? 1 : 0,
+      BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_TF ? 1 : 0,
+      BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_PC ? 1 : 0, 
+      BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_FLASH ? 1 : 0      
+    );
+    if(!(BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_TF)) {
+      IVERR("BSP_MP3_Init: no TF found!");
       return BSP_ERROR_INTERNAL;
-    } else {
-      ResetSaveMS = HAL_GetTick();
-      while(!BSP_MP3_Wait_Response(&BSP_MP3_Cmd)){
-        if(((uint32_t)(HAL_GetTick() - ResetSaveMS)) > BSP_MP3_MAX_RESET_WAIT_MS) {
-          IVERR("BSP_MP3_Init: wait online msg time out!");
-          return BSP_ERROR_INTERNAL; 
-        }
-      }
-      IVINFO("MP3 Dev Online: U[%d]|TF[%d]|PC[%d]|Flash[%d]",
-        BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_U ? 1 : 0,
-        BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_TF ? 1 : 0,
-        BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_PC ? 1 : 0, 
-        BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_FLASH ? 1 : 0      
-      );
-      if(!(BSP_MP3_Cmd.DL & BSP_MP3_DEV_MASK_TF)) {
-        IVERR("BSP_MP3_Init: no TF found!");
-        return BSP_ERROR_INTERNAL;
-      }
-      break;
     }
   }
 
-  if(!BSP_MP3_Standby()) {
-    IVERR("BSP_MP3_Init: can not into standby");
-    return BSP_ERROR_INTERNAL;
-  } 
+//  if(!BSP_MP3_Standby()) {
+//    IVERR("BSP_MP3_Init: can not into standby");
+//    return BSP_ERROR_INTERNAL;
+//  } 
+//  
+  delay_ms(100);
   
   return BSP_ERROR_NONE;
 }

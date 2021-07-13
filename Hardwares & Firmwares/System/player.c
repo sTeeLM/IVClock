@@ -2,7 +2,8 @@
 #include "mp3.h"
 #include "clock.h"
 #include "config.h"
-#inlcude "delay.h"
+#include "delay.h"
+#include "debug.h"
 #include <string.h>
 
 #define PLAYER_MAX_ALARM_INDEX 9
@@ -68,25 +69,44 @@ dir 04（闹钟）：
 
 #define PLAYER_MAX_SEQ_LEN 32
 
-static struct player_seq_node player_seq[PLAYER_MAX_SEQ_LEN];
+static struct player_seq_node player_seq[PLAYER_MAX_SEQ_LEN]= {
+  {1,15,0},
+  {3,3,0}, 
+  {3,1,0},  
+  {3,2,0}, 
+  {3,3,0},
+  {1,1,0}, 
+  {3,8,0},  
+  {1,2,0}, 
+  {2,1,0},
+  {3,4,0},
+  {1,3,0},
+  {0,0,0},   
+};
 static uint8_t player_seq_current_index;
 static bool player_seq_in_playing;
   
+
+static void player_play_sequence_start(void);
+  
 void player_init(void)
 {
-  memset(player_seq, 0 ,sizeof(player_seq));
+//  memset(player_seq, 0 ,sizeof(player_seq));
   player_seq_current_index = 0;
   player_seq_in_playing = FALSE;
+  
+  player_on();
+  player_play_sequence_start();
 }
 
 void player_on(void)
 {
-  BSP_MP3_Wakeup();
+//  BSP_MP3_Wakeup();
 }
 
 void player_off(void)
 {
-  BSP_MP3_Standby();  
+//  BSP_MP3_Standby();  
 }
 
 uint8_t player_get_alarm_index(void)
@@ -105,6 +125,7 @@ void player_set_alarm_index(uint8_t alarm_index)
 
 static void player_play_sequence_start(void)
 {
+  IVDBG("player_play_sequence_start");
   player_seq_in_playing = TRUE;
   player_seq_current_index = 0;
   if(player_seq[0].dir && player_seq[0].file)
@@ -113,6 +134,7 @@ static void player_play_sequence_start(void)
 
 static void player_play_sequence_stop(void)
 {
+  IVDBG("player_play_sequence_stop");
   BSP_MP3_Stop();
   player_seq_in_playing = FALSE;
   player_seq_current_index = 0;   
@@ -120,11 +142,12 @@ static void player_play_sequence_stop(void)
 
 void player_scan(void)
 {
+  IVDBG("player_scan");
   if(player_seq_in_playing) {
     player_seq_current_index ++;
     if(player_seq_current_index < PLAYER_MAX_SEQ_LEN) {
       if(player_seq[player_seq_current_index].dir 
-        && player_seq[player_seq_current_index].file) {
+        && player_seq[player_seq_current_index].file) { 
           BSP_MP3_Play_Dir_File(player_seq[player_seq_current_index].dir, 
           player_seq[player_seq_current_index].file);
         } else {

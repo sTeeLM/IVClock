@@ -40,9 +40,10 @@ typedef enum BSP_MP3_Dev
 
 typedef enum BSP_MP3_Status
 {
+  BSP_MP3_STATUS_STOPPED = 0,
   BSP_MP3_STATUS_PLAYING = 1,
-  BSP_MP3_STATUS_PAUSED,
-  BSP_MP3_STATUS_STOPPED
+  BSP_MP3_STATUS_PAUSED  = 2,
+  BSP_MP3_STATUS_SLEEP   = 8
 }BSP_MP3_Status_Type;
 
 typedef enum BSP_MP3_Cmd {
@@ -54,7 +55,7 @@ typedef enum BSP_MP3_Cmd {
   BSP_MP3_CMD_DEC_VOL       = 5,
   BSP_MP3_CMD_SET_VOL       = 6,    // 0 - 30
   BSP_MP3_CMD_SET_EQ        = 7,    // 0 - 5 (Normal,Pop,Rock,Jazz,Class,Base)
-//  BSP_MP3_CMD_REPEAT_TRACK  = 8,    // 0 - 3 (Repeat,Folder Repeat,Single Repeat,Random)
+  BSP_MP3_CMD_REPEAT_TRACK  = 8,    // 0 - 3 (Repeat,Folder Repeat,Single Repeat,Random)
   BSP_MP3_CMD_SET_DEV       = 9,    // 0 - 4 (U,TF,Aux,Sleep,Flash)
   BSP_MP3_CMD_STANDBY       = 0x0A,
   BSP_MP3_CMD_NORMAL        = 0x0B,
@@ -79,7 +80,7 @@ typedef enum BSP_MP3_Cmd {
   BSP_MP3_CMD_QUERY_TRACKS_U = 0x47,
   BSP_MP3_CMD_QUERY_TRACKS_TF = 0x48,
   BSP_MP3_CMD_QUERY_TRACKS_FLASH = 0x49,  
-  BSP_MP3_CMD_KEEP_ON         = 0x4A,
+//  BSP_MP3_CMD_KEEP_ON         = 0x4A,
   BSP_MP3_CMD_QUERY_CUR_TRACK_U = 0x4B,
   BSP_MP3_CMD_QUERY_CUR_TRACK_TF = 0x4C,
   BSP_MP3_CMD_QUERY_CUR_TRACK_FLASH = 0x4D,  
@@ -121,6 +122,7 @@ bool BSP_MP3_Stop_Advert(void);
 bool BSP_MP3_Play_Huge_Dir_File(uint8_t Dir, uint16_t File);
 bool BSP_MP3_Repeat_Dev(bool Start);
 bool BSP_MP3_Repeat_Dir(uint8_t Dir);
+bool BSP_MP3_Repeat_File(uint16_t File);
 bool BSP_MP3_Random_Dev(void);
 bool BSP_MP3_Repeat_Current_Track(bool On);
 
