@@ -34,8 +34,10 @@ struct clock_struct
 
 void clock_show(void);
 
-bool clock_get_hour_12();
-void clock_set_hour_12(bool enable);
+uint8_t clock_get_hour12(void);
+bool clock_is_hour_12format(void);
+void clock_set_hour_12format(bool enable);
+bool clock_is_pm(void);
 uint8_t clock_get_sec(void);
 uint8_t clock_get_sec_256(void);
 void clock_clr_sec(void);

@@ -116,11 +116,22 @@ void clock_dump(void)
   IVDBG("clk.ispm = %s", clk.ispm ? "PM" : "AM");  
 }
 
-bool clock_get_hour_12(void)
+bool clock_is_hour_12format(void)
 {
   return clk.is12;
 }
-void clock_set_hour_12(bool enable)
+
+uint8_t clock_get_hour12(void)
+{
+  return clk.hour12;
+}
+
+bool clock_is_pm(void)
+{
+  return clk.ispm;
+}
+
+void clock_set_hour_12format(bool enable)
 {
   config_val_t val;
   clk.is12 = enable;

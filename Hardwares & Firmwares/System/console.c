@@ -11,6 +11,7 @@
 #include "con_power.h"
 #include "con_beeper.h"
 #include "con_display.h"
+#include "con_player.h"
 
 #define CONSOLE_BUFFER_SIZE 41
 
@@ -72,7 +73,16 @@ struct console_cmds cmds[] =
                         "dis cal100: calibrate light 100\r\n"  
                         "dis mon on | off: mon light on off\r\n"    
                         "dis n c: set dig\r\n",     
-                        con_display},     
+                        con_display}, 
+  {"ply", "player control", 
+                        "ply: show status\r\n"
+                        "ply on: player on\r\n"
+                        "ply off: player off\n" 
+                        "ply clk: report clock\r\n"
+                        "ply tmp: report temperature\r\n"  
+                        "ply alm n: player alarm sound\r\n" 
+                        "ply stp: stop play\r\n",   
+                        con_player},   
   {"!", "quit the console", "!", con_quit},
 }; 
 

@@ -661,39 +661,62 @@ const char * BSP_RTC_Alarm_Get_Mode_Str(void)
 // 在rtc_read_data(RTC_TYPE_TEMP)之后调用
 bool BSP_RTC_Get_Temperature(uint8_t * integer, uint8_t * flt)
 {
-  float ret = 0;
   bool sign = ((_rtc_data[0] &  0x80) != 0);
-
+  uint16_t data;
   
-  if(sign) { // 是负数
-    _rtc_data[0] = ~_rtc_data[0];
-    _rtc_data[1] &= 0xC0;
-    _rtc_data[1] >>= 6;
-    _rtc_data[1] = ~_rtc_data[1] + 1;
-    _rtc_data[1] &= 0x03;
-    if(_rtc_data[1] == 0) {
-      _rtc_data[0] ++;
-    }
-  } else { //是正数
-    _rtc_data[1] &= 0xC0;
-    _rtc_data[1] >>= 6;
+  data = _rtc_data[0] & ~0x80;
+  data <<= 2;
+  data |= ((_rtc_data[1] >>= 6) & 0x03);
+  
+  if(sign) {
+    data --;
+    data = ~data;
   }
   
-  *integer = _rtc_data[0];
+  data &= 0x3F;
   
-  if((_rtc_data[1] & 0x3) == 0x3) {
-    *flt = 75;
-  } else if((_rtc_data[1] & 0x3) == 0x2) { 
-    *flt = 50;
-  } else if((_rtc_data[1] & 0x3) == 0x1) { 
-    *flt = 25;
-  } else {
-    *flt = 0;
-  }
-
+  *integer = (data & 0x3C) >> 2;
+  *flt     = (data & 0x3) * 25;
+  
   if(*integer > 99) *integer = 99;
- 
+  
+  IVDBG("BSP_RTC_Get_Temperature %c%03d.%02d", sign ? '-':'+', *integer, *flt);
+  
   return sign;
+  
+//  float ret = 0;
+//  bool sign = ((_rtc_data[0] &  0x80) != 0);
+
+//  
+//  if(sign) { // 是负数
+//    _rtc_data[0] = ~_rtc_data[0];
+//    _rtc_data[1] &= 0xC0;
+//    _rtc_data[1] >>= 6;
+//    _rtc_data[1] = ~_rtc_data[1] + 1;
+//    _rtc_data[1] &= 0x03;
+//    if(_rtc_data[1] == 0) {
+//      _rtc_data[0] ++;
+//    }
+//  } else { //是正数
+//    _rtc_data[1] &= 0xC0;
+//    _rtc_data[1] >>= 6;
+//  }
+//  
+//  *integer = _rtc_data[0];
+//  
+//  if((_rtc_data[1] & 0x3) == 0x3) {
+//    *flt = 75;
+//  } else if((_rtc_data[1] & 0x3) == 0x2) { 
+//    *flt = 50;
+//  } else if((_rtc_data[1] & 0x3) == 0x1) { 
+//    *flt = 25;
+//  } else {
+//    *flt = 0;
+//  }
+
+//  if(*integer > 99) *integer = 99;
+// 
+//  return sign;
 }
 
 // 在rtc_read_data（RTC_TYPE_CTL）之后调用

@@ -678,6 +678,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\remote_control.c</FilePath>
             </File>
+            <File>
+              <FileName>thermometer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\thermometer.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -712,6 +717,11 @@
               <FileName>con_display.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\System\Console\con_display.c</FilePath>
+            </File>
+            <File>
+              <FileName>con_player.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_player.c</FilePath>
             </File>
           </Files>
         </Group>

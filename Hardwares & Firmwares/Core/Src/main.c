@@ -49,6 +49,7 @@
 #include "console.h"
 #include "motion_sensor.h"
 #include "remote_control.h"
+#include "thermometer.h"
 #include "ticks.h"
 #include "task.h"
 #include "sm.h"
@@ -155,6 +156,7 @@ int main(void)
   player_init();
   motion_sensor_init();
   remote_control_init();
+  thermometer_init();
   task_init();
   sm_init();
   IVDBG("sub systems initialize done");
