@@ -9,11 +9,13 @@
 #include <string.h>
 
 #define PLAYER_DIR_MISC     1
-#define PLAYER_FILE_YEAR    2
-#define PLAYER_FILE_MON     3
-#define PLAYER_FILE_DAY     4
-#define PLAYER_FILE_HOUR    5
-#define PLAYER_FILE_MIN     6
+
+#define PLAYER_FILE_YEAR    1
+#define PLAYER_FILE_MON     2
+#define PLAYER_FILE_DAY     3
+#define PLAYER_FILE_HOUR    4
+#define PLAYER_FILE_MIN     5
+#define PLAYER_FILE_SEC     6
 #define PLAYER_FILE_MORNING   7
 #define PLAYER_FILE_AFTERNOON 8
 #define PLAYER_FILE_ZHENG   9
@@ -25,6 +27,7 @@
 #define PLAYER_FILE_NOW     15
 #define PLAYER_FILE_WEEK    16
 #define PLAYER_FILE_PAUSE   17
+#define PLAYER_FILE_DU      18
 /*
 dir 01（misc）:
 001: 年
@@ -66,7 +69,7 @@ dir 02：
 #define PLAYER_FILE_SIX        7
 #define PLAYER_FILE_SEVEN      8
 #define PLAYER_FILE_EIGHT      9
-#define PLAYER_FILE_NIGHT      10
+#define PLAYER_FILE_NIGH       10
 /*
 dir 03:
 001 ~ 010: 零-九
@@ -151,8 +154,7 @@ static void player_play_sequence_start(void)
   player_seq_in_playing = TRUE;
   player_seq_current_index = 0;
   if(player_seq[0].dir && player_seq[0].file) {
-    if(BSP_MP3_Play_Dir_File(player_seq[0].dir, player_seq[0].file)
-      != BSP_ERROR_NONE) {
+    if(!BSP_MP3_Play_Dir_File(player_seq[0].dir, player_seq[0].file)) {
         player_seq_in_playing = FALSE;
       }
   }
@@ -168,6 +170,40 @@ static void player_play_sequence_stop(void)
   }
 }
 
+static uint8_t player_number_to_tune(uint8_t num)
+{
+  
+  if(num > 9) {
+    IVERR("player_number_to_tune error num %d > 9", num);
+    num = 9;
+  }
+  switch (num)
+  {
+    case 0: return PLAYER_FILE_ZERO;
+    case 1: return PLAYER_FILE_ONE;
+    case 2: return PLAYER_FILE_TWO;
+    case 3: return PLAYER_FILE_THREE;
+    case 4: return PLAYER_FILE_FOUR;
+    case 5: return PLAYER_FILE_FIVE;
+    case 6: return PLAYER_FILE_SIX;
+    case 7: return PLAYER_FILE_SEVEN;
+    case 8: return PLAYER_FILE_EIGHT;
+    case 9: return PLAYER_FILE_NIGH;
+    default: ;
+  }
+  return PLAYER_FILE_ZERO;
+}
+
+static void player_dump_seq(void)
+{
+  int8_t i;
+  IVDBG("player_dump_seq begin----------------------------");
+  for(i = 0 ; i < sizeof(player_seq) / sizeof(struct player_seq_node) ; i++) {
+    IVDBG("%02d: [%03d,%03d]", i, player_seq[i].dir, player_seq[i].file);
+  }
+  IVDBG("player_dump_seq end------------------------------");
+}
+
 static uint8_t player_synthetise_year(uint8_t start, uint8_t len)
 {
   uint8_t year = clock_get_year();
@@ -178,10 +214,10 @@ static uint8_t player_synthetise_year(uint8_t start, uint8_t len)
   player_seq[start+1].file = PLAYER_FILE_ZERO; 
 
   player_seq[start+2].dir  = PLAYER_DIR_NUM2;
-  player_seq[start+2].file = year / 10 + 1;
+  player_seq[start+2].file = player_number_to_tune(year / 10);
   
   player_seq[start+3].dir  = PLAYER_DIR_NUM2;
-  player_seq[start+3].file = year % 10 + 1;  
+  player_seq[start+3].file = player_number_to_tune(year % 10);  
   
   player_seq[start+4].dir  = PLAYER_DIR_MISC;
   player_seq[start+4].file = PLAYER_FILE_YEAR;  
@@ -189,23 +225,47 @@ static uint8_t player_synthetise_year(uint8_t start, uint8_t len)
   return 5;
 }
 
+static uint8_t player_synthetise_number(uint8_t num, uint8_t start, uint8_t len)
+{
+  uint8_t ret = 0;
+  if(num == 0) {
+    player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+    player_seq[start + ret].file = PLAYER_FILE_ZERO;
+    ret ++;
+  } else if(num >= 1 && num <= 9) {
+    player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+    player_seq[start + ret].file = player_number_to_tune(num);
+    ret ++;
+  } else if(num >= 10 && num <= 19){
+    player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
+    player_seq[start + ret].file = PLAYER_FILE_TEN;
+    ret ++;
+    if((num % 10) != 0) {
+      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+      player_seq[start + ret].file = player_number_to_tune(num % 10);
+      ret ++;
+    }
+  } else {
+    player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+    player_seq[start + ret].file = player_number_to_tune(num / 10);
+    ret ++;
+    player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
+    player_seq[start + ret].file = PLAYER_FILE_TEN;    
+    ret ++;
+    if((num % 10) != 0) {
+      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+      player_seq[start + ret].file = player_number_to_tune(num % 10);
+      ret ++;
+    }
+  }
+  return ret;
+}
+
 static uint8_t player_synthetise_mon(uint8_t start, uint8_t len)
 {
   uint8_t mon = clock_get_month();
-  uint8_t ret = 1;
-  if(mon >= 1 && mon <= 9) {
-    player_seq[start].dir  = PLAYER_DIR_NUM2;
-    player_seq[start].file = mon + 1;
-  } else {
-    player_seq[start].dir  = PLAYER_DIR_NUM1;
-    player_seq[start].file = PLAYER_FILE_TEN;
-    mon %= 10;
-    if(mon != 0) {
-      ret ++;
-      player_seq[start + 1].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + 1].file = mon + 1;
-    }
-  }
+  uint8_t ret = 0;
+  ret += player_synthetise_number(mon, start + ret, len - ret);
   player_seq[start + ret].dir = PLAYER_DIR_MISC;
   player_seq[start + ret].file = PLAYER_FILE_MON;
   ret ++;
@@ -217,32 +277,7 @@ static uint8_t player_synthetise_date(uint8_t start, uint8_t len)
 {
   uint8_t date = clock_get_date();
   uint8_t ret = 0;
-  if(date >= 1 && date <= 9) {
-    player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-    player_seq[start + ret].file = date + 1;
-    ret ++;
-  } else if(date >= 10 && date <= 19){
-    player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-    player_seq[start + ret].file = PLAYER_FILE_TEN;
-    ret ++;
-    if((date % 10) != 0) {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = date % 10 + 1;
-      ret ++;
-    }
-  } else {
-    player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-    player_seq[start + ret].file = date / 10 + 1;
-    ret ++;
-    player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-    player_seq[start + ret].file = PLAYER_FILE_TEN;    
-    ret ++;
-    if((date % 10) != 0) {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = date % 10 + 1;
-      ret ++;
-    }
-  }
+  ret += player_synthetise_number(date, start + ret, len - ret);
   player_seq[start + ret].dir = PLAYER_DIR_MISC;
   player_seq[start + ret].file = PLAYER_FILE_DAY;
   ret ++;
@@ -253,14 +288,14 @@ static uint8_t player_synthetise_date(uint8_t start, uint8_t len)
 static uint8_t player_synthetise_day(uint8_t start, uint8_t len)
 {
   uint8_t day = clock_get_day();
-  player_seq[start].dir  = PLAYER_DIR_NUM1;
+  player_seq[start].dir  = PLAYER_DIR_MISC;
   player_seq[start].file = PLAYER_FILE_WEEK;
   if(day == 7){
     player_seq[start + 1].dir  = PLAYER_DIR_NUM1;
     player_seq[start + 1].file = PLAYER_FILE_DAY;
   } else {
     player_seq[start + 1].dir  = PLAYER_DIR_NUM2;
-    player_seq[start + 1].file = day + 1;
+    player_seq[start + 1].file = player_number_to_tune(day);
   }
   return 2;
 }
@@ -276,53 +311,9 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
     player_seq[start + ret].dir  = PLAYER_DIR_MISC;
     player_seq[start + ret].file = clock_is_pm() ? PLAYER_FILE_AFTERNOON : PLAYER_FILE_MORNING;
     ret ++;
-    if(hour <= 9) {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = hour + 1;
-      ret ++;
-    } else if(hour == 10) {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[start + ret].file = PLAYER_FILE_TEN;
-      ret ++;
-    } else {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[start + ret].file = PLAYER_FILE_TEN;
-      ret ++;
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = hour % 10 + 1;
-      ret ++;      
-    }
+    ret += player_synthetise_number(hour, start + ret, len - ret);
   } else {
-    if(hour == 0) {
-      player_seq[start + ret].dir  = PLAYER_DIR_MISC;
-      player_seq[start + ret].file = PLAYER_FILE_ZERO;
-      ret ++;
-    } else if(hour >= 1 && hour <= 9) {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = hour + 1;
-      ret ++;
-    } else if(hour >= 10 && hour <= 19){
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[start + ret].file = PLAYER_FILE_TEN;
-      ret ++;
-      if((hour % 10) != 0) {
-        player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-        player_seq[start + ret].file = hour % 10 + 1;
-        ret ++;
-      }
-    } else {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = hour / 10 + 1;
-      ret ++;
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[start + ret].file = PLAYER_FILE_TEN;    
-      ret ++;
-      if((hour % 10) != 0) {
-        player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-        player_seq[start + ret].file = hour % 10 + 1;
-        ret ++;
-      }
-    }
+    ret += player_synthetise_number(hour, start + ret, len - ret);
   }
   
   player_seq[start + ret].dir  = PLAYER_DIR_MISC;
@@ -334,32 +325,7 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
     player_seq[start + ret].file = PLAYER_FILE_ZHENG;
     ret ++;
   } else {
-    if(min >= 1 && min <= 9) {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = min + 1;
-      ret ++;
-    } else if(min >= 10 && min <= 19){
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[start + ret].file = PLAYER_FILE_TEN;
-      ret ++;
-      if((min % 10) != 0) {
-        player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-        player_seq[start + ret].file = min % 10 + 1;
-        ret ++;
-      }
-    } else {
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[start + ret].file = min / 10 + 1;
-      ret ++;
-      player_seq[start + ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[start + ret].file = PLAYER_FILE_TEN;    
-      ret ++;
-      if((min % 10) != 0) {
-        player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
-        player_seq[start + ret].file = min % 10 + 1;
-        ret ++;
-      }
-    }
+    ret += player_synthetise_number(min, start + ret, len - ret);
     player_seq[start + ret].dir  = PLAYER_DIR_MISC;
     player_seq[start + ret].file = PLAYER_FILE_MIN;    
     ret ++;
@@ -370,6 +336,9 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
 void player_report_clk(void)
 {
   uint8_t i, len = 0;
+  
+  memset(player_seq, 0 ,sizeof(player_seq));
+  
   /* 现在时间 */
   player_seq[0].dir  = PLAYER_DIR_MISC;
   player_seq[0].file = PLAYER_FILE_NOW;
@@ -381,16 +350,16 @@ void player_report_clk(void)
   /* XXXX 年 */
   len += player_synthetise_year(len, PLAYER_MAX_SEQ_LEN - len);
   if(len > PLAYER_MAX_SEQ_LEN - 1) goto err;
-  player_seq[len].dir  = PLAYER_DIR_MISC;
-  player_seq[len].file = PLAYER_FILE_PAUSE;  
-  len ++;
+//  player_seq[len].dir  = PLAYER_DIR_MISC;
+//  player_seq[len].file = PLAYER_FILE_PAUSE;  
+//  len ++;
   
   /* XXXX 月 */
   len += player_synthetise_mon(len, PLAYER_MAX_SEQ_LEN - len);
   if(len > PLAYER_MAX_SEQ_LEN - 1) goto err;
-  player_seq[len].dir  = PLAYER_DIR_MISC;
-  player_seq[len].file = PLAYER_FILE_PAUSE;  
-  len ++;  
+//  player_seq[len].dir  = PLAYER_DIR_MISC;
+//  player_seq[len].file = PLAYER_FILE_PAUSE;  
+//  len ++;  
 
   /* XXXX 日 */
   len += player_synthetise_date(len, PLAYER_MAX_SEQ_LEN - len);
@@ -416,19 +385,25 @@ void player_report_clk(void)
   player_seq[len].dir = 0;
   player_seq[len].file = 0;
   
+  player_dump_seq();
   player_play_sequence_start();
   return;
 
 err:
-  player_seq[PLAYER_MAX_SEQ_LEN].dir = 0;
-  player_seq[PLAYER_MAX_SEQ_LEN].file = 0;  
+  player_seq[0].dir = 0;
+  player_seq[0].file = 0;  
 }
 
 void player_report_temperature(void)
 {
   uint8_t integer, flt, ret = 0;
+  uint8_t start = 0;
+  uint8_t len = PLAYER_MAX_SEQ_LEN;
   bool sign;
   
+  memset(player_seq, 0 ,sizeof(player_seq));
+  
+  BSP_RTC_Read_Data(RTC_TYPE_TEMP); 
   sign = BSP_RTC_Get_Temperature(&integer, &flt);
   
   player_seq[ret].dir  = PLAYER_DIR_MISC;
@@ -445,36 +420,8 @@ void player_report_temperature(void)
     player_seq[ret].file = PLAYER_FILE_FU;
     ret ++;
   }
-    if(integer == 0) {
-      player_seq[ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[ret].file = PLAYER_FILE_ZERO;
-      ret ++;
-    } else if(integer >= 1 && integer <= 9) {
-      player_seq[ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[ret].file = integer + 1;
-      ret ++;
-    } else if(integer >= 10 && integer <= 19){
-      player_seq[ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[ret].file = PLAYER_FILE_TEN;
-      ret ++;
-      if((integer % 10) != 0) {
-        player_seq[ret].dir  = PLAYER_DIR_NUM2;
-        player_seq[ret].file = integer % 10 + 1;
-        ret ++;
-      }
-    } else {
-      player_seq[ret].dir  = PLAYER_DIR_NUM2;
-      player_seq[ret].file = integer / 10 + 1;
-      ret ++;
-      player_seq[ret].dir  = PLAYER_DIR_NUM1;
-      player_seq[ret].file = PLAYER_FILE_TEN;    
-      ret ++;
-      if((integer % 10) != 0) {
-        player_seq[ret].dir  = PLAYER_DIR_NUM2;
-        player_seq[ret].file = integer % 10 + 1;
-        ret ++;
-      }
-    }
+
+  ret += player_synthetise_number(integer, start + ret, len - ret);
     
   if(flt != 0) {    
     player_seq[ret].dir  = PLAYER_DIR_MISC;
@@ -482,17 +429,22 @@ void player_report_temperature(void)
     ret ++;
     
     player_seq[ret].dir  = PLAYER_DIR_NUM2;
-    player_seq[ret].file = flt / 10 + 1;
+    player_seq[ret].file = player_number_to_tune(flt / 10);
     ret ++; 
 
     player_seq[ret].dir  = PLAYER_DIR_NUM2;
-    player_seq[ret].file = flt % 10 + 1;
+    player_seq[ret].file = player_number_to_tune(flt % 10);
     ret ++;     
   }
+  
+  player_seq[ret].dir  = PLAYER_DIR_MISC;
+  player_seq[ret].file = PLAYER_FILE_DU;
+  ret ++;
 
   player_seq[ret].dir = 0;  
   player_seq[ret].file = 0;
   
+  player_dump_seq();
   player_play_sequence_start();
 }
 
@@ -535,7 +487,7 @@ void player_scan(void)
 
 void player_show(void)
 {
-  console_printf("player is %s, is playing: %s",
+  console_printf("player is %s, is playing: %s\r\n",
     _player_is_on ? "on" : "off",
     player_seq_in_playing ? "on" : "off"
   );
