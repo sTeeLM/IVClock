@@ -71,58 +71,16 @@ static void _rtc_initialize (void)
     
   memset(_rtc_data, 0, sizeof(_rtc_data));
 
-  // 初始化
-
-  BSP_RTC_Read_Data(RTC_TYPE_TIME);
-
-  // RTC 内部使用24小时制
+  delay_ms(10);
+  
+  // RTC内部使用24小时制
+  BSP_RTC_Read_Data(RTC_TYPE_TIME);  
   count = BSP_RTC_Time_Get_Hour();
   BSP_RTC_Time_Set_Hour_12(0);
   BSP_RTC_Time_Set_Hour(count);
+  BSP_RTC_Write_Data(RTC_TYPE_TIME);  
   
-  ///// 调试用，2014-08-19, 12:10:30 PM
-  // BSP_RTC_Time_Set_Hour(12);
-  // BSP_RTC_Time_Set_Min(10);
-  // BSP_RTC_Time_Set_Sec(30); 
-  /////
-  
-  if(BSP_Key_Is_Factory_Reset()) { //12:10:30 PM
-    IVDBG("RTC factory reset time");
-    BSP_RTC_Time_Set_Hour(12);
-    BSP_RTC_Time_Set_Min(10);
-    BSP_RTC_Time_Set_Sec(30); 
-  }
-  BSP_RTC_Write_Data(RTC_TYPE_TIME);
-  
-  IVDBG("before delay");
-  delay_ms(10);
-  IVDBG("after delay");
-  
-  BSP_RTC_Read_Data(RTC_TYPE_DATE);
- 
-  ///// 调试用，初始时钟设置为 12小时格式，2014-08-19, 12:10：30 AM
-  // BSP_RTC_Date_Set_Year(14);
-  // BSP_RTC_Date_Set_Month(8);
-  // BSP_RTC_Date_Set_Date(19);
-  /////
-  
-  if(BSP_Key_Is_Factory_Reset()) { // 2014-08-19
-    IVDBG("RTC factory reset date");
-    BSP_RTC_Date_Set_Year(14);
-    BSP_RTC_Date_Set_Month(8);
-    BSP_RTC_Date_Set_Date(19);
-  }
-  
-  BSP_RTC_Date_Set_Day(cext_yymmdd_to_day(
-    BSP_RTC_Date_Get_Year() ,
-    BSP_RTC_Date_Get_Month() - 1,
-    BSP_RTC_Date_Get_Date() - 1) + 1);
-  
-  BSP_RTC_Write_Data(RTC_TYPE_DATE);
-  
-  delay_ms(10);
-  
-  // 闹钟也设置为24小时格式
+  // 闹钟设置为24小时格式
   BSP_RTC_Read_Data(RTC_TYPE_ALARM0);
   BSP_RTC_Alarm_Set_Hour_12(0);
   BSP_RTC_Write_Data(RTC_TYPE_ALARM0);  
@@ -131,7 +89,6 @@ static void _rtc_initialize (void)
   BSP_RTC_Alarm_Set_Hour_12(0);
   BSP_RTC_Write_Data(RTC_TYPE_ALARM1);
 
-  
   // 清除所有闹钟：闹钟配置由alarm自行从rom中读取，写入rtc
   BSP_RTC_Read_Data(RTC_TYPE_CTL);
   BSP_RTC_Enable_Alarm_Int(RTC_ALARM0, 0);

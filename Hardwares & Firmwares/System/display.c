@@ -84,7 +84,7 @@ void display_on(void)
   BSP_TIM1_Start_PMW(TIM_CHANNEL_1); // light control
   BSP_TIM4_Start();
   _display_is_on = TRUE;
-  _display_mon_light = config_read("mon_lt_on")->val8;
+  _display_mon_light = config_read("mon_lt_en")->val8;
 }
 
 void display_off(void)
@@ -176,7 +176,7 @@ void display_mon_light_enable(bool enable)
   config_val_t val;
   _display_mon_light = enable;
   val.val8 = enable;
-  config_write("mon_lt_on", &val);
+  config_write("mon_lt_en", &val);
 }
 
 bool display_mon_light_enabled(void)

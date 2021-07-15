@@ -4,6 +4,7 @@
 #include "sm.h"
 #include "clock.h"
 #include "config.h"
+#include "player.h"
 
 #define ALARM0_MAX_DUR_MIN 30 // 30分钟
 
@@ -11,10 +12,6 @@ static struct alarm0_struct alarm0;
 
 static bool alarm0_is12;
 static bool alarm1_enable;
-
-static bool play_radio_stop;
-
-static unsigned int play_radio_sec_left;
 
 void alarm_proc(enum task_events ev)
 {
@@ -73,7 +70,7 @@ void alarm_load_config(void)
   alarm0.min  = config_read("alm0_min")->val8;
   alarm0.dur  = config_read("alm0_dur")->val8;
   alarm0_is12 = config_read("time_12")->val8;
-  alarm1_enable = config_read("alm1_on")->val8; 
+  alarm1_enable = config_read("alm1_en")->val8; 
 }
 
 void alarm_save_config(enum alarm_sync_type t)
@@ -98,7 +95,7 @@ void alarm_save_config(enum alarm_sync_type t)
     break;
     case ALARM_SYNC_ALARM1_ENABLE:
       val.val8 = alarm1_enable;
-      config_write("alm1_on", &val);
+      config_write("alm1_en", &val);
     break;
   }
 }
@@ -238,19 +235,12 @@ uint8_t alarm0_get_dur(void)
   return alarm0.dur;
 }
 
-void alarm_stop_mp3(void)
+void alarm_stop_snd(void)
 {
-  play_radio_stop = TRUE;
+  player_stop_play();
 }
 
-void alarm_play_mp3(void)
+void alarm_play_snd(void)
 {
-//  radio_enable(1);
-//  play_radio_stop = 0;
-//  play_radio_sec_left = alarm0.dur * 60;
-//  while(!play_radio_stop) {
-//    _nop_();
-//    CDBG(("play_radio_sec_left = %u\n", play_radio_sec_left));
-//  }
-//  radio_enable(0);
+  player_play_snd(config_read("alm0_snd")->val8);
 }

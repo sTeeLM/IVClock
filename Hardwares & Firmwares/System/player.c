@@ -80,15 +80,16 @@ dir 03:
 dir 04（闹钟）：
 001 ~ 010：闹钟声音
 */
-#define PLAYER_FILE_ALARM1
-#define PLAYER_FILE_ALARM2
-#define PLAYER_FILE_ALARM3
-#define PLAYER_FILE_ALARM4
-#define PLAYER_FILE_ALARM5
-#define PLAYER_FILE_ALARM6
-#define PLAYER_FILE_ALARM7
-#define PLAYER_FILE_ALARM8
-#define PLAYER_FILE_ALARM9
+#define PLAYER_FILE_ALARM1  1
+#define PLAYER_FILE_ALARM2  2
+#define PLAYER_FILE_ALARM3  3
+#define PLAYER_FILE_ALARM4  4
+#define PLAYER_FILE_ALARM5  5
+#define PLAYER_FILE_ALARM6  6
+#define PLAYER_FILE_ALARM7  7
+#define PLAYER_FILE_ALARM8  8
+#define PLAYER_FILE_ALARM9  9
+#define PLAYER_FILE_ALARM10  10
 
 /*
 现在时间            1
@@ -448,11 +449,18 @@ void player_report_temperature(void)
   player_play_sequence_start();
 }
 
+static uint8_t player_play_snd_index_to_file(enum player_snd_index index)
+{
+  if(index > 9)
+    index = 9;
+  return index + 1;
+}
 
-void player_play_alarm(uint8_t alarm_index)
+
+void player_play_snd(enum player_snd_index index)
 {
   player_seq[player_seq_current_index].dir  = PLAYER_DIR_ALARM;
-  player_seq[player_seq_current_index].file = alarm_index + 1;
+  player_seq[player_seq_current_index].file = player_play_snd_index_to_file(index);
   player_play_sequence_start();
 }
 

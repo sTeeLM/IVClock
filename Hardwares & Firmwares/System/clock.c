@@ -7,6 +7,7 @@
 #include "sm.h"
 #include "console.h"
 #include "display.h"
+#include "key.h"
 
 static uint8_t date_table[2][12] = 
 {
@@ -307,7 +308,31 @@ uint8_t clock_get_mon_date(uint8_t year, uint8_t mon)
 void clock_init(void)
 {
   IVDBG(("clock_initialize"));
-  clk.is12       = config_read("time_12")->val8;
+  
+  if(BSP_Key_Is_Factory_Reset()) { //12:10:30 PM
+    BSP_RTC_Read_Data(RTC_TYPE_TIME);
+    IVINFO("clock factory reset time");
+    BSP_RTC_Time_Set_Hour(12);
+    BSP_RTC_Time_Set_Min(10);
+    BSP_RTC_Time_Set_Sec(30); 
+    BSP_RTC_Write_Data(RTC_TYPE_TIME);
+  
+
+    IVINFO("clock factory reset date");
+    BSP_RTC_Read_Data(RTC_TYPE_DATE);
+    BSP_RTC_Date_Set_Year(14);
+    BSP_RTC_Date_Set_Month(8);
+    BSP_RTC_Date_Set_Date(19);
+  
+    BSP_RTC_Date_Set_Day(cext_yymmdd_to_day(
+    BSP_RTC_Date_Get_Year() ,
+    BSP_RTC_Date_Get_Month() - 1,
+    BSP_RTC_Date_Get_Date() - 1) + 1);
+  
+    BSP_RTC_Write_Data(RTC_TYPE_DATE);  
+  }
+  
+  clk.is12 = config_read("time_12")->val8;
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   display_mode = CLOCK_DISPLAY_MODE_HHMMSS;

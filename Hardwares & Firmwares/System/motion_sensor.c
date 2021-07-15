@@ -7,28 +7,25 @@
 void motion_sensor_show(void)
 {
   console_printf("motion sensoris %s, th is %d\r\n", 
-  motion_sensor_is_on() ? "on" : "off", motion_sensor_get_th());
+  motion_sensor_enabled() ? "en" : "dis", motion_sensor_get_th());
 }
 
-bool motion_sensor_is_on(void)
+bool motion_sensor_enabled(void)
 {
   return BSP_ACC_Is_Power_On();
 }
 
 void motion_sensor_init(void)
 {
-  if(config_read("acc_on")->val8)
-    motion_sensor_on();
+  motion_sensor_enable(config_read("acc_en")->val8);
 }
 
-void motion_sensor_on(void)
+void motion_sensor_enable(bool enable)
 {
-  BSP_ACC_Power_On();
-}
-
-void motion_sensor_off(void)
-{
-  BSP_ACC_Power_Off();
+  config_val_t val;
+  val.val8 = enable;
+  enable ? BSP_ACC_Power_On() : BSP_ACC_Power_Off();
+  config_write("acc_en", &val);
 }
 
 void motion_sensor_scan(void)

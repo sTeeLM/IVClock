@@ -17,11 +17,11 @@ typedef union {
     uint32_t val32;
 }config_val_t;
 
-#define CONFIG_NAME_LEN 16
 typedef struct
 {
-  const char name[CONFIG_NAME_LEN];
+  const char * name;
   config_type_t type;
+  config_val_t  default_val;
 }config_slot_t;
 
 

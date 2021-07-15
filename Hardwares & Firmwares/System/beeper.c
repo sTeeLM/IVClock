@@ -26,10 +26,10 @@ void beeper_enable(bool enable)
 {
   config_val_t val;
   val.val8 = enable ? 1 : 0;
-  config_write("bp_on", &val);
+  config_write("bp_en", &val);
 }
 
 bool beeper_enabled(void)
 {
-  return config_read("bp_on")->val8;
+  return config_read("bp_en")->val8;
 }

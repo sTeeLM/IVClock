@@ -9,4 +9,5 @@ void beeper_beep(void);
 void beeper_beep_beep(void);
 void beeper_enable(bool enable);
 bool beeper_enabled(void);
+
 #endif

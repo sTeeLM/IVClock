@@ -1,30 +1,56 @@
 #include "config.h"
 #include "rom.h"
 #include "debug.h"
+#include "key.h"
 #include <stddef.h>
 #include <string.h>
 
 static config_slot_t _slot[] = {
-  {"time_12", CONFIG_TYPE_UINT8},
-  {"acc_th",CONFIG_TYPE_UINT8},
-  {"acc_on",CONFIG_TYPE_UINT8},
-  {"bp_on",CONFIG_TYPE_UINT8},
-  {"alm0_day_mask", CONFIG_TYPE_UINT8},
-  {"alm0_hour", CONFIG_TYPE_UINT8}, 
-  {"alm0_min", CONFIG_TYPE_UINT8},
-  {"alm0_dur", CONFIG_TYPE_UINT8},
-  {"alm1_on", CONFIG_TYPE_UINT8}, 
-  {"bat_65", CONFIG_TYPE_UINT16},
-  {"bat_90", CONFIG_TYPE_UINT16},   
-  {"lt_0", CONFIG_TYPE_UINT16},
-  {"lt_100", CONFIG_TYPE_UINT16}, 
-  {"mon_lt_on", CONFIG_TYPE_UINT8},
-  {"alm0_snd", CONFIG_TYPE_UINT8}
+  {"time_12", CONFIG_TYPE_UINT8,   {.val8 = 1}},
+  {"acc_th",CONFIG_TYPE_UINT8,     {.val8 = 50}},
+  {"acc_en",CONFIG_TYPE_UINT8,     {.val8 = 1}},
+  {"bp_en",CONFIG_TYPE_UINT8,      {.val8 = 1}},
+  {"alm0_day_mask", CONFIG_TYPE_UINT8, {.val8 = 0}},
+  {"alm0_hour", CONFIG_TYPE_UINT8, {.val8 = 0}}, 
+  {"alm0_min", CONFIG_TYPE_UINT8,  {.val8 = 0}},
+  {"alm0_dur", CONFIG_TYPE_UINT8,  {.val8 = 0}},
+  {"alm0_snd", CONFIG_TYPE_UINT8,  {.val8 = 0}},   
+  {"alm1_en", CONFIG_TYPE_UINT8,   {.val8 = 1}},  
+  {"bat_65", CONFIG_TYPE_UINT16,   {.val16 = 0}},
+  {"bat_90", CONFIG_TYPE_UINT16,   {.val16 = 0}},   
+  {"lt_0", CONFIG_TYPE_UINT16,     {.val16 = 0}},
+  {"lt_100", CONFIG_TYPE_UINT16,   {.val16 = 0}}, 
+  {"mon_lt_en", CONFIG_TYPE_UINT8, {.val8 = 1}},
 };
 
 static config_val_t _val;
 
-static config_slot_t * _find_config(const char * name, uint32_t * offset)
+static void config_factory_reset(void)
+{
+  uint32_t i, offset = 0;
+  for(i = 0 ; i < sizeof(_slot) / sizeof(config_slot_t) ; i ++) { 
+    switch(_slot[i].type) {
+      case CONFIG_TYPE_UINT8:
+        _val.val8 = _slot[i].default_val.val8;
+        BSP_ROM_Write(offset, (uint8_t *)(&_val.val8), 1);
+        offset += 1;
+        break;
+      case CONFIG_TYPE_UINT16:
+        _val.val16 = _slot[i].default_val.val16;
+        BSP_ROM_Write(offset, (uint8_t *)(&_val.val16), 2);
+        offset += 2;
+        break;
+      case CONFIG_TYPE_UINT32:
+        _val.val32 = _slot[i].default_val.val32;
+        BSP_ROM_Write(offset, (uint8_t *)(&_val.val32), 4);
+        offset += 4;
+        break;
+      default: ;
+    }   
+  } 
+}
+
+static config_slot_t * find_config(const char * name, uint32_t * offset)
 {
   uint32_t i;
   *offset = 0;
@@ -49,7 +75,7 @@ static config_slot_t * _find_config(const char * name, uint32_t * offset)
   return NULL;
 }
 
-static void _config_dump(void)
+static void config_dump(void)
 {
   uint32_t i, offset = 0;
   IVDBG("dump all config begin ----------------------");
@@ -80,13 +106,17 @@ static void _config_dump(void)
 
 void config_init(void)
 {
-  _config_dump();
+  if(BSP_Key_Is_Factory_Reset()) { //12:10:30 PM
+    IVINFO("config factory reset");
+    config_factory_reset();
+  }    
+  config_dump();
 }
 
 const config_val_t * config_read(const char * name)
 {
   uint32_t off = 0, size = 0;
-  config_slot_t * p = _find_config(name, &off);
+  config_slot_t * p = find_config(name, &off);
   if(p) {
     switch (p->type) {
       case CONFIG_TYPE_UINT8:
@@ -109,7 +139,7 @@ const config_val_t * config_read(const char * name)
 void config_write(const char * name, const config_val_t * val)
 {
   uint32_t off = 0, size = 0;
-  config_slot_t * p = _find_config(name, &off);
+  config_slot_t * p = find_config(name, &off);
   memcpy(&_val, val, sizeof(_val));
   if(p) {
     switch (p->type) {

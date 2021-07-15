@@ -22,7 +22,7 @@ int8_t con_player(char arg1, char arg2)
     if(arg2 == 0) {
       return -1;
     } else {
-      player_play_alarm(atoi(console_buf + arg2));
+      player_play_snd(atoi(console_buf + arg2));
     }
   } else if(!strcmp(console_buf + arg1, "stp")) {
     player_stop_play();

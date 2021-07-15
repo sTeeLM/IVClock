@@ -10,6 +10,7 @@ void clock_enter_powersave(void);
 void clock_leave_powersave(void);
 void clock_enter_shell(void);
 void clock_leave_shell(void);
+void clock_time_proc(enum task_events ev);
 
 enum clock_sync_type
 {
@@ -72,7 +73,6 @@ enum clock_display_mode
 
 void clock_display(bool enable);
 void clock_switch_display_mode(enum clock_display_mode mode);
-void clock_time_proc(enum task_events ev);
 
 uint32_t clock_get_now_sec(void);
 uint32_t clock_diff_now_sec(uint32_t sec);
