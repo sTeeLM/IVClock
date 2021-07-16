@@ -1,7 +1,7 @@
 #include "config.h"
 #include "rom.h"
 #include "debug.h"
-#include "key.h"
+#include "button.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -106,7 +106,7 @@ static void config_dump(void)
 
 void config_init(void)
 {
-  if(BSP_Key_Is_Factory_Reset()) { //12:10:30 PM
+  if(button_is_factory_reset()) { //12:10:30 PM
     IVINFO("config factory reset");
     config_factory_reset();
   }    

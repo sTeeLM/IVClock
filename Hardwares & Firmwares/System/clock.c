@@ -7,6 +7,7 @@
 #include "sm.h"
 #include "console.h"
 #include "display.h"
+#include "button.h"
 #include "key.h"
 
 static uint8_t date_table[2][12] = 
@@ -309,7 +310,7 @@ void clock_init(void)
 {
   IVDBG(("clock_initialize"));
   
-  if(BSP_Key_Is_Factory_Reset()) { //12:10:30 PM
+  if(button_is_factory_reset()) { //12:10:30 PM
     BSP_RTC_Read_Data(RTC_TYPE_TIME);
     IVINFO("clock factory reset time");
     BSP_RTC_Time_Set_Hour(12);

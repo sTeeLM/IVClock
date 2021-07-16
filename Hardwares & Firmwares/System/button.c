@@ -145,3 +145,8 @@ void button_mod_set_proc(enum task_events ev)
 
   sm_run(ev);
 }
+
+bool button_is_factory_reset(void)
+{
+  return BSP_Key_Set_Pressed();
+}
