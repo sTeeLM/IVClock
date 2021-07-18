@@ -621,18 +621,20 @@ bool BSP_RTC_Get_Temperature(uint8_t * integer, uint8_t * flt)
   bool sign = ((_rtc_data[0] &  0x80) != 0);
   uint16_t data;
   
+  IVDBG("BSP_RTC_Get_Temperature: 0x%02x 0x%02x", _rtc_data[0], _rtc_data[1]);
+  
   data = _rtc_data[0] & ~0x80;
   data <<= 2;
   data |= ((_rtc_data[1] >>= 6) & 0x03);
-  
+
   if(sign) {
     data --;
     data = ~data;
   }
   
-  data &= 0x3F;
+  data &= 0x1FF;
   
-  *integer = (data & 0x3C) >> 2;
+  *integer = (data & 0x1FC) >> 2;
   *flt     = (data & 0x3) * 25;
   
   if(*integer > 99) *integer = 99;
