@@ -166,6 +166,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
     task_run();
+    remote_run();
     console_run();
     /* USER CODE BEGIN 3 */
   }

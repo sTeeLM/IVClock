@@ -8,12 +8,6 @@ static UART_HandleTypeDef huart1; // debug
 static UART_HandleTypeDef huart2; // MP3
 static UART_HandleTypeDef huart3; // Blue Tooth
 
-#define BSP_USART3_RX_BUFFER_SIZE 64U
-static uint8_t BSP_USART3_RxBuffer[BSP_USART3_RX_BUFFER_SIZE];
-static uint8_t BSP_USART3_RxLen;
-static uint8_t BSP_USART3_RxCplt;
-static BSP_USART_STRING_RECV_CB BSP_USART3_Rx_CB;
-
 /**
   * @brief USART1 Initialization Function
   * @param None
@@ -437,31 +431,6 @@ BSP_Error_Type BSP_USART3_Transmit(uint8_t *pData, uint16_t Size)
   return BSP_USART_Transmit(&huart3, pData, Size);
 }
 
-BSP_Error_Type BSP_USART3_Start_Receive_String(BSP_USART_STRING_RECV_CB CB)
-{
-  BSP_USART3_Rx_CB  = CB;
-  BSP_USART3_RxLen  = 0;
-  BSP_USART3_RxCplt = 0;  
-  return BSP_USART_Receive_IT(&huart3, &BSP_USART3_RxBuffer[0], 1);
-}
-
-BSP_Error_Type BSP_USART3_End_Receive_String(uint8_t *pData, uint16_t *Size, uint16_t Timeout)
-{
-  while(BSP_USART3_RxCplt != 1 && Timeout != 0) {
-    delay_ms(1);
-    Timeout --;
-  }
-  if(BSP_USART3_RxCplt != 1 && Timeout == 0)
-    return BSP_ERROR_BUSY;
-  
-  if(*Size > BSP_USART3_RxLen) *Size = BSP_USART3_RxLen;
-  
-  memcpy(pData, BSP_USART3_RxBuffer, *Size);
-  
-  return BSP_ERROR_NONE;
-  
-}
-
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
@@ -484,26 +453,3 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 1 */
 }
 
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-  if(huart == &huart3) {
-//    IVDBG("HAL_UART_RxCpltCallback '%c'", BSP_USART3_RxBuffer[BSP_USART3_RxLen]);
-    BSP_USART3_RxLen ++;
-    if(BSP_USART3_RxLen >= BSP_USART3_RX_BUFFER_SIZE) {
-      BSP_USART3_RxCplt = 1;
-      if(BSP_USART3_Rx_CB) {
-        BSP_USART3_Rx_CB(BSP_USART3_RxBuffer, BSP_USART3_RxLen);
-      }
-    } else {
-      if(BSP_USART3_RxLen >= 1 && (BSP_USART3_RxBuffer[BSP_USART3_RxLen - 1] == '\n'
-        || BSP_USART3_RxBuffer[BSP_USART3_RxLen - 1] == '\r')) {
-        BSP_USART3_RxCplt = 1;
-        BSP_USART3_Rx_CB(BSP_USART3_RxBuffer, BSP_USART3_RxLen);
-      } else if(BSP_USART_Receive_IT(&huart3, &BSP_USART3_RxBuffer[BSP_USART3_RxLen], 1) != BSP_ERROR_NONE) {
-        BSP_USART3_RxCplt = 1;
-        BSP_USART3_Rx_CB(BSP_USART3_RxBuffer, BSP_USART3_RxLen);
-      }
-    }
-  }
-}

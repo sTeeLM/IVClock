@@ -96,16 +96,12 @@ void task_init (void)
 void task_run(void)
 {
   unsigned char c;
-
-  while((c = console_try_get_key()) != 'c' || c == 0) {
-    for(c = 0; c < EV_CNT; c++) {
-      if(task_test(c)) {
-        task_clr(c);
-        task_procs[c](c);
-      }
+  for(c = 0; c < EV_CNT; c++) {
+    if(task_test(c)) {
+      task_clr(c);
+      task_procs[c](c);
     }
   }
-  
 }
 
 void task_dump(void)

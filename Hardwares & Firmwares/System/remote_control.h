@@ -3,5 +3,5 @@
 
 void remote_control_init(void);
 void remote_control_scan(void);
-
+void remote_run(void);
 #endif

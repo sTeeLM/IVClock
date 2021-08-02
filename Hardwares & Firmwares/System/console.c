@@ -157,7 +157,11 @@ void console_printf(const char * fmt /*format*/, ...)
 
 void console_run(void)
 {
-  char arg1_pos, arg2_pos;
+  char arg1_pos, arg2_pos, c;
+  
+  if((c = console_try_get_key()) != 'c' || c == 0) {
+    return;
+  }
   
   console_printf("++++++++++++++++++++++++++++++++++++++++\n");
   console_printf("+             tini CONSOLE             +\n");
