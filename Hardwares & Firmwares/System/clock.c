@@ -88,7 +88,7 @@ void clock_inc_ms39(void)
       }
     } 
     
-    if(display_enable && !display_is_on()) {
+    if(display_enable && display_is_on()) {
       display_format_clock(&clk, display_mode);
     }
   }

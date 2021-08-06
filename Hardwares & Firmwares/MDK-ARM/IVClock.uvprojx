@@ -729,9 +729,34 @@
           <GroupName>Application/System/State Machine</GroupName>
           <Files>
             <File>
-              <FileName>sm_clock.c</FileName>
+              <FileName>sm_clock_display.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\System\State Machine\sm_clock.c</FilePath>
+              <FilePath>..\System\State Machine\sm_clock_display.c</FilePath>
+            </File>
+            <File>
+              <FileName>sm_set_time.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\State Machine\sm_set_time.c</FilePath>
+            </File>
+            <File>
+              <FileName>sm_set_date.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\State Machine\sm_set_date.c</FilePath>
+            </File>
+            <File>
+              <FileName>sm_set_alarm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\State Machine\sm_set_alarm.c</FilePath>
+            </File>
+            <File>
+              <FileName>sm_timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\State Machine\sm_timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>sm_stop_watch.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\State Machine\sm_stop_watch.c</FilePath>
             </File>
           </Files>
         </Group>

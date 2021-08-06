@@ -21,7 +21,7 @@ static config_slot_t _slot[] = {
   {"lt_0", CONFIG_TYPE_UINT16,     {.val16 = 0}},
   {"lt_100", CONFIG_TYPE_UINT16,   {.val16 = 0}}, 
   {"mon_lt_en", CONFIG_TYPE_UINT8, {.val8 = 1}},
-  {"temp_cel", CONFIG_TYPE_UINT8,  {.val8 = 1}},  
+  {"temp_cen", CONFIG_TYPE_UINT8,  {.val8 = 1}},  
 };
 
 static config_val_t _val;

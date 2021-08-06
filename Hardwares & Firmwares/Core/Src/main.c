@@ -161,6 +161,8 @@ int main(void)
   sm_init();
   IVDBG("sub systems initialize done");
   
+  display_on();
+  
   /* USER CODE BEGIN WHILE */
   while (1)
   {

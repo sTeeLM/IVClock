@@ -4,7 +4,7 @@
 #include "config.h"
 #include "delay.h"
 #include "debug.h"
-#include "rtc.h"
+#include "thermometer.h"
 #include "console.h"
 #include <string.h>
 
@@ -397,22 +397,25 @@ err:
 
 void player_report_temperature(void)
 {
-  uint8_t integer, flt, ret = 0;
+  uint16_t integer, flt, ret = 0;
   uint8_t start = 0;
   uint8_t len = PLAYER_MAX_SEQ_LEN;
   bool sign;
   
   memset(player_seq, 0 ,sizeof(player_seq));
   
-  BSP_RTC_Read_Data(RTC_TYPE_TEMP); 
-  sign = BSP_RTC_Get_Temperature(&integer, &flt);
+  if(config_read("temp_cen")->val8) {
+    sign = thermometer_read_cen(&integer, &flt);
+  } else {
+    sign = thermometer_read_fah(&integer, &flt);
+  }
   
   player_seq[ret].dir  = PLAYER_DIR_MISC;
   player_seq[ret].file = PLAYER_FILE_WENDU;
   ret ++;
   
   player_seq[ret].dir  = PLAYER_DIR_MISC;
-  player_seq[ret].file = config_read("temp_cel")->val8 ? 
+  player_seq[ret].file = config_read("temp_cen")->val8 ? 
     PLAYER_FILE_SHESHI : PLAYER_FILE_HUASHI;
   ret ++;  
   

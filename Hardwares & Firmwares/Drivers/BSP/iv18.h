@@ -5,7 +5,7 @@
 #include "bsp.h"
 
 #define BSP_IV18_BLANK   0
-#define BSP_IV18_CELSIUS 1
+#define BSP_IV18_DEGREE  1
 
 BSP_Error_Type BSP_IV18_Init(void);
 void BSP_IV18_Clr(void);

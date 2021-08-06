@@ -5,6 +5,11 @@
 #include "clock.h"
 #include "timer.h"
 
+#include "iv18.h"
+
+#define DISPLAY_BLANK  BSP_IV18_BLANK
+#define DISPLAY_DEGREE BSP_IV18_DEGREE
+
 void display_init(void);
 bool display_is_on(void);
 void display_on(void);
@@ -24,6 +29,7 @@ void display_clr_blink(uint8_t index);
 void display_set_brightness(uint8_t percent);
 void display_mon_light(void);
 uint8_t display_get_light_percent(void);
+void display_clr(void);
 
 void display_cal_0(void);
 void display_cal_100(void);

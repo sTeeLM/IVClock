@@ -1,21 +1,24 @@
 #include "sm.h"
-#include "sm_clock.h"
+#include "sm_clock_display.h"
 #include "debug.h"
 
 static const char * sm_functions_names[] = {
-  "SM_CLOCK",
-  "SM_ALARM",
-  "SM_STOP_WATCH",
+  "SM_CLOCK_DISPLAY",    // 时钟功能
+  "SM_SET_TIME",         // 闹钟功能
+  "SM_SET_DATE",
+  "SM_SET_ALARM",
+  "SM_SET_PARAM",
   "SM_TIMER",
-  "SM_CONFIG"
+  "SM_STOP_WATCH",       // 马表功能
+  "SM_ALARM",
 };
 
 static const char ** sm_states_names[] = {
-  sm_states_names_clock,
+  sm_states_names_clock_display,
 };
 
 static struct sm_trans ** sm_trans_table[] = {
-  sm_trans_clock,
+  sm_trans_clock_display,
 };
 
 static uint8_t sm_cur_fuction;
@@ -23,7 +26,8 @@ static uint8_t sm_cur_state;
 
 void sm_init(void)
 {
-
+  sm_cur_fuction = SM_CLOCK_DISPLAY;
+  sm_cur_state   = SM_CLOCK_DISPLAY_INIT;
 }
 
 void sm_run(enum task_events ev)

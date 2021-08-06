@@ -45,6 +45,12 @@ void display_format_clock(struct clock_struct * clk, enum clock_display_mode dis
     BSP_IV18_Set_Dig(5, '-');  
     BSP_IV18_Set_Dig(6, ((clk->date + 1) / 10 + 0x30));
     BSP_IV18_Set_Dig(7, ((clk->date + 1) % 10 + 0x30));     
+  } else if(display_mode == CLOCK_DISPLAY_MODE_WEEK) {
+    BSP_IV18_Set_Dig(2, 'D');
+    BSP_IV18_Set_Dig(3, 'A');
+    BSP_IV18_Set_Dig(4, 'Y');  
+    BSP_IV18_Set_Dig(5, '-'); 
+    BSP_IV18_Set_Dig(6, (clk->day + 1) + 0x30);     
   }
 }
 
@@ -81,17 +87,21 @@ void display_on(void)
 {
   power_iv18_enable(TRUE);
   power_490_enable(TRUE);
-  BSP_TIM1_Start_PMW(TIM_CHANNEL_1); // light control
   BSP_TIM4_Start();
   _display_is_on = TRUE;
   _display_mon_light = config_read("mon_lt_en")->val8;
+  if(_display_mon_light) {
+    BSP_TIM1_Start_PMW(TIM_CHANNEL_1); // light control
+  }
 }
 
 void display_off(void)
 {
   power_iv18_enable(FALSE);
   power_490_enable(FALSE);
-  BSP_TIM1_Stop_PMW(TIM_CHANNEL_1); 
+  if(_display_mon_light) {
+    BSP_TIM1_Stop_PMW(TIM_CHANNEL_1); 
+  }
   BSP_TIM4_Stop();
 }
 
@@ -123,6 +133,11 @@ void display_clr_blink(uint8_t index)
 {
   IVDBG("display_clr_blink %d", index); 
   BSP_IV18_Clr_Blink(index);  
+}
+
+void display_clr(void)
+{
+  void BSP_IV18_Clr(void);
 }
 
 // percent: 1~100
@@ -177,6 +192,10 @@ void display_mon_light_enable(bool enable)
   _display_mon_light = enable;
   val.val8 = enable;
   config_write("mon_lt_en", &val);
+  if(enable)
+    BSP_TIM1_Start_PMW(TIM_CHANNEL_1);
+  else
+    BSP_TIM1_Stop_PMW(TIM_CHANNEL_1);
 }
 
 bool display_mon_light_enabled(void)

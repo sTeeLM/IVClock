@@ -61,7 +61,7 @@ static const uint8_t BSP_IV18_Dig_Code[] =
 {
         /* aPdcegbf */
    0x00, //00000000  BLANK
-   0x87, //10000111  o  degree Celsius assume ascii 1!!
+   0x87, //10000111  o  degree assume ascii 1!!
    0x04, //00000100  -  ascii: 0x2D
    0x00, //00000000  .
    0x00, //00000000  /
@@ -208,7 +208,7 @@ void BSP_IV18_Set_Dig(uint8_t index, uint8_t ascii)
   if(index > 8)
     index = 8;
 
-  if(ascii != BSP_IV18_BLANK && ascii != BSP_IV18_CELSIUS)
+  if(ascii != BSP_IV18_BLANK && ascii != BSP_IV18_DEGREE)
     ascii = ascii - 0x2D + 2;
   
   if(ascii >= sizeof(BSP_IV18_Dig_Code))
