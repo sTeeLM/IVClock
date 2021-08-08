@@ -6,6 +6,13 @@
 #include "tim.h"
 #include "config.h"
 #include "console.h"
+#include "pwr.h"
+#include "clock.h"
+
+#include "display.h"
+
+static bool power_is_in_powersave;
+static uint8_t power_save_timeo;
 
 void power_mon_start(void)
 {
@@ -33,6 +40,9 @@ void power_init(void)
   power_50_enable(TRUE);
   power_wdg_set(cal65, 0xFFF);
   power_mon_start();
+  
+  power_is_in_powersave = FALSE;
+  power_save_timeo = 0;
 }
 
 void power_33_enable(bool enable)
@@ -104,6 +114,45 @@ void power_cal_90(void)
   val.val16 = BSP_ADC1_Get_Value();
   console_printf("9.0v -> %d\r\n", val.val16);
   config_write("bat_90", &val);
+}
+
+void power_enter_powersave(void)
+{
+  IVDBG("power_enter_powersave");
+  
+  clock_enter_powersave();
+  display_enter_powersave();
+  
+  power_is_in_powersave = TRUE;
+  
+  while(power_is_in_powersave) {
+    BSP_PWR_Sleep();
+  }
+ 
+  clock_leave_powersave();
+  display_leave_powersave();
+  
+  power_reset_timeo();  
+}
+
+void power_wakeup(void)
+{
+  power_is_in_powersave = FALSE;
+}
+
+void power_test_powersave(void)
+{
+  uint8_t diff;
+  diff = clock_diff_now_sec(power_save_timeo);
+  IVDBG("power_test_powersave diff = %d", diff);
+  if(diff > config_read("power_timeo")->val8) {
+    power_enter_powersave();
+  }
+}
+
+void power_reset_timeo(void)
+{
+  power_save_timeo = clock_get_now_sec();
 }
 
 void power_scan(void)

@@ -5,6 +5,7 @@
 #include "clock.h"
 #include "config.h"
 #include "player.h"
+#include "power.h"
 
 #define ALARM0_MAX_DUR_MIN 30 // 30分钟
 
@@ -40,9 +41,6 @@ void alarm_scan(void)
 
   if(alarm0_hit) {
     if(alarm0.day_mask & (1 << (clock_get_day() - 1))) {
-//      if(power_test_flag()) {
-//        power_clr_flag();
-//      }
       task_set(EV_ALARM0);
       if(alarm1_hit) { // 如果同时响起，整点报时被忽略
         alarm1_hit = 0;

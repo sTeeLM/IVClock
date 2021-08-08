@@ -34,4 +34,7 @@ void display_clr(void);
 void display_cal_0(void);
 void display_cal_100(void);
 
+void display_enter_powersave(void);
+void display_leave_powersave(void);
+
 #endif

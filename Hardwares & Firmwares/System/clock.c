@@ -154,7 +154,7 @@ uint32_t clock_get_now_sec(void)
 
 uint32_t clock_diff_now_sec(uint32_t sec)
 {
-  return (uint32_t)(sec - now_sec);
+  return (uint32_t)(now_sec - sec);
 }
 
 uint8_t clock_get_sec(void)

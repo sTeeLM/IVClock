@@ -3,6 +3,7 @@
 #include "task.h"
 #include "config.h"
 #include "console.h"
+#include "power.h"
 
 void motion_sensor_show(void)
 {

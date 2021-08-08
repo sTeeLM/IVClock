@@ -35,6 +35,7 @@
 #include "gpio.h"
 #include "rom.h"
 #include "rtc.h"
+#include "pwr.h"
 
 /* system software */
 #include "alarm.h"
@@ -127,6 +128,7 @@ int main(void)
   PrintBsp("USART1", BSP_USART1_UART_Init());
   PrintBsp("USART2", BSP_USART2_UART_Init());
   PrintBsp("USART3", BSP_USART3_UART_Init());
+  PrintBsp("PWR   ", BSP_PWR_Init());
   PrintBsp("Key   ", BSP_Key_Init());  
   PrintBsp("I2C   ", BSP_I2C_Init());
   PrintBsp("ROM   ", BSP_ROM_Init());

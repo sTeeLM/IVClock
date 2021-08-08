@@ -5,6 +5,7 @@
 #include "motion_sensor.h"
 #include "remote_control.h"
 #include "player.h"
+#include "power.h"
 
 /**
   * @brief ROM Initialization Function
@@ -40,7 +41,7 @@ void EXTI3_IRQHandler(void)
   /* USER CODE END EXTI3_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(INT_KEY_SET_Pin);
   /* USER CODE BEGIN EXTI3_IRQn 1 */
-
+  power_wakeup();
   /* USER CODE END EXTI3_IRQn 1 */
 }
 
@@ -54,7 +55,7 @@ void EXTI4_IRQHandler(void)
   /* USER CODE END EXTI4_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(INT_KEY_MOD_Pin);
   /* USER CODE BEGIN EXTI4_IRQn 1 */
-
+  power_wakeup();
   /* USER CODE END EXTI4_IRQn 1 */
 }
 
@@ -70,7 +71,7 @@ void EXTI9_5_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(INT_ALARM_Pin);
   HAL_GPIO_EXTI_IRQHandler(INT_ACC_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
-
+  power_wakeup();
   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 

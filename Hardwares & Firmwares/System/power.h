@@ -22,4 +22,8 @@ void power_cal_65(void);
 void power_cal_90(void);
 void power_scan(void);
 
+void power_enter_powersave(void);
+void power_wakeup(void);
+void power_test_powersave(void);
+void power_reset_timeo(void);
 #endif

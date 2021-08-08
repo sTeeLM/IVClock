@@ -7,41 +7,66 @@
 #include "display.h"
 #include "clock.h"
 #include "thermometer.h"
+#include "power.h"
+#include "config.h"
+
 
 void do_clock_display_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   display_clr();
+  power_reset_timeo();
 }
+
 static void do_clock_display_time(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
-  clock_display(FALSE);
-  display_clr();
-  clock_switch_display_mode(CLOCK_DISPLAY_MODE_HHMMSS);
-  clock_display(TRUE);
+  if(EV_1S == ev) {
+    power_test_powersave();
+  } else {
+    power_reset_timeo();
+    clock_display(FALSE);
+    display_clr();
+    clock_switch_display_mode(CLOCK_DISPLAY_MODE_HHMMSS);
+    clock_display(TRUE);
+  }
 }
 
 static void do_clock_display_date(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
-  clock_display(FALSE);
-  display_clr();
-  clock_switch_display_mode(CLOCK_DISPLAY_MODE_YYMMDD);
-  clock_display(TRUE);
+  if(EV_1S == ev) {
+    power_test_powersave();
+  } else {
+    power_reset_timeo();
+    clock_display(FALSE);
+    display_clr();
+    clock_switch_display_mode(CLOCK_DISPLAY_MODE_YYMMDD);
+    clock_display(TRUE);
+  }
 }
 
 static void do_clock_display_week(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
-  clock_display(FALSE);
-  display_clr();
-  clock_switch_display_mode(CLOCK_DISPLAY_MODE_WEEK);
-  clock_display(TRUE);
+  if(EV_1S == ev) {
+    power_test_powersave();
+  } else {
+    power_reset_timeo();
+    clock_display(FALSE);
+    display_clr();
+    clock_switch_display_mode(CLOCK_DISPLAY_MODE_WEEK);
+    clock_display(TRUE);
+  }
 }
 
 static void do_clock_display_temp(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
-  clock_display(FALSE);
-  display_clr();
-  if(EV_1S == ev)
+
+  if(EV_1S == ev) {
+    power_test_powersave();
+  } else {
+    power_reset_timeo();
+    clock_display(FALSE);
+    display_clr();
     thermometer_display();
+  }
 }
 
 const char * sm_states_names_clock_display[] = {
@@ -58,6 +83,7 @@ static struct sm_trans sm_trans_clock_display_init[] = {
 };
 
 static struct sm_trans sm_trans_clock_display_time[] = { 
+  {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init}, 
@@ -66,6 +92,7 @@ static struct sm_trans sm_trans_clock_display_time[] = {
 };
 
 static struct sm_trans sm_trans_clock_display_date[] = {   
+  {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},  
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},
@@ -74,6 +101,7 @@ static struct sm_trans sm_trans_clock_display_date[] = {
 };
 
 static struct sm_trans sm_trans_clock_display_week[] = {  
+  {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week},
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},  
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},

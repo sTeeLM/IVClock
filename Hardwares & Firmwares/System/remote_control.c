@@ -3,6 +3,7 @@
 #include "bsp.h"
 #include "cext.h"
 #include "delay.h"
+#include "power.h"
 
 static bool remote_control_conn;
 

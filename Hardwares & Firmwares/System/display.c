@@ -6,6 +6,7 @@
 #include "adc.h"
 #include "config.h"
 #include "console.h"
+#include "delay.h"
 
 static bool _display_is_on;
 static bool _display_mon_light;
@@ -20,37 +21,41 @@ void display_init(void)
 void display_format_clock(struct clock_struct * clk, enum clock_display_mode display_mode)
 {
   if(display_mode == CLOCK_DISPLAY_MODE_HHMMSS) {
+    BSP_IV18_Set_Dig(1, '=');
     if(clk->is12) {
       clk->ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
-      BSP_IV18_Set_Dig(2, (clk->hour / 10) == 0 ? BSP_IV18_BLANK : (clk->hour / 10 + 0x30));
-      BSP_IV18_Set_Dig(2, (clk->hour % 10 + 0x30));      
+      BSP_IV18_Set_Dig(2, (clk->hour12 / 10) == 0 ? BSP_IV18_BLANK : (clk->hour / 10 + 0x30));
+      BSP_IV18_Set_Dig(3, (clk->hour12 % 10 + 0x30));      
     } else {
       BSP_IV18_Set_Dig(2, (clk->hour / 10 + 0x30));
-      BSP_IV18_Set_Dig(2, (clk->hour % 10 + 0x30)); 
+      BSP_IV18_Set_Dig(3, (clk->hour % 10 + 0x30)); 
     }
-    BSP_IV18_Set_DP(2);
+    clk->sec % 2 ? BSP_IV18_Set_DP(3) : BSP_IV18_Clr_DP(3);
     
-    BSP_IV18_Set_Dig(3, (clk->min / 10 + 0x30));
-    BSP_IV18_Set_Dig(4, (clk->min % 10 + 0x30)); 
-    BSP_IV18_Set_DP(4);
+    BSP_IV18_Set_Dig(4, (clk->min / 10 + 0x30));
+    BSP_IV18_Set_Dig(5, (clk->min % 10 + 0x30)); 
     
-    BSP_IV18_Set_Dig(5, (clk->sec / 10 + 0x30));
-    BSP_IV18_Set_Dig(6, (clk->sec % 10 + 0x30));   
+    clk->sec % 2 ? BSP_IV18_Set_DP(5) : BSP_IV18_Clr_DP(5);
+    
+    BSP_IV18_Set_Dig(6, (clk->sec / 10 + 0x30));
+    BSP_IV18_Set_Dig(7, (clk->sec % 10 + 0x30));
+    BSP_IV18_Set_Dig(8, '=');
   } else if(display_mode == CLOCK_DISPLAY_MODE_YYMMDD) {
     BSP_IV18_Set_Dig(1, (clk->year / 10 + 0x30));
     BSP_IV18_Set_Dig(2, (clk->year % 10 + 0x30)); 
     BSP_IV18_Set_Dig(3, '-');  
     BSP_IV18_Set_Dig(4, ((clk->mon + 1) / 10 + 0x30));
     BSP_IV18_Set_Dig(5, ((clk->mon + 1) % 10 + 0x30)); 
-    BSP_IV18_Set_Dig(5, '-');  
-    BSP_IV18_Set_Dig(6, ((clk->date + 1) / 10 + 0x30));
-    BSP_IV18_Set_Dig(7, ((clk->date + 1) % 10 + 0x30));     
+    BSP_IV18_Set_Dig(6, '-');  
+    BSP_IV18_Set_Dig(7, ((clk->date + 1) / 10 + 0x30));
+    BSP_IV18_Set_Dig(8, ((clk->date + 1) % 10 + 0x30));     
   } else if(display_mode == CLOCK_DISPLAY_MODE_WEEK) {
     BSP_IV18_Set_Dig(2, 'D');
     BSP_IV18_Set_Dig(3, 'A');
     BSP_IV18_Set_Dig(4, 'Y');  
     BSP_IV18_Set_Dig(5, '-'); 
-    BSP_IV18_Set_Dig(6, (clk->day + 1) + 0x30);     
+    BSP_IV18_Set_Dig(6, '-'); 
+    BSP_IV18_Set_Dig(7, (clk->day + 1) + 0x30);     
   }
 }
 
@@ -137,7 +142,7 @@ void display_clr_blink(uint8_t index)
 
 void display_clr(void)
 {
-  void BSP_IV18_Clr(void);
+  BSP_IV18_Clr();
 }
 
 // percent: 1~100
@@ -223,4 +228,16 @@ void display_mon_light(void)
     display_light_to_brightness(
     display_get_light_percent()));
   }
+}
+
+void display_enter_powersave(void)
+{
+  display_clr();
+  delay_ms(10);
+  display_off();
+}
+
+void display_leave_powersave(void)
+{
+  display_on();
 }
