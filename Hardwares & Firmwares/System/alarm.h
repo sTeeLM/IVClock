@@ -15,14 +15,16 @@ struct alarm0_struct {
   uint8_t day_mask;                // 1->enable 0->disable
   uint8_t hour;                    // 0-23
   uint8_t min;                     // 0-59
-  uint8_t dur;                     // 闹铃持续时间，分钟
+  uint8_t snd;                     // 闹铃声音snd index
 };
+
+extern struct alarm0_struct alarm0;
 
 enum alarm_sync_type {
   ALARM_SYNC_ALARM0_DAY_MASK,
   ALARM_SYNC_ALARM0_HOUR,
   ALARM_SYNC_ALARM0_MIN,
-  ALARM_SYNC_ALARM0_DUR,
+  ALARM_SYNC_ALARM0_SND,
   ALARM_SYNC_ALARM1_ENABLE
 };
 
@@ -39,9 +41,9 @@ uint8_t alarm0_get_hour(void);
 void alarm0_inc_hour(void);
 //void alarm0_sync_from_rtc(void);
 void alarm0_sync_to_rtc(void);
-// 闹铃持续时间
-void alarm0_inc_dur(void);
-uint8_t alarm0_get_dur(void);
+// 闹铃铃声
+void alarm0_inc_snd(void);
+uint8_t alarm0_get_snd(void);
 
 
 // 闹钟1是整点报时闹钟
@@ -51,7 +53,7 @@ void alarm1_set_enable(bool enable);
 void alarm1_sync_to_rtc(void);
 void alarm_scan(void);
 
-void alarm_stop_mp3(void);
-void alarm_play_mp3(void);
+void alarm0_stop_snd(void);
+void alarm0_play_snd(void);
 
 #endif

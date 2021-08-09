@@ -1,5 +1,7 @@
 #include "cext.h"
 
+#include <stdint.h>
+
 // 计算某年某月某日星期几,  经典的Zeller公式
 // year 0-99
 // mon 0-11
@@ -37,4 +39,25 @@ char cext_is_leap_year(unsigned char year)
   if(year >= 100) year = 99;
   y = year + CEXT_YEAR_BASE;
   return is_leap_year(y);
+}
+
+//
+// 24 小时的小时到12小时的小时
+bool cext_cal_hour12(uint8_t hour, uint8_t * hour12)
+{
+  bool ispm;
+  if(hour == 0) {
+    *hour12 = 12;
+    ispm = FALSE;
+  } else if(hour >= 1 && hour < 12) {
+    *hour12 = hour;
+    ispm = FALSE;
+  } else if(hour == 12){
+    *hour12 = hour;
+    ispm = TRUE;
+  } else {
+    *hour12 = hour - 12;
+    ispm = TRUE;
+  }
+  return ispm;
 }

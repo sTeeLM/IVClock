@@ -6,6 +6,9 @@
 enum sm_states_set_time
 {
   SM_SET_TIME_INIT, 
+  SM_SET_TIME_HOUR, 
+  SM_SET_TIME_MIN,
+  SM_SET_TIME_SEC,  
 };
 
 void do_set_time_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev);

@@ -23,10 +23,10 @@ static void do_clock_display_time(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_display(FALSE);
+    clock_refresh_display(FALSE);
     display_clr();
-    clock_switch_display_mode(CLOCK_DISPLAY_MODE_HHMMSS);
-    clock_display(TRUE);
+    display_set_mode(DISPLAY_MODE_CLOCK_HHMMSS);
+    clock_refresh_display(TRUE);
   }
 }
 
@@ -36,10 +36,10 @@ static void do_clock_display_date(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_display(FALSE);
+    clock_refresh_display(FALSE);
     display_clr();
-    clock_switch_display_mode(CLOCK_DISPLAY_MODE_YYMMDD);
-    clock_display(TRUE);
+    display_set_mode(DISPLAY_MODE_CLOCK_YYMMDD);
+    clock_refresh_display(TRUE);
   }
 }
 
@@ -49,10 +49,10 @@ static void do_clock_display_week(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_display(FALSE);
+    clock_refresh_display(FALSE);
     display_clr();
-    clock_switch_display_mode(CLOCK_DISPLAY_MODE_WEEK);
-    clock_display(TRUE);
+    display_set_mode(DISPLAY_MODE_CLOCK_WEEK);
+    clock_refresh_display(TRUE);
   }
 }
 
@@ -63,7 +63,7 @@ static void do_clock_display_temp(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_display(FALSE);
+    clock_refresh_display(FALSE);
     display_clr();
     thermometer_display();
   }

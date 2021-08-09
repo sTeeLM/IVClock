@@ -7,20 +7,22 @@
 #include "config.h"
 #include "console.h"
 #include "delay.h"
+#include "alarm.h"
 
 static bool _display_is_on;
 static bool _display_mon_light;
-  
+static enum display_mode _display_mode;
 void display_init(void)
 {
   BSP_TIM1_Stop_PMW(TIM_CHANNEL_1); // light control
   _display_is_on = FALSE;
   _display_mon_light = FALSE;
+  _display_mode = DISPLAY_MODE_NONE;
 }
 
-void display_format_clock(struct clock_struct * clk, enum clock_display_mode display_mode)
+void display_format_clock(struct clock_struct * clk)
 {
-  if(display_mode == CLOCK_DISPLAY_MODE_HHMMSS) {
+  if(_display_mode == DISPLAY_MODE_CLOCK_HHMMSS) {
     BSP_IV18_Set_Dig(1, '=');
     if(clk->is12) {
       clk->ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
@@ -40,7 +42,7 @@ void display_format_clock(struct clock_struct * clk, enum clock_display_mode dis
     BSP_IV18_Set_Dig(6, (clk->sec / 10 + 0x30));
     BSP_IV18_Set_Dig(7, (clk->sec % 10 + 0x30));
     BSP_IV18_Set_Dig(8, '=');
-  } else if(display_mode == CLOCK_DISPLAY_MODE_YYMMDD) {
+  } else if(_display_mode == DISPLAY_MODE_CLOCK_YYMMDD) {
     BSP_IV18_Set_Dig(1, (clk->year / 10 + 0x30));
     BSP_IV18_Set_Dig(2, (clk->year % 10 + 0x30)); 
     BSP_IV18_Set_Dig(3, '-');  
@@ -49,7 +51,7 @@ void display_format_clock(struct clock_struct * clk, enum clock_display_mode dis
     BSP_IV18_Set_Dig(6, '-');  
     BSP_IV18_Set_Dig(7, ((clk->date + 1) / 10 + 0x30));
     BSP_IV18_Set_Dig(8, ((clk->date + 1) % 10 + 0x30));     
-  } else if(display_mode == CLOCK_DISPLAY_MODE_WEEK) {
+  } else if(_display_mode == DISPLAY_MODE_CLOCK_WEEK) {
     BSP_IV18_Set_Dig(2, 'D');
     BSP_IV18_Set_Dig(3, 'A');
     BSP_IV18_Set_Dig(4, 'Y');  
@@ -59,29 +61,64 @@ void display_format_clock(struct clock_struct * clk, enum clock_display_mode dis
   }
 }
 
-void display_format_timer(struct timer_struct * tmr, enum timer_display_mode display_mode)
+void display_format_timer(struct timer_struct * tmr)
 {
   uint8_t ms10 = (uint8_t)(((float)(tmr[0].ms39) * 3.9) / 10);
-  if(display_mode == TIMER_DISP_MODE_HHMMSS) {
+  if(_display_mode == DISPLAY_MODE_TIMER_HHMMSS) {
     BSP_IV18_Set_Dig(2, (tmr->hour / 10 + 0x30));
-    BSP_IV18_Set_Dig(2, (tmr->hour % 10 + 0x30)); 
-    BSP_IV18_Set_DP(2);
+    BSP_IV18_Set_Dig(3, (tmr->hour % 10 + 0x30)); 
+    BSP_IV18_Set_DP(3);
+    BSP_IV18_Set_Dig(4, (tmr->min / 10 + 0x30));
+    BSP_IV18_Set_Dig(5, (tmr->min % 10 + 0x30)); 
+    BSP_IV18_Set_DP(5); 
+    BSP_IV18_Set_Dig(6, (tmr->sec / 10 + 0x30));
+    BSP_IV18_Set_Dig(7, (tmr->sec % 10 + 0x30)); 
+  } else if(_display_mode == DISPLAY_MODE_TIMER_MMSSMM) {
     BSP_IV18_Set_Dig(2, (tmr->min / 10 + 0x30));
-    BSP_IV18_Set_Dig(2, (tmr->min % 10 + 0x30)); 
-    BSP_IV18_Set_DP(2); 
-    BSP_IV18_Set_Dig(2, (tmr->sec / 10 + 0x30));
-    BSP_IV18_Set_Dig(2, (tmr->sec % 10 + 0x30)); 
-  } else if(display_mode == TIMER_DISP_MODE_HHMMSS) {
-    BSP_IV18_Set_Dig(2, (tmr->min / 10 + 0x30));
-    BSP_IV18_Set_Dig(2, (tmr->min % 10 + 0x30)); 
-    BSP_IV18_Set_DP(2);
-    BSP_IV18_Set_Dig(2, (tmr->sec / 10 + 0x30));
-    BSP_IV18_Set_Dig(2, (tmr->sec % 10 + 0x30)); 
-    BSP_IV18_Set_DP(2); 
-    BSP_IV18_Set_Dig(2, (ms10 / 10 + 0x30));
-    BSP_IV18_Set_Dig(2, (ms10 % 10 + 0x30));
+    BSP_IV18_Set_Dig(3, (tmr->min % 10 + 0x30)); 
+    BSP_IV18_Set_DP(3);
+    BSP_IV18_Set_Dig(4, (tmr->sec / 10 + 0x30));
+    BSP_IV18_Set_Dig(5, (tmr->sec % 10 + 0x30)); 
+    BSP_IV18_Set_DP(5); 
+    BSP_IV18_Set_Dig(6, (ms10 / 10 + 0x30));
+    BSP_IV18_Set_Dig(7, (ms10 % 10 + 0x30));
   }
 }
+
+void display_format_alarm0(struct alarm0_struct * alarm0)
+{
+  bool ispm;
+  uint8_t hour12, i;
+  
+  if(_display_mode == DISPLAY_MODE_ALARM_HHMM) {
+    BSP_IV18_Set_Dig(2,'A');
+    BSP_IV18_Set_Dig(3,'L');
+    BSP_IV18_Set_Dig(4,'-');
+    ispm = cext_cal_hour12(alarm0->hour, &hour12);
+    if(config_read("time_12")->val8) {
+      ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
+      BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
+      BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
+    } else {
+      BSP_IV18_Set_Dig(5, (alarm0->hour / 10 + 0x30));
+      BSP_IV18_Set_Dig(6, (alarm0->hour % 10 + 0x30));
+    }
+    BSP_IV18_Set_DP(6);
+    BSP_IV18_Set_Dig(7, (alarm0->min / 10 + 0x30));
+    BSP_IV18_Set_Dig(8, (alarm0->min % 10 + 0x30));
+  } else if(_display_mode == DISPLAY_MODE_ALARM_DAY) {
+    for(i = 0 ; i < 7 ; i++) {
+      BSP_IV18_Set_Dig(i + 1, alarm0_test_enable(i + 1) ? '0' : '-');
+    }
+  } else if(_display_mode == DISPLAY_MODE_ALARM_SND) {
+    BSP_IV18_Set_Dig(1, 'S');
+    BSP_IV18_Set_Dig(2, 'N');
+    BSP_IV18_Set_Dig(3, 'D'); 
+    BSP_IV18_Set_Dig(4, '-');
+    BSP_IV18_Set_Dig(5, alarm0->snd + 0x30);
+  }
+}
+
 
 bool display_is_on(void)
 {
@@ -240,4 +277,123 @@ void display_enter_powersave(void)
 void display_leave_powersave(void)
 {
   display_on();
+}
+
+void display_set_mode(enum display_mode mode)
+{
+  _display_mode = mode;
+}
+
+enum display_mode display_get_mode(void)
+{
+  return _display_mode;
+}
+
+void display_set_blink_clock_hour(bool enable)
+{
+  if(enable) {
+    display_set_blink(2);
+    display_set_blink(3);    
+  } else {
+    display_clr_blink(2);
+    display_clr_blink(3); 
+  }
+}
+
+void display_set_blink_clock_min(bool enable)
+{
+  if(enable) {
+    display_set_blink(4);
+    display_set_blink(5);    
+  } else {
+    display_clr_blink(4);
+    display_clr_blink(5); 
+  }
+}
+
+void display_set_blink_clock_sec(bool enable)
+{
+  if(enable) {
+    display_set_blink(6);
+    display_set_blink(7);    
+  } else {
+    display_clr_blink(6);
+    display_clr_blink(7); 
+  }
+}
+
+void display_set_blink_clock_year(bool enable)
+{
+  if(enable) {
+    display_set_blink(1);
+    display_set_blink(2);    
+  } else {
+    display_clr_blink(1);
+    display_clr_blink(2); 
+  }
+}
+
+void display_set_blink_clock_mon(bool enable)
+{
+  if(enable) {
+    display_set_blink(4);
+    display_set_blink(5);    
+  } else {
+    display_clr_blink(4);
+    display_clr_blink(5); 
+  }
+}
+
+void display_set_blink_clock_date(bool enable)
+{
+  if(enable) {
+    display_set_blink(7);
+    display_set_blink(8);    
+  } else {
+    display_clr_blink(7);
+    display_clr_blink(8); 
+  }
+}
+
+void display_set_blink_alarm_hour(bool enable)
+{
+  if(enable) {
+    display_set_blink(5);
+    display_set_blink(6);    
+  } else {
+    display_clr_blink(5);
+    display_clr_blink(6); 
+  }
+}
+
+void display_set_blink_alarm_min(bool enable)
+{
+  if(enable) {
+    display_set_blink(7);
+    display_set_blink(8);    
+  } else {
+    display_clr_blink(7);
+    display_clr_blink(8); 
+  }
+}
+
+// day 1 - 7
+void display_set_blink_alarm_day(bool enable, uint8_t day)
+{
+  if(enable) {
+    display_set_blink(day);
+    display_set_blink(day);    
+  } else {
+    display_clr_blink(day);
+    display_clr_blink(day); 
+  }
+}
+
+void display_set_blink_alarm_snd(bool enable)
+{
+  if(enable) {
+    display_set_blink(5);    
+  } else {
+    display_clr_blink(5); 
+  }
 }

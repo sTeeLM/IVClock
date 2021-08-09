@@ -1,6 +1,8 @@
 #ifndef __IVCLOCK_EXT_H__
 #define __IVCLOCK_EXT_H__
 
+#include <stdint.h>
+
 #define CEXT_YEAR_BASE  2000
 
 #define is_leap_year(y) \
@@ -16,6 +18,6 @@ typedef enum {FALSE = 0,TRUE = !FALSE} bool;
 unsigned char cext_yymmdd_to_day(unsigned char year, unsigned char mon, unsigned char date);
 
 char cext_is_leap_year(unsigned char year);
-
+bool cext_cal_hour12(uint8_t hour, uint8_t * hour12);
 
 #endif

@@ -7,9 +7,9 @@
 #include "player.h"
 #include "power.h"
 
-#define ALARM0_MAX_DUR_MIN 30 // 30分钟
+#define ALARM0_MAX_SND_INDEX 9
 
-static struct alarm0_struct alarm0;
+struct alarm0_struct alarm0;
 
 static bool alarm0_is12;
 static bool alarm1_enable;
@@ -66,7 +66,7 @@ void alarm_load_config(void)
   alarm0.day_mask = config_read("alm0_day_mask")->val8;
   alarm0.hour = config_read("alm0_hour")->val8;
   alarm0.min  = config_read("alm0_min")->val8;
-  alarm0.dur  = config_read("alm0_dur")->val8;
+  alarm0.snd  = config_read("alm0_snd")->val8;
   alarm0_is12 = config_read("time_12")->val8;
   alarm1_enable = config_read("alm1_en")->val8; 
 }
@@ -87,9 +87,9 @@ void alarm_save_config(enum alarm_sync_type t)
       val.val8 = alarm0.min;
       config_write("alm0_min", &val);
     break;
-    case ALARM_SYNC_ALARM0_DUR:
-      val.val8 = alarm0.dur;
-      config_write("alm0_dur", &val);
+    case ALARM_SYNC_ALARM0_SND:
+      val.val8 = alarm0.snd;
+      config_write("alm0_snd", &val);
     break;
     case ALARM_SYNC_ALARM1_ENABLE:
       val.val8 = alarm1_enable;
@@ -139,7 +139,6 @@ void alarm0_set_enable(uint8_t day, bool enable)
     alarm0.day_mask &= ~day;
   }
   IVDBG("alarm0_set_enable res 0x%02x!", alarm0.day_mask);
-  
 }
 
 uint8_t alarm0_get_day_mask(void)
@@ -220,25 +219,28 @@ void alarm1_sync_to_rtc(void)
 }
 
 // 5 -> 10 -> 15 -> 20 -> 25 -> 30 -> 5
-void alarm0_inc_dur(void)
+void alarm0_inc_snd(void)
 {
-  alarm0.dur += 5;
-  if(alarm0.dur > ALARM0_MAX_DUR_MIN) {
-    alarm0.dur = 5;
+  config_val_t val;
+  alarm0.snd ++;
+  if(alarm0.snd > ALARM0_MAX_SND_INDEX) {
+    alarm0.snd = 0;
   }
+  val.val8 = alarm0.snd;
+  config_write("alm0_snd", &val);
 }
 
-uint8_t alarm0_get_dur(void)
+uint8_t alarm0_get_snd(void)
 {
-  return alarm0.dur;
+  return alarm0.snd;
 }
 
-void alarm_stop_snd(void)
+void alarm0_stop_snd(void)
 {
   player_stop_play();
 }
 
-void alarm_play_snd(void)
+void alarm0_play_snd(void)
 {
   player_play_snd(config_read("alm0_snd")->val8);
 }

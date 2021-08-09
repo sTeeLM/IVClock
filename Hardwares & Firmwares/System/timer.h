@@ -13,12 +13,6 @@ enum timer_mode {
   TIMER_MODE_DEC = 1,  
 };
 
-enum timer_display_mode
-{
-  TIMER_DISP_MODE_HHMMSS = 0,
-  TIMER_DISP_MODE_MMSSMM = 1,
-};
-
 struct timer_struct {
   uint8_t hour;
   uint8_t min;
@@ -28,8 +22,7 @@ struct timer_struct {
 
 #define TIMER_SLOT_CNT 5
 
-void timer_display(bool enable);
-void timer_switch_display_mode(enum timer_display_mode mode);
+void timer_refresh_display(bool enable);
 
 void timer_set_mode(enum timer_mode mode);
 void timer_start(void);

@@ -13,7 +13,6 @@ static config_slot_t _slot[] = {
   {"alm0_day_mask", CONFIG_TYPE_UINT8, {.val8 = 0}},
   {"alm0_hour", CONFIG_TYPE_UINT8, {.val8 = 0}}, 
   {"alm0_min", CONFIG_TYPE_UINT8,  {.val8 = 0}},
-  {"alm0_dur", CONFIG_TYPE_UINT8,  {.val8 = 0}},
   {"alm0_snd", CONFIG_TYPE_UINT8,  {.val8 = 0}},   
   {"alm1_en", CONFIG_TYPE_UINT8,   {.val8 = 1}},  
   {"bat_65", CONFIG_TYPE_UINT16,   {.val16 = 0}},

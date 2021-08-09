@@ -23,6 +23,7 @@ enum task_events
   EV_TIMER,                       // timer 倒计时结束
   EV_ALARM0,                      // Alarm0响起
   EV_ALARM1,                      // Alarm1响起
+  EV_VT1,
   EV_CNT  
 };
 

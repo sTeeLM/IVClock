@@ -64,15 +64,8 @@ void clock_enable_interrupt(bool enable);
 bool clock_is_leap_year(uint8_t year); // year 0-99
 uint8_t clock_get_mon_date(uint8_t year, uint8_t mon); // mon 0-11
 
-enum clock_display_mode
-{
-  CLOCK_DISPLAY_MODE_HHMMSS = 0,
-  CLOCK_DISPLAY_MODE_YYMMDD,
-  CLOCK_DISPLAY_MODE_WEEK
-};
 
-void clock_display(bool enable);
-void clock_switch_display_mode(enum clock_display_mode mode);
+void clock_refresh_display(bool enable);
 
 uint32_t clock_get_now_sec(void);
 uint32_t clock_diff_now_sec(uint32_t sec);

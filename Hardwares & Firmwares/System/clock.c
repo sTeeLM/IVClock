@@ -19,41 +19,16 @@ static uint8_t date_table[2][12] =
 static struct clock_struct clk;
 static uint32_t now_sec; // 用于 time_diff
 
-static bool display_enable;
-static enum clock_display_mode display_mode;
+static bool refresh_display;
 
 static bool in_shell;
 static bool clock_tick_enabled;
 
-void clock_display(bool enable)
+void clock_refresh_display(bool enable)
 {
-  display_enable = enable;
+  refresh_display = enable;
 }
 
-void clock_switch_display_mode(enum clock_display_mode mode)
-{
-  display_mode = mode;
-}
-
-
-// 0  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-// 12 1 2 3 4 5 6 7 8 9 10 11 12 1  2  3  4  5  6  7  8  9  10 11
-void static clk_cal_hour12(void)
-{
-  if(clk.hour == 0) {
-    clk.hour12 = 12;
-    clk.ispm = 0;
-  } else if(clk.hour >= 1 && clk.hour < 12) {
-    clk.hour12 = clk.hour;
-    clk.ispm = 0;
-  } else if(clk.hour == 12){
-    clk.hour12 = clk.hour;
-    clk.ispm = 1;
-  } else {
-    clk.hour12 = clk.hour - 12;
-    clk.ispm = 1;
-  }
-}
 
 // 1 / 256 = 0.00390625
 void clock_inc_ms39(void)
@@ -69,7 +44,7 @@ void clock_inc_ms39(void)
       clk.min = (++ clk.min) % 60;
       if(clk.min == 0) {
         clk.hour = (++ clk.hour) % 24;
-        clk_cal_hour12();
+        clk.ispm = cext_cal_hour12(clk.hour, &clk.hour12);
         if(clk.hour == 0) {
           y = clk.year + CEXT_YEAR_BASE;
           if(is_leap_year(y)) {
@@ -88,8 +63,8 @@ void clock_inc_ms39(void)
       }
     } 
     
-    if(display_enable && display_is_on()) {
-      display_format_clock(&clk, display_mode);
+    if(refresh_display && display_is_on()) {
+      display_format_clock(&clk);
     }
   }
 
@@ -182,7 +157,7 @@ uint8_t clock_get_hour(void)
 void clock_inc_hour(void)
 {
   clk.hour = (++ clk.hour) % 24;
-  clk_cal_hour12();
+  clk.ispm = cext_cal_hour12(clk.hour, &clk.hour12);
 }
 
 
@@ -243,7 +218,7 @@ void clock_sync_from_rtc(enum clock_sync_type type)
     clk.date --;
     clk.day  --;
   }
-  clk_cal_hour12();
+  clk.ispm = cext_cal_hour12(clk.hour, &clk.hour12);
   clock_enable_interrupt(TRUE);
 }
 
@@ -344,8 +319,7 @@ void clock_init(void)
   clk.is12 = config_read("time_12")->val8;
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
-  display_mode = CLOCK_DISPLAY_MODE_HHMMSS;
-  display_enable = 0;
+  refresh_display = FALSE;
   clock_dump();
 }
 

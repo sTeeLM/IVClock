@@ -7,8 +7,7 @@
 static struct timer_struct tmr[TIMER_SLOT_CNT]; // slot0 当前timer，1/2是两个瞬时值
 
 static enum timer_mode tmr_mode;
-static enum timer_display_mode display_mode;
-static bool tmr_display;
+static bool refresh_display;
 static bool tmr_countdown_stop;
 static bool tmr_start;
 
@@ -56,8 +55,8 @@ void timer_inc_ms39(void)
       }
     }
   }
-  if(tmr_display && !display_is_on()) {
-    display_format_timer(&tmr[0], display_mode);
+  if(refresh_display && !display_is_on()) {
+    display_format_timer(&tmr[0]);
   } 
 }
 
@@ -65,8 +64,7 @@ void timer_init(void)
 {
   IVDBG("timer_initialize");
   tmr_mode = TIMER_MODE_DEC;
-  display_mode = TIMER_DISP_MODE_HHMMSS;
-  tmr_display = 0;
+  refresh_display = FALSE;
   tmr_countdown_stop = 1;
   tmr_start = 0;
 }
@@ -82,16 +80,10 @@ void timer_leave_powersave(void)
   IVDBG("timer_leave_powersave");
 }
 
-void timer_display(bool enable)
+void timer_refresh_display(bool enable)
 {
-  tmr_display = enable;
+  refresh_display = enable;
 }
-
-void timer_switch_display_mode(enum timer_display_mode mode)
-{
-  display_mode = mode;
-}
-
 void timer_set_mode(enum timer_mode mode)
 {
   tmr_mode = mode;
@@ -172,9 +164,8 @@ void timer_clr(void)
 {
   memset(tmr, 0, sizeof(tmr));
   
-  tmr_display = 0;
+  refresh_display = FALSE;
   tmr_countdown_stop = 1;
-  display_mode = TIMER_DISP_MODE_HHMMSS;
   tmr_start = 0;
 }
 
