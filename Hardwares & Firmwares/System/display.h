@@ -50,6 +50,8 @@ void display_set_blink_alarm_min(bool enable);
 void display_set_blink_alarm_day(bool enable, uint8_t day);
 void display_set_blink_alarm_snd(bool enable);
 
+void display_show_string(uint8_t index, const char * str);
+
 enum display_mode
 {
   DISPLAY_MODE_NONE = 0,

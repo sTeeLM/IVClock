@@ -1,4 +1,5 @@
 #include "sm_clock_display.h"
+#include "sm_common.h"
 #include "sm_stop_watch.h"
 #include "sm_set_time.h"
 #include "task.h"
@@ -23,10 +24,10 @@ static void do_clock_display_time(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_refresh_display(FALSE);
+    clock_refresh_display_enable(FALSE);
     display_clr();
     display_set_mode(DISPLAY_MODE_CLOCK_HHMMSS);
-    clock_refresh_display(TRUE);
+    clock_refresh_display_enable(TRUE);
   }
 }
 
@@ -36,10 +37,10 @@ static void do_clock_display_date(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_refresh_display(FALSE);
+    clock_refresh_display_enable(FALSE);
     display_clr();
     display_set_mode(DISPLAY_MODE_CLOCK_YYMMDD);
-    clock_refresh_display(TRUE);
+    clock_refresh_display_enable(TRUE);
   }
 }
 
@@ -49,10 +50,10 @@ static void do_clock_display_week(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_refresh_display(FALSE);
+    clock_refresh_display_enable(FALSE);
     display_clr();
     display_set_mode(DISPLAY_MODE_CLOCK_WEEK);
-    clock_refresh_display(TRUE);
+    clock_refresh_display_enable(TRUE);
   }
 }
 
@@ -63,7 +64,7 @@ static void do_clock_display_temp(uint8_t from_func, uint8_t from_state, uint8_t
     power_test_powersave();
   } else {
     power_reset_timeo();
-    clock_refresh_display(FALSE);
+    clock_refresh_display_enable(FALSE);
     display_clr();
     thermometer_display();
   }

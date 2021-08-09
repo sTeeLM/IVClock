@@ -18,7 +18,7 @@ void beeper_beep(void)
 void beeper_beep_beep(void)
 {
   if(beeper_enabled()) {
-    BSP_TIM1_Start_Beeper(84, 1); 
+    BSP_TIM1_Start_Beeper(128, 1); 
   }   
 }
 

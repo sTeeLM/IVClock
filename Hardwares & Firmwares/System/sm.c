@@ -1,5 +1,13 @@
 #include "sm.h"
 #include "sm_clock_display.h"
+#include "sm_set_time.h"
+#include "sm_set_date.h"
+#include "sm_set_alarm.h"
+#include "sm_set_param.h"
+#include "sm_timer.h"
+#include "sm_stop_watch.h"
+#include "sm_alarm.h"
+
 #include "debug.h"
 
 static const char * sm_functions_names[] = {
@@ -15,10 +23,24 @@ static const char * sm_functions_names[] = {
 
 static const char ** sm_states_names[] = {
   sm_states_names_clock_display,
+  sm_states_names_set_time,
+  sm_states_names_set_date,
+  sm_states_names_set_alarm,
+  sm_states_names_set_param,
+  sm_states_names_timer,
+  sm_states_names_stop_watch,
+  sm_states_names_alarm
 };
 
 static struct sm_trans ** sm_trans_table[] = {
   sm_trans_clock_display,
+  sm_trans_set_time,
+  sm_trans_set_date,
+  sm_trans_set_alarm,
+  sm_trans_set_param,
+  sm_trans_timer,
+  sm_trans_stop_watch,
+  sm_trans_alarm
 };
 
 static uint8_t sm_cur_fuction;

@@ -24,7 +24,7 @@ static bool refresh_display;
 static bool in_shell;
 static bool clock_tick_enabled;
 
-void clock_refresh_display(bool enable)
+void clock_refresh_display_enable(bool enable)
 {
   refresh_display = enable;
 }
@@ -44,7 +44,6 @@ void clock_inc_ms39(void)
       clk.min = (++ clk.min) % 60;
       if(clk.min == 0) {
         clk.hour = (++ clk.hour) % 24;
-        clk.ispm = cext_cal_hour12(clk.hour, &clk.hour12);
         if(clk.hour == 0) {
           y = clk.year + CEXT_YEAR_BASE;
           if(is_leap_year(y)) {
@@ -63,19 +62,23 @@ void clock_inc_ms39(void)
       }
     } 
     
-    if(refresh_display && display_is_on()) {
-      display_format_clock(&clk);
-    }
+    clock_refresh_display();
   }
 
 }
 
+void clock_refresh_display(void)
+{
+  if(refresh_display && display_is_on()) {
+    display_format_clock(&clk);
+  }
+}
+
 void clock_show(void)
 {
-  console_printf("%02d-%02d-%02d %02d(%02d):%02d:%02d:%03d %s %s \r\n",
+  console_printf("%02d-%02d-%02d %02d:%02d:%02d:%03d\r\n",
     clk.year, clk.mon + 1, clk.date + 1,
-    clk.hour, clk.hour12, clk.min, clk.sec, clk.ms39, 
-    clk.ispm ? "PM" : "AM", clk.is12 ? "12":"24");
+    clk.hour, clk.min, clk.sec, clk.ms39);
 }
 
 void clock_dump(void)
@@ -84,37 +87,12 @@ void clock_dump(void)
   IVDBG("clk.mon  = %u", clk.mon);
   IVDBG("clk.date = %u", clk.date); 
   IVDBG("clk.day  = %u", clk.day);
-  IVDBG("clk.hour = %u", clk.hour);
-  IVDBG("clk.hour12 = %u", clk.hour12);  
+  IVDBG("clk.hour = %u", clk.hour); 
   IVDBG("clk.min  = %u", clk.min);
   IVDBG("clk.sec  = %u", clk.sec);  
-  IVDBG("clk.ms39 = %u", clk.ms39);
-  IVDBG("clk.is12 = %s", clk.is12 ? "ON" : "OFF");
-  IVDBG("clk.ispm = %s", clk.ispm ? "PM" : "AM");  
+  IVDBG("clk.ms39 = %u", clk.ms39); 
 }
 
-bool clock_is_hour_12format(void)
-{
-  return clk.is12;
-}
-
-uint8_t clock_get_hour12(void)
-{
-  return clk.hour12;
-}
-
-bool clock_is_pm(void)
-{
-  return clk.ispm;
-}
-
-void clock_set_hour_12format(bool enable)
-{
-  config_val_t val;
-  clk.is12 = enable;
-  val.val8 = enable ? 1 : 0;
-  config_write("time_12", &val);
-}
 
 uint8_t clock_get_ms39(void)
 {
@@ -157,7 +135,6 @@ uint8_t clock_get_hour(void)
 void clock_inc_hour(void)
 {
   clk.hour = (++ clk.hour) % 24;
-  clk.ispm = cext_cal_hour12(clk.hour, &clk.hour12);
 }
 
 
@@ -183,6 +160,10 @@ uint8_t clock_get_month(void)
 void clock_inc_month(void)
 {
   clk.mon = (++ clk.mon) % 12;
+  // 如果是2月并且不是闰年，需要保证不能出现2月29日
+  // 以及不能出现4月31日这样的情况
+  if(clk.date > clock_get_mon_date(clk.year, clk.mon) - 1)
+    clk.date = clock_get_mon_date(clk.year, clk.mon) - 1;
   clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
 }
 
@@ -193,6 +174,10 @@ uint8_t clock_get_year(void)
 void clock_inc_year(void)
 {
   clk.year = (++ clk.year) % 100;
+  // 如果是2月并且不是闰年，需要保证不能出现2月29日
+  // 以及不能出现4月31日这样的情况
+  if(clk.date > clock_get_mon_date(clk.year, clk.mon) - 1)
+    clk.date = clock_get_mon_date(clk.year, clk.mon) - 1;
   clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
 }
 
@@ -218,7 +203,6 @@ void clock_sync_from_rtc(enum clock_sync_type type)
     clk.date --;
     clk.day  --;
   }
-  clk.ispm = cext_cal_hour12(clk.hour, &clk.hour12);
   clock_enable_interrupt(TRUE);
 }
 
@@ -316,7 +300,6 @@ void clock_init(void)
 //    BSP_RTC_Write_Data(RTC_TYPE_DATE);  
   }
   
-  clk.is12 = config_read("time_12")->val8;
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   refresh_display = FALSE;

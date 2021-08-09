@@ -124,14 +124,14 @@ void alarm_dump(void)
 // day  1-7
 bool alarm0_test_enable(uint8_t day)
 {
-  IVDBG("alarm0_test_enable 0x%02x %u!\n", alarm0.day_mask, day);
+  IVDBG("alarm0_test_enable 0x%02x %u!", alarm0.day_mask, day);
   return (alarm0.day_mask & (1 << (day - 1))) != 0;
 }
 
 // day  1-7
 void alarm0_set_enable(uint8_t day, bool enable)
 {
-  IVDBG("alarm0_set_enable %u %s!\n", day, enable ? "ON" : "OFF");
+  IVDBG("alarm0_set_enable %u %s!", day, enable ? "ON" : "OFF");
   day = 1 << (day - 1);
   if(enable) {
     alarm0.day_mask |= day;

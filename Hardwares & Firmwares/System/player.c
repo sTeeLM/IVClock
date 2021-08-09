@@ -305,12 +305,14 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
 {
   uint8_t hour = clock_get_hour();
   uint8_t min = clock_get_min();
-  uint8_t ret = 0;
+  uint8_t ret = 0, hour12;
+  bool ispm;
   
-  if(clock_is_hour_12format()) {
-    hour = clock_get_hour12();
+  if(config_read("time_12")->val8) {
+    ispm = cext_cal_hour12(hour, &hour12);
+    hour = hour12;
     player_seq[start + ret].dir  = PLAYER_DIR_MISC;
-    player_seq[start + ret].file = clock_is_pm() ? PLAYER_FILE_AFTERNOON : PLAYER_FILE_MORNING;
+    player_seq[start + ret].file = ispm ? PLAYER_FILE_AFTERNOON : PLAYER_FILE_MORNING;
     ret ++;
     ret += player_synthetise_number(hour, start + ret, len - ret);
   } else {

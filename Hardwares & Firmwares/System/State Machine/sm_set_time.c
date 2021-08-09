@@ -1,4 +1,5 @@
 #include "sm_set_time.h"
+#include "sm_common.h"
 #include "task.h"
 #include "sm.h"
 #include "clock.h"
@@ -11,10 +12,9 @@ static bool start_inc;
 void do_set_time_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   display_clr();
-  display_set_mode(DISPLAY_MODE_CLOCK_YYMMDD);
-  clock_refresh_display(TRUE);
-  display_set_blink_clock_hour(TRUE);  
+  clock_refresh_display_enable(FALSE); 
   start_inc  = 0;
+  sm_common_show_function("---F1---");
 }
 
 static void do_set_time_hour(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
@@ -26,6 +26,7 @@ static void do_set_time_hour(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_LPRESS:
       start_inc = 1;
       clock_inc_hour();
+      clock_refresh_display();
       break;
     case EV_BUTTON_SET_UP:
       display_set_blink_clock_hour(TRUE);
@@ -36,12 +37,17 @@ static void do_set_time_hour(uint8_t from_func, uint8_t from_state, uint8_t to_f
       break;
     case EV_BUTTON_SET_PRESS:
       clock_inc_hour();
+      clock_refresh_display();
       clock_sync_to_rtc(CLOCK_SYNC_TIME);
       break;
+    case EV_BUTTON_MOD_UP:
+      if(from_state != SM_SET_TIME_INIT)
+        return;
     case EV_BUTTON_MOD_PRESS:
       display_clr();
       display_set_mode(DISPLAY_MODE_CLOCK_HHMMSS);
-      clock_refresh_display(TRUE);
+      clock_refresh_display_enable(TRUE);
+      clock_refresh_display();
       display_set_blink_clock_hour(TRUE); 
       start_inc  = 0;
       break;
@@ -58,6 +64,7 @@ static void do_set_time_min(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     case EV_BUTTON_SET_LPRESS:
       start_inc = 1;
       clock_inc_min();
+      clock_refresh_display();
       break;
     case EV_BUTTON_SET_UP:
       display_set_blink_clock_min(TRUE);
@@ -68,12 +75,14 @@ static void do_set_time_min(uint8_t from_func, uint8_t from_state, uint8_t to_fu
       break;
     case EV_BUTTON_SET_PRESS:
       clock_inc_min();
+      clock_refresh_display();
       clock_sync_to_rtc(CLOCK_SYNC_TIME);
       break;
     case EV_BUTTON_MOD_PRESS:
       display_clr();
       display_set_mode(DISPLAY_MODE_CLOCK_HHMMSS);
-      clock_refresh_display(TRUE);
+      clock_refresh_display_enable(TRUE);
+      clock_refresh_display();
       display_set_blink_clock_min(TRUE); 
       start_inc  = 0;
       break;
@@ -86,12 +95,14 @@ static void do_set_time_sec(uint8_t from_func, uint8_t from_state, uint8_t to_fu
   switch(ev) {
     case EV_BUTTON_SET_PRESS:
       clock_clr_sec();
+      clock_refresh_display();
       clock_sync_to_rtc(CLOCK_SYNC_TIME);
       break;
     case EV_BUTTON_MOD_PRESS:
       display_clr();
       display_set_mode(DISPLAY_MODE_CLOCK_HHMMSS);
-      clock_refresh_display(TRUE);
+      clock_refresh_display_enable(TRUE);
+      clock_refresh_display();
       display_set_blink_clock_sec(TRUE); 
       start_inc  = 0;
       break;
@@ -107,7 +118,7 @@ const char * sm_states_names_set_time[] = {
 };
 
 static struct sm_trans sm_trans_set_time_init[] = {
-  {EV_250MS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_hour},  
+  {EV_BUTTON_MOD_UP, SM_SET_TIME, SM_SET_TIME_HOUR, do_set_time_hour},  
   {NULL, NULL, NULL, NULL}
 };
 
@@ -122,18 +133,18 @@ static struct sm_trans sm_trans_set_time_hour[] = {
 };
 
 static struct sm_trans sm_trans_set_time_min[] = {
-  {EV_BUTTON_SET_DOWN, SM_SET_TIME, SM_SET_TIME_HOUR, do_set_time_min},  
-  {EV_BUTTON_SET_PRESS, SM_SET_TIME, SM_SET_TIME_HOUR, do_set_time_min},
-  {EV_BUTTON_SET_LPRESS, SM_SET_TIME, SM_SET_TIME_HOUR, do_set_time_min}, 
-  {EV_BUTTON_SET_UP, SM_SET_TIME, SM_SET_TIME_HOUR, do_set_time_min},   
-  {EV_BUTTON_MOD_PRESS, SM_SET_TIME, SM_SET_TIME_MIN, do_set_time_sec}, 
+  {EV_BUTTON_SET_DOWN, SM_SET_TIME, SM_SET_TIME_MIN, do_set_time_min},  
+  {EV_BUTTON_SET_PRESS, SM_SET_TIME, SM_SET_TIME_MIN, do_set_time_min},
+  {EV_BUTTON_SET_LPRESS, SM_SET_TIME, SM_SET_TIME_MIN, do_set_time_min}, 
+  {EV_BUTTON_SET_UP, SM_SET_TIME, SM_SET_TIME_MIN, do_set_time_min},   
+  {EV_BUTTON_MOD_PRESS, SM_SET_TIME, SM_SET_TIME_SEC, do_set_time_sec}, 
   {EV_BUTTON_MOD_LPRESS, SM_SET_DATE, SM_SET_DATE_INIT, do_set_date_init},   
   {NULL, NULL, NULL, NULL}
 };
 
 static struct sm_trans sm_trans_set_time_sec[] = {  
-  {EV_BUTTON_SET_PRESS, SM_SET_TIME, SM_SET_TIME_HOUR, do_set_time_sec},  
-  {EV_BUTTON_MOD_PRESS, SM_SET_TIME, SM_SET_TIME_MIN, do_set_time_hour}, 
+  {EV_BUTTON_SET_PRESS, SM_SET_TIME, SM_SET_TIME_SEC, do_set_time_sec},  
+  {EV_BUTTON_MOD_PRESS, SM_SET_TIME, SM_SET_TIME_HOUR, do_set_time_hour}, 
   {EV_BUTTON_MOD_LPRESS, SM_SET_DATE, SM_SET_DATE_INIT, do_set_date_init},   
   {NULL, NULL, NULL, NULL}
 };

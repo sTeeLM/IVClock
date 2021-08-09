@@ -9,6 +9,8 @@
 #include "delay.h"
 #include "alarm.h"
 
+#include <string.h>
+
 static bool _display_is_on;
 static bool _display_mon_light;
 static enum display_mode _display_mode;
@@ -22,12 +24,15 @@ void display_init(void)
 
 void display_format_clock(struct clock_struct * clk)
 {
+  bool ispm;
+  uint8_t hour12;
   if(_display_mode == DISPLAY_MODE_CLOCK_HHMMSS) {
+    ispm = cext_cal_hour12(clk->hour, &hour12);
     BSP_IV18_Set_Dig(1, '=');
-    if(clk->is12) {
-      clk->ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
-      BSP_IV18_Set_Dig(2, (clk->hour12 / 10) == 0 ? BSP_IV18_BLANK : (clk->hour12 / 10 + 0x30));
-      BSP_IV18_Set_Dig(3, (clk->hour12 % 10 + 0x30));      
+    if(config_read("time_12")->val8) {
+      ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
+      BSP_IV18_Set_Dig(2, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
+      BSP_IV18_Set_Dig(3, (hour12 % 10 + 0x30));      
     } else {
       BSP_IV18_Set_Dig(2, (clk->hour / 10 + 0x30));
       BSP_IV18_Set_Dig(3, (clk->hour % 10 + 0x30)); 
@@ -145,6 +150,17 @@ void display_off(void)
     BSP_TIM1_Stop_PMW(TIM_CHANNEL_1); 
   }
   BSP_TIM4_Stop();
+}
+
+void display_show_string(uint8_t index, const char * str)
+{
+  uint32_t len = strlen(str);
+  uint8_t i;
+  for(i = 0 ; i < len ; i++) {
+    if(index > 8)
+      return;
+    display_set_dig(index ++, str[i]);
+  }
 }
 
 void display_set_dig(uint8_t index, uint8_t code)

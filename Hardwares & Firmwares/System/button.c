@@ -13,10 +13,15 @@
 #define KEY_LPRESS_DELAY 3 // 长按时间，3s
 #define KEY_2_KEY_LPRESS_DELAY 2 // 同时按下长按时间，2s
 
+#define KEY_LPRESS_DELAY_MOD  16 // 降低 LPRESS 的发送速度
+
+
 static uint32_t last_mod_tmr_count; 
 static uint32_t last_set_tmr_count;
 static uint8_t mod_press;
 static uint8_t set_press;
+
+static uint8_t delay_cnt;
 
 void button_init(void)
 {
@@ -25,6 +30,8 @@ void button_init(void)
    
   mod_press = 0; 
   set_press = 0;
+  
+  delay_cnt = 0;
 }
 
 void button_scan_proc(enum task_events ev)
@@ -35,11 +42,13 @@ void button_scan_proc(enum task_events ev)
     if(BSP_Key_Set_Pressed()) {
       task_set(EV_BUTTON_SET_DOWN);      
       set_press = 1;
+      delay_cnt = 0;
       last_set_tmr_count = clock_get_now_sec();     
     }
   } else if(BSP_Key_Set_Pressed() && set_press){
     if(clock_diff_now_sec(last_set_tmr_count) >= KEY_LPRESS_DELAY) {
-      task_set(EV_BUTTON_SET_LPRESS);
+      if((++ delay_cnt) % KEY_LPRESS_DELAY_MOD == 0)
+        task_set(EV_BUTTON_SET_LPRESS);
     }
   } else if(!BSP_Key_Set_Pressed() && set_press) {
     task_set(EV_BUTTON_SET_UP);
@@ -57,11 +66,13 @@ void button_scan_proc(enum task_events ev)
     if(BSP_Key_Mod_Pressed()) {
       task_set(EV_BUTTON_MOD_DOWN);     
       mod_press = 1;
+      delay_cnt = 0;
       last_mod_tmr_count = clock_get_now_sec();       
     }
   } else if(BSP_Key_Mod_Pressed() && mod_press){
     if(clock_diff_now_sec(last_mod_tmr_count) >= KEY_LPRESS_DELAY) {
-      task_set(EV_BUTTON_MOD_LPRESS);
+      if((++ delay_cnt) % KEY_LPRESS_DELAY_MOD == 0)
+        task_set(EV_BUTTON_MOD_LPRESS);
     }
   } else if(!BSP_Key_Mod_Pressed() && mod_press) {
     task_set(EV_BUTTON_MOD_UP);
@@ -78,7 +89,8 @@ void button_scan_proc(enum task_events ev)
     && BSP_Key_Mod_Pressed() && mod_press) {
     if(clock_diff_now_sec(last_mod_tmr_count) >= KEY_2_KEY_LPRESS_DELAY
       && clock_diff_now_sec(last_set_tmr_count) >= KEY_2_KEY_LPRESS_DELAY) {
-      task_set(EV_BUTTON_MOD_SET_LPRESS);
+        if((++ delay_cnt) % KEY_LPRESS_DELAY_MOD == 0)
+          task_set(EV_BUTTON_MOD_SET_LPRESS);
     }
   }
 }

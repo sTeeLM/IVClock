@@ -205,9 +205,12 @@ BSP_Error_Type BSP_IV18_Init(void)
 
 void BSP_IV18_Set_Dig(uint8_t index, uint8_t ascii)
 {
+  uint32_t mask;
   if(index > 8)
     index = 8;
 
+  mask = BSP_IV18_Data[index] & (BSP_BLINK | BSP_DP);
+  
   if(ascii != BSP_IV18_BLANK && ascii != BSP_IV18_DEGREE)
     ascii = ascii - 0x2D + 2;
   
@@ -217,7 +220,7 @@ void BSP_IV18_Set_Dig(uint8_t index, uint8_t ascii)
   BSP_IV18_Data[index] = BSP_IV18_Scan_Code[index];
   BSP_IV18_Data[index] <<= 8;
   BSP_IV18_Data[index] |= BSP_IV18_Dig_Code[ascii];
-  
+  BSP_IV18_Data[index] |= mask;
 }
 
 void BSP_IV18_Set_DP(uint8_t index)
