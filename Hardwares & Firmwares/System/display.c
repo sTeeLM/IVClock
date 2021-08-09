@@ -24,7 +24,7 @@ void display_format_clock(struct clock_struct * clk, enum clock_display_mode dis
     BSP_IV18_Set_Dig(1, '=');
     if(clk->is12) {
       clk->ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
-      BSP_IV18_Set_Dig(2, (clk->hour12 / 10) == 0 ? BSP_IV18_BLANK : (clk->hour / 10 + 0x30));
+      BSP_IV18_Set_Dig(2, (clk->hour12 / 10) == 0 ? BSP_IV18_BLANK : (clk->hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(3, (clk->hour12 % 10 + 0x30));      
     } else {
       BSP_IV18_Set_Dig(2, (clk->hour / 10 + 0x30));

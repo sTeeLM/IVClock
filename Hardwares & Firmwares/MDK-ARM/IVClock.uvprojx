@@ -579,11 +579,6 @@
               <FilePath>..\Drivers\BSP\rom.c</FilePath>
             </File>
             <File>
-              <FileName>rtc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\rtc.c</FilePath>
-            </File>
-            <File>
               <FileName>extint.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\extint.c</FilePath>
@@ -592,6 +587,11 @@
               <FileName>pwr.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\pwr.c</FilePath>
+            </File>
+            <File>
+              <FileName>ds3231.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\ds3231.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -687,6 +687,11 @@
               <FileName>thermometer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\System\thermometer.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\rtc.c</FilePath>
             </File>
           </Files>
         </Group>

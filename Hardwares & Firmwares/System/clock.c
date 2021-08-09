@@ -226,17 +226,22 @@ void clock_sync_from_rtc(enum clock_sync_type type)
   IVDBG("clock_sync_from_rtc = %u", type);
   clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
-    BSP_RTC_Read_Data(RTC_TYPE_TIME);
-    clk.hour = BSP_RTC_Time_Get_Hour();   // 0 - 23
-    clk.min  = BSP_RTC_Time_Get_Min();    // 0 - 59
-    clk.sec  = BSP_RTC_Time_Get_Sec();    // 0 - 59
+    rtc_get_time(&clk.hour, &clk.min, &clk.sec);
+//    BSP_RTC_Read_Data(RTC_TYPE_TIME);
+//    clk.hour = BSP_RTC_Time_Get_Hour();   // 0 - 23
+//    clk.min  = BSP_RTC_Time_Get_Min();    // 0 - 59
+//    clk.sec  = BSP_RTC_Time_Get_Sec();    // 0 - 59
     clk.ms39 = 255;   // 0 - 255
   } else if(type == CLOCK_SYNC_DATE) {
-    BSP_RTC_Read_Data(RTC_TYPE_DATE);
-    clk.year = BSP_RTC_Date_Get_Year();          // 0 - 99 (2000 ~ 2099)
-    clk.mon  = BSP_RTC_Date_Get_Month() - 1;     // 0 - 11
-    clk.date = BSP_RTC_Date_Get_Date() - 1;      // 0 - 30(29/28/27)
-    clk.day  = BSP_RTC_Date_Get_Day() - 1;       // 0 - 6
+//    BSP_RTC_Read_Data(RTC_TYPE_DATE);
+//    clk.year = BSP_RTC_Date_Get_Year();          // 0 - 99 (2000 ~ 2099)
+//    clk.mon  = BSP_RTC_Date_Get_Month() - 1;     // 0 - 11
+//    clk.date = BSP_RTC_Date_Get_Date() - 1;      // 0 - 30(29/28/27)
+//    clk.day  = BSP_RTC_Date_Get_Day() - 1;       // 0 - 6
+    rtc_get_date(&clk.year, &clk.mon, &clk.date, &clk.day);
+    clk.mon  --;
+    clk.date --;
+    clk.day  --;
   }
   clk_cal_hour12();
   clock_enable_interrupt(TRUE);
@@ -247,18 +252,20 @@ void clock_sync_to_rtc(enum clock_sync_type type)
   IVDBG("clock_sync_to_rtc = %u", type);
   clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
-    BSP_RTC_Read_Data(RTC_TYPE_TIME);
-    BSP_RTC_Time_Set_Hour(clk.hour);
-    BSP_RTC_Time_Set_Min(clk.min);
-    BSP_RTC_Time_Set_Sec(clk.sec);
-    BSP_RTC_Write_Data(RTC_TYPE_TIME);
+//    BSP_RTC_Read_Data(RTC_TYPE_TIME);
+//    BSP_RTC_Time_Set_Hour(clk.hour);
+//    BSP_RTC_Time_Set_Min(clk.min);
+//    BSP_RTC_Time_Set_Sec(clk.sec);
+//    BSP_RTC_Write_Data(RTC_TYPE_TIME);
+    rtc_set_time(clk.hour, clk.min, clk.sec);
   } else if(type == CLOCK_SYNC_DATE) {
-    BSP_RTC_Read_Data(RTC_TYPE_DATE);
-    BSP_RTC_Date_Set_Year(clk.year);             // 0 - 99 (2000 ~ 2099)
-    BSP_RTC_Date_Set_Month(clk.mon + 1);         // 0 - 11
-    BSP_RTC_Date_Set_Date(clk.date + 1);         // 0 - 30(29/28/27)
-    BSP_RTC_Date_Set_Day(clk.day + 1);
-    BSP_RTC_Write_Data(RTC_TYPE_DATE);
+//    BSP_RTC_Read_Data(RTC_TYPE_DATE);
+//    BSP_RTC_Date_Set_Year(clk.year);             // 0 - 99 (2000 ~ 2099)
+//    BSP_RTC_Date_Set_Month(clk.mon + 1);         // 0 - 11
+//    BSP_RTC_Date_Set_Date(clk.date + 1);         // 0 - 30(29/28/27)
+//    BSP_RTC_Date_Set_Day(clk.day + 1);
+//    BSP_RTC_Write_Data(RTC_TYPE_DATE);
+    rtc_set_date(clk.year, clk.mon + 1, clk.date + 1, clk.day + 1);
   }
   clock_enable_interrupt(TRUE);
 }
@@ -282,7 +289,7 @@ void clock_sync_to_rtc(enum clock_sync_type type)
 
 void clock_enable_interrupt(bool enable)
 {
-  BSP_RTC_Set_En32khz(enable);
+  rtc_enable_32768HZ(enable);
 }
 
 // 辅助函数
@@ -311,26 +318,27 @@ void clock_init(void)
   IVDBG(("clock_initialize"));
   
   if(button_is_factory_reset()) { //12:10:30 PM
-    BSP_RTC_Read_Data(RTC_TYPE_TIME);
     IVINFO("clock factory reset time");
-    BSP_RTC_Time_Set_Hour(12);
-    BSP_RTC_Time_Set_Min(10);
-    BSP_RTC_Time_Set_Sec(30); 
-    BSP_RTC_Write_Data(RTC_TYPE_TIME);
-  
+//    BSP_RTC_Read_Data(RTC_TYPE_TIME);
+//    BSP_RTC_Time_Set_Hour(12);
+//    BSP_RTC_Time_Set_Min(10);
+//    BSP_RTC_Time_Set_Sec(30); 
+//    BSP_RTC_Write_Data(RTC_TYPE_TIME);
+    rtc_set_time(12,10,30);
 
     IVINFO("clock factory reset date");
-    BSP_RTC_Read_Data(RTC_TYPE_DATE);
-    BSP_RTC_Date_Set_Year(14);
-    BSP_RTC_Date_Set_Month(8);
-    BSP_RTC_Date_Set_Date(19);
+//    BSP_RTC_Read_Data(RTC_TYPE_DATE);
+//    BSP_RTC_Date_Set_Year(14);
+//    BSP_RTC_Date_Set_Month(8);
+//    BSP_RTC_Date_Set_Date(19);
+    rtc_set_date(14, 8, 19, 2);
   
-    BSP_RTC_Date_Set_Day(cext_yymmdd_to_day(
-    BSP_RTC_Date_Get_Year() ,
-    BSP_RTC_Date_Get_Month() - 1,
-    BSP_RTC_Date_Get_Date() - 1) + 1);
-  
-    BSP_RTC_Write_Data(RTC_TYPE_DATE);  
+//    BSP_RTC_Date_Set_Day(cext_yymmdd_to_day(
+//    BSP_RTC_Date_Get_Year() ,
+//    BSP_RTC_Date_Get_Month() - 1,
+//    BSP_RTC_Date_Get_Date() - 1) + 1);
+//  
+//    BSP_RTC_Write_Data(RTC_TYPE_DATE);  
   }
   
   clk.is12 = config_read("time_12")->val8;

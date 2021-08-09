@@ -1,5 +1,5 @@
 #include "thermometer.h"
-#include "rtc.h"
+#include "ds3231.h"
 #include "display.h"
 #include "config.h"
 
@@ -13,8 +13,8 @@ bool thermometer_read_fah(uint16_t * integer, uint16_t * flt)
   bool sign;
   double res;
   uint8_t _integer, _flt;
-  BSP_RTC_Read_Data(RTC_TYPE_TEMP);
-  sign = BSP_RTC_Get_Temperature(&_integer, &_flt);
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TEMP);
+  sign = BSP_DS3231_Get_Temperature(&_integer, &_flt);
   
   res = ((double)(*integer) + (double)(*flt) / 100) * 33.8;
   *integer = (uint16_t) res;
@@ -27,8 +27,8 @@ bool thermometer_read_cen(uint16_t * integer, uint16_t * flt)
   uint8_t _integer, _flt;
   bool sign;
   
-  BSP_RTC_Read_Data(RTC_TYPE_TEMP);
-  sign = BSP_RTC_Get_Temperature(&_integer, &_flt);
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TEMP);
+  sign = BSP_DS3231_Get_Temperature(&_integer, &_flt);
   *integer = _integer;
   *flt     = _flt;
   return sign;

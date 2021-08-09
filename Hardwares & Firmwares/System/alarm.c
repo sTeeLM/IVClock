@@ -1,5 +1,5 @@
 #include "alarm.h"
-#include "rtc.h"
+#include "ds3231.h"
 #include "debug.h"
 #include "sm.h"
 #include "clock.h"
@@ -32,12 +32,12 @@ void alarm_scan(void)
 {
   bool alarm0_hit, alarm1_hit;
   
-  BSP_RTC_Read_Data(RTC_TYPE_CTL);
-  alarm0_hit = BSP_RTC_Test_Alarm_Int_Flag(RTC_ALARM0);
-  alarm1_hit = BSP_RTC_Test_Alarm_Int_Flag(RTC_ALARM1);
-  BSP_RTC_Clr_Alarm_Int_Flag(RTC_ALARM0);
-  BSP_RTC_Clr_Alarm_Int_Flag(RTC_ALARM1);
-  BSP_RTC_Write_Data(RTC_TYPE_CTL); 
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
+  alarm0_hit = BSP_DS3231_Test_Alarm_Int_Flag(BSP_DS3231_ALARM0);
+  alarm1_hit = BSP_DS3231_Test_Alarm_Int_Flag(BSP_DS3231_ALARM1);
+  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM0);
+  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM1);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL); 
 
   if(alarm0_hit) {
     if(alarm0.day_mask & (1 << (clock_get_day() - 1))) {
@@ -50,9 +50,9 @@ void alarm_scan(void)
   
   // 这段逻辑会被频繁调1S用长达1分钟
   if(alarm1_hit) {
-    BSP_RTC_Read_Data(RTC_TYPE_TIME);
-    if(BSP_RTC_Time_Get_Min() == 0 
-      && BSP_RTC_Time_Get_Sec() == 0) {
+    BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TIME);
+    if(BSP_DS3231_Time_Get_Min() == 0 
+      && BSP_DS3231_Time_Get_Sec() == 0) {
 //      if(power_test_flag()) {
 //        power_clr_flag();
 //      }
@@ -107,7 +107,7 @@ void alarm_init (void)
   alarm_dump();
   alarm0_sync_to_rtc();
   alarm1_sync_to_rtc();
-  BSP_RTC_Dump();
+  BSP_DS3231_Dump();
 }
 
 
@@ -181,17 +181,17 @@ void alarm0_inc_hour(void)
 void alarm0_sync_to_rtc(void)
 {
   IVDBG("alarm0_sync_to_rtc!");
-  BSP_RTC_Read_Data(RTC_TYPE_ALARM0);
-  BSP_RTC_Alarm_Set_Mode(RTC_ALARM0_MOD_MATCH_HOUR_MIN_SEC);
-  BSP_RTC_Alarm_Set_Hour(alarm0.hour);
-  BSP_RTC_Alarm_Set_Min(alarm0.min);
-  BSP_RTC_Alarm_Set_Sec(0);
-  BSP_RTC_Write_Data(RTC_TYPE_ALARM0);
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0);
+  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM0_MOD_MATCH_HOUR_MIN_SEC);
+  BSP_DS3231_Alarm_Set_Hour(alarm0.hour);
+  BSP_DS3231_Alarm_Set_Min(alarm0.min);
+  BSP_DS3231_Alarm_Set_Sec(0);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM0);
   
-  BSP_RTC_Read_Data(RTC_TYPE_CTL);
-  BSP_RTC_Enable_Alarm_Int(RTC_ALARM0, alarm0.day_mask != 0);
-  BSP_RTC_Clr_Alarm_Int_Flag(RTC_ALARM0);
-  BSP_RTC_Write_Data(RTC_TYPE_CTL);
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
+  BSP_DS3231_Enable_Alarm_Int(BSP_DS3231_ALARM0, alarm0.day_mask != 0);
+  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM0);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
 }
 
 bool alarm1_test_enable(void)
@@ -207,16 +207,16 @@ void alarm1_set_enable(bool enable)
 void alarm1_sync_to_rtc(void)
 {
   IVDBG("alarm1_sync_to_rtc!");
-  BSP_RTC_Read_Data(RTC_TYPE_ALARM1);
-  BSP_RTC_Alarm_Set_Mode(RTC_ALARM1_MOD_MATCH_MIN);
-  BSP_RTC_Alarm_Set_Hour(0);
-  BSP_RTC_Alarm_Set_Min(0);
-  BSP_RTC_Write_Data(RTC_TYPE_ALARM1);
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM1);
+  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM1_MOD_MATCH_MIN);
+  BSP_DS3231_Alarm_Set_Hour(0);
+  BSP_DS3231_Alarm_Set_Min(0);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM1);
   
-  BSP_RTC_Read_Data(RTC_TYPE_CTL);
-  BSP_RTC_Enable_Alarm_Int(RTC_ALARM1, alarm1_enable);
-  BSP_RTC_Clr_Alarm_Int_Flag(RTC_ALARM1);
-  BSP_RTC_Write_Data(RTC_TYPE_CTL);
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
+  BSP_DS3231_Enable_Alarm_Int(BSP_DS3231_ALARM1, alarm1_enable);
+  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM1);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
 }
 
 // 5 -> 10 -> 15 -> 20 -> 25 -> 30 -> 5
