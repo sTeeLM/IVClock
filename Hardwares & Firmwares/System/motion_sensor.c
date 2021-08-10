@@ -5,28 +5,28 @@
 #include "console.h"
 #include "power.h"
 
+#define MONTION_SENSOR_MAX_TH 50
+
+static uint8_t motion_sensor_th;
+
 void motion_sensor_show(void)
 {
   console_printf("motion sensoris %s, th is %d\r\n", 
-  motion_sensor_enabled() ? "en" : "dis", motion_sensor_get_th());
+  motion_sensor_get_th() == 0 ? "OFF" : "ON", motion_sensor_get_th());
 }
 
-bool motion_sensor_enabled(void)
-{
-  return BSP_ACC_Is_Power_On();
-}
 
 void motion_sensor_init(void)
 {
-  motion_sensor_enable(config_read("acc_en")->val8);
-}
-
-void motion_sensor_enable(bool enable)
-{
-  config_val_t val;
-  val.val8 = enable;
-  enable ? BSP_ACC_Power_On() : BSP_ACC_Power_Off();
-  config_write("acc_en", &val);
+  motion_sensor_th = config_read("acc_th")->val8;
+  if(motion_sensor_th > MONTION_SENSOR_MAX_TH)
+    motion_sensor_th = MONTION_SENSOR_MAX_TH;
+  if(motion_sensor_th != 0) {
+    BSP_ACC_Power_On();
+    BSP_ACC_Threshold_Set(motion_sensor_th);
+  } else {
+    BSP_ACC_Power_Off();
+  }
 }
 
 void motion_sensor_scan(void)
@@ -35,15 +35,23 @@ void motion_sensor_scan(void)
     task_set(EV_ACC);
 }
 
-uint8_t motion_sensor_get_th(void)
+uint8_t motion_sensor_inc_th(void)
 {
-  return BSP_ACC_Threshold_Get();
+  motion_sensor_th ++;
+  if(motion_sensor_th > MONTION_SENSOR_MAX_TH)
+    motion_sensor_th = 0;
+  
+  if(motion_sensor_th) {
+    BSP_ACC_Power_On();
+    BSP_ACC_Threshold_Set(motion_sensor_th);
+  } else {
+    BSP_ACC_Power_Off();
+  }
+  
+  return motion_sensor_th;
 }
 
-void motion_sensor_set_th(uint8_t th)
+uint8_t motion_sensor_get_th(void)
 {
-  config_val_t val;
-  BSP_ACC_Threshold_Set(th);
-  val.val8 = th;
-  config_write("acc_th", &val);
+  return motion_sensor_th;
 }

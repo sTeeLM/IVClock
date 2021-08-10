@@ -303,14 +303,14 @@ void display_format_motion_mon(void)
   BSP_IV18_Set_Dig(2,'M');
   BSP_IV18_Set_Dig(3,'M');
   BSP_IV18_Set_Dig(4,'-');
-  if(motion_sensor_enabled()) {
-    BSP_IV18_Set_Dig(5,'O');
-    BSP_IV18_Set_Dig(6,'N');
-    BSP_IV18_Set_Dig(7,BSP_IV18_BLANK);    
-  } else {
+  if(motion_sensor_get_th() == 0) {
     BSP_IV18_Set_Dig(5,'O');
     BSP_IV18_Set_Dig(6,'F');
-    BSP_IV18_Set_Dig(7,'F');      
+    BSP_IV18_Set_Dig(7,'F');    
+  } else {
+    BSP_IV18_Set_Dig(5, motion_sensor_get_th() / 10 + 0x30);
+    BSP_IV18_Set_Dig(6, motion_sensor_get_th() % 10 + 0x30);
+    BSP_IV18_Set_Dig(7, BSP_IV18_BLANK);      
   }
   BSP_IV18_Set_Blink(5);
   BSP_IV18_Set_Blink(6); 

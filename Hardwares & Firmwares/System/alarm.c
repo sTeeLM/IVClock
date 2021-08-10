@@ -217,7 +217,6 @@ void alarm1_sync_to_rtc(void)
   BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
 }
 
-// 5 -> 10 -> 15 -> 20 -> 25 -> 30 -> 5
 void alarm0_inc_snd(void)
 {
   config_val_t val;

@@ -38,10 +38,8 @@ struct console_cmds cmds[] =
   {"clk", "show clock", "clk", con_clock},
   {"mon", "motion control",
                         "mon: show motion sensor status\r\n"
-                        "mon on: motion sensor on\r\n"
-                        "mon off: motion sensor off\r\n" 
                         "mon int: read motion sensor isr\r\n"
-                        "mon th x: set motion sensor th to x\r\n",     
+                        "mon inc: inc motion sensor th, 0 is off\r\n",     
                         con_motion_sensor},
   {"pow", "power control", 
                         "pow: show power status\r\n"

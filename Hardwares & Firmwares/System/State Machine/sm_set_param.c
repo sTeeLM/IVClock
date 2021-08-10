@@ -82,7 +82,7 @@ static void do_set_param_motion_mon(uint8_t from_func, uint8_t from_state, uint8
     display_clr();
     display_format_motion_mon();
   } else {
-    motion_sensor_enable(!motion_sensor_enabled());
+    motion_sensor_inc_th();
     display_format_motion_mon();
   }
 }

@@ -38,8 +38,8 @@ void BSP_ACC_Threshold_Set(uint8_t th)
     if(th < ACC_THRESHOLD_MIN) {
       th = ACC_THRESHOLD_MIN;
     }
+    BSP_I2C_Write(ACC_I2C_ADDRESS, 0x24, I2C_MEMADD_SIZE_8BIT, &th, 1);
   } 
-  BSP_I2C_Write(ACC_I2C_ADDRESS, 0x24, I2C_MEMADD_SIZE_8BIT, &th, 1);
 }
 
 bool BSP_ACC_Is_Power_On(void)

@@ -8,7 +8,6 @@
 static config_slot_t _slot[] = {
   {"time_12", CONFIG_TYPE_UINT8,   {.val8 = 1}},
   {"acc_th",CONFIG_TYPE_UINT8,     {.val8 = 50}},
-  {"acc_en",CONFIG_TYPE_UINT8,     {.val8 = 1}},
   {"bp_en",CONFIG_TYPE_UINT8,      {.val8 = 1}},
   {"alm0_day_mask", CONFIG_TYPE_UINT8, {.val8 = 0}},
   {"alm0_hour", CONFIG_TYPE_UINT8, {.val8 = 0}}, 
