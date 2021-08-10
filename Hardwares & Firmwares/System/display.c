@@ -23,6 +23,30 @@ void display_init(void)
   _display_mode = DISPLAY_MODE_NONE;
 }
 
+// MON THU WED THU FRI SAT SUN
+// 0   1   2   3   4   5   6
+static const char * display_format_day(uint8_t day)
+{
+  switch(day) {
+    case 0: 
+      return "MON";
+    case 1: 
+      return "THU"; 
+    case 2: 
+      return "WED";
+    case 3: 
+      return "THU"; 
+    case 4: 
+      return "FRI";
+    case 5: 
+      return "SAT";
+    case 6: 
+      return "SUN";
+    default:
+      return "000";
+  }
+}
+
 void display_format_clock(struct clock_struct * clk)
 {
   bool ispm;
@@ -62,8 +86,7 @@ void display_format_clock(struct clock_struct * clk)
     BSP_IV18_Set_Dig(3, 'A');
     BSP_IV18_Set_Dig(4, 'Y');  
     BSP_IV18_Set_Dig(5, '-'); 
-    BSP_IV18_Set_Dig(6, '-'); 
-    BSP_IV18_Set_Dig(7, (clk->day + 1) + 0x30);     
+    display_show_string(6, display_format_day(clk->day));    
   }
 }
 
