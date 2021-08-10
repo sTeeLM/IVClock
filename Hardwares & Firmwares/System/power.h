@@ -26,4 +26,7 @@ void power_enter_powersave(void);
 void power_wakeup(void);
 void power_test_powersave(void);
 void power_reset_timeo(void);
+void power_inc_timeo(void);
+uint8_t power_get_timeo(void);
+
 #endif

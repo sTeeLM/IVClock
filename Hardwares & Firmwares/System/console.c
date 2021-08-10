@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "usart.h"
 #include "debug.h"
+#include "clock.h"
 
 #include "con_help.h"
 #include "con_clock.h"
@@ -168,14 +169,8 @@ void console_run(void)
   console_printf("++++++++++++++++++++++++++++++++++++++++\n");
   
   // stop the clock
-//  clock_enter_console();
-//  display_save();
-//  display_clear();
-//  display_set_code(5, 'S');
-//  display_set_code(4, 'H'); 
-//  display_set_code(3, 'E');  
-//  display_set_code(2, 'L'); 
-//  display_set_code(1, 'L');  
+  clock_enter_console();
+  
   do {
     console_printf("console>");
     memset(console_buf, 0, sizeof(console_buf));
@@ -230,7 +225,5 @@ void console_run(void)
     
   } while (strcmp(console_buf, "!") != 0);
   
-//  display_clear();
-//  display_restore();
-//  clock_leave_shell();  
+  clock_leave_console();  
 }

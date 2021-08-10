@@ -8,7 +8,8 @@
 #include "console.h"
 #include "delay.h"
 #include "alarm.h"
-
+#include "beeper.h"
+#include "motion_sensor.h"
 #include <string.h>
 
 static bool _display_is_on;
@@ -78,19 +79,55 @@ void display_format_timer(struct timer_struct * tmr)
     BSP_IV18_Set_DP(5); 
     BSP_IV18_Set_Dig(6, (tmr->sec / 10 + 0x30));
     BSP_IV18_Set_Dig(7, (tmr->sec % 10 + 0x30)); 
-  } else if(_display_mode == DISPLAY_MODE_TIMER_MMSSMM) {
-    BSP_IV18_Set_Dig(2, (tmr->min / 10 + 0x30));
-    BSP_IV18_Set_Dig(3, (tmr->min % 10 + 0x30)); 
-    BSP_IV18_Set_DP(3);
-    BSP_IV18_Set_Dig(4, (tmr->sec / 10 + 0x30));
-    BSP_IV18_Set_Dig(5, (tmr->sec % 10 + 0x30)); 
-    BSP_IV18_Set_DP(5); 
-    BSP_IV18_Set_Dig(6, (ms10 / 10 + 0x30));
-    BSP_IV18_Set_Dig(7, (ms10 % 10 + 0x30));
+  } else if(_display_mode == DISPLAY_MODE_TIMER_HHMMSSMM) {
+    BSP_IV18_Set_Dig(1, (tmr->hour / 10 + 0x30));
+    BSP_IV18_Set_Dig(2, (tmr->hour % 10 + 0x30)); 
+    BSP_IV18_Set_DP(2);    
+    BSP_IV18_Set_Dig(3, (tmr->min / 10 + 0x30));
+    BSP_IV18_Set_Dig(4, (tmr->min % 10 + 0x30)); 
+    BSP_IV18_Set_DP(5);
+    BSP_IV18_Set_Dig(5, (tmr->sec / 10 + 0x30));
+    BSP_IV18_Set_Dig(6, (tmr->sec % 10 + 0x30)); 
+    BSP_IV18_Set_DP(6); 
+    BSP_IV18_Set_Dig(7, (ms10 / 10 + 0x30));
+    BSP_IV18_Set_Dig(8, (ms10 % 10 + 0x30));
   }
 }
 
-void display_format_alarm0(struct alarm0_struct * alarm0)
+void display_set_blink_timer_hour(bool enable)
+{
+  if(enable) {
+    display_set_blink(2);
+    display_set_blink(3);    
+  } else {
+    display_clr_blink(2);
+    display_clr_blink(3); 
+  }
+}
+
+void display_set_blink_timer_min(bool enable)
+{
+  if(enable) {
+    display_set_blink(4);
+    display_set_blink(5);    
+  } else {
+    display_clr_blink(4);
+    display_clr_blink(5); 
+  }
+}
+
+void display_set_blink_timer_sec(bool enable)
+{
+  if(enable) {
+    display_set_blink(6);
+    display_set_blink(7);    
+  } else {
+    display_clr_blink(6);
+    display_clr_blink(7); 
+  }
+}
+
+void display_format_alarm0(void)
 {
   bool ispm;
   uint8_t hour12, i;
@@ -99,18 +136,18 @@ void display_format_alarm0(struct alarm0_struct * alarm0)
     BSP_IV18_Set_Dig(2,'A');
     BSP_IV18_Set_Dig(3,'L');
     BSP_IV18_Set_Dig(4,'-');
-    ispm = cext_cal_hour12(alarm0->hour, &hour12);
+    ispm = cext_cal_hour12(alarm0.hour, &hour12);
     if(config_read("time_12")->val8) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
     } else {
-      BSP_IV18_Set_Dig(5, (alarm0->hour / 10 + 0x30));
-      BSP_IV18_Set_Dig(6, (alarm0->hour % 10 + 0x30));
+      BSP_IV18_Set_Dig(5, (alarm0.hour / 10 + 0x30));
+      BSP_IV18_Set_Dig(6, (alarm0.hour % 10 + 0x30));
     }
     BSP_IV18_Set_DP(6);
-    BSP_IV18_Set_Dig(7, (alarm0->min / 10 + 0x30));
-    BSP_IV18_Set_Dig(8, (alarm0->min % 10 + 0x30));
+    BSP_IV18_Set_Dig(7, (alarm0.min / 10 + 0x30));
+    BSP_IV18_Set_Dig(8, (alarm0.min % 10 + 0x30));
   } else if(_display_mode == DISPLAY_MODE_ALARM_DAY) {
     for(i = 0 ; i < 7 ; i++) {
       BSP_IV18_Set_Dig(i + 1, alarm0_test_enable(i + 1) ? '0' : '-');
@@ -120,8 +157,141 @@ void display_format_alarm0(struct alarm0_struct * alarm0)
     BSP_IV18_Set_Dig(2, 'N');
     BSP_IV18_Set_Dig(3, 'D'); 
     BSP_IV18_Set_Dig(4, '-');
-    BSP_IV18_Set_Dig(5, alarm0->snd + 0x30);
+    BSP_IV18_Set_Dig(5, alarm0.snd + 0x30);
   }
+}
+
+void display_format_alarm1(void)
+{
+  bool ispm;
+  uint8_t hour12;  
+  if(_display_mode == DISPLAY_MODE_ALARM_HHMM) {
+    BSP_IV18_Set_Dig(2,'B');
+    BSP_IV18_Set_Dig(3,'S');
+    BSP_IV18_Set_Dig(4,'-');
+    ispm = cext_cal_hour12(clock_get_hour(), &hour12);
+    if(config_read("time_12")->val8) {
+      ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
+      BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
+      BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
+    } else {
+      BSP_IV18_Set_Dig(5, (clock_get_hour() / 10 + 0x30));
+      BSP_IV18_Set_Dig(6, (clock_get_hour() % 10 + 0x30));
+    }
+    BSP_IV18_Set_DP(6);
+    BSP_IV18_Set_Dig(7, '0');
+    BSP_IV18_Set_Dig(8, '0');
+  } else if(_display_mode == DISPLAY_MODE_ALARM_BAOSHI) {
+    BSP_IV18_Set_Dig(2,'B');
+    BSP_IV18_Set_Dig(3,'S');
+    BSP_IV18_Set_Dig(4,'-');
+    if(alarm1_test_enable()) {
+      BSP_IV18_Set_Dig(5,'O');
+      BSP_IV18_Set_Dig(6,'N');
+      BSP_IV18_Set_Dig(7,BSP_IV18_BLANK);    
+    } else {
+      BSP_IV18_Set_Dig(5,'O');
+      BSP_IV18_Set_Dig(6,'F');
+      BSP_IV18_Set_Dig(7,'F');      
+    }
+    BSP_IV18_Set_Blink(5);
+    BSP_IV18_Set_Blink(6); 
+    BSP_IV18_Set_Blink(7);     
+  }
+}
+
+void display_format_param_beeper(void)
+{
+  BSP_IV18_Set_Dig(2,'B');
+  BSP_IV18_Set_Dig(3,'P');
+  BSP_IV18_Set_Dig(4,'-');
+  if(beeper_enabled()) {
+    BSP_IV18_Set_Dig(5,'O');
+    BSP_IV18_Set_Dig(6,'N');
+    BSP_IV18_Set_Dig(7,BSP_IV18_BLANK);    
+  } else {
+    BSP_IV18_Set_Dig(5,'O');
+    BSP_IV18_Set_Dig(6,'F');
+    BSP_IV18_Set_Dig(7,'F');      
+  }
+  BSP_IV18_Set_Blink(5);
+  BSP_IV18_Set_Blink(6); 
+  BSP_IV18_Set_Blink(7); 
+}
+
+void display_format_power(void)
+{
+  BSP_IV18_Set_Dig(2,'P');
+  BSP_IV18_Set_Dig(3,'S');
+  BSP_IV18_Set_Dig(4,'-');
+  if(power_get_timeo() == 0) {
+    BSP_IV18_Set_Dig(5,'O');
+    BSP_IV18_Set_Dig(6,'F');
+    BSP_IV18_Set_Dig(7,'F');    
+  } else {
+    BSP_IV18_Set_Dig(5, power_get_timeo() / 10 + 0x30);
+    BSP_IV18_Set_Dig(6, power_get_timeo() % 10 + 0x30);
+    BSP_IV18_Set_Dig(7, BSP_IV18_BLANK);      
+  }
+  BSP_IV18_Set_Blink(5);
+  BSP_IV18_Set_Blink(6); 
+  BSP_IV18_Set_Blink(7); 
+}
+
+void display_format_hour12(void)
+{
+  BSP_IV18_Set_Dig(2,'H');
+  BSP_IV18_Set_Dig(3,'O');
+  BSP_IV18_Set_Dig(4,'U');
+  BSP_IV18_Set_Dig(5,'R');
+  BSP_IV18_Set_Dig(6,'-');  
+  if(config_read("time_12")->val8) {
+    BSP_IV18_Set_Dig(7,'1');
+    BSP_IV18_Set_Dig(8,'2');   
+  } else {
+    BSP_IV18_Set_Dig(7,'2');
+    BSP_IV18_Set_Dig(8,'4');     
+  }
+  BSP_IV18_Set_Blink(7);
+  BSP_IV18_Set_Blink(8);  
+}
+
+void display_format_light_mon(void)
+{
+  BSP_IV18_Set_Dig(2,'L');
+  BSP_IV18_Set_Dig(3,'M');
+  BSP_IV18_Set_Dig(4,'-');
+  if(display_mon_light_enabled()) {
+    BSP_IV18_Set_Dig(5,'O');
+    BSP_IV18_Set_Dig(6,'N');
+    BSP_IV18_Set_Dig(7,BSP_IV18_BLANK);    
+  } else {
+    BSP_IV18_Set_Dig(5,'O');
+    BSP_IV18_Set_Dig(6,'F');
+    BSP_IV18_Set_Dig(7,'F');      
+  }
+  BSP_IV18_Set_Blink(5);
+  BSP_IV18_Set_Blink(6); 
+  BSP_IV18_Set_Blink(7);
+}
+
+void display_format_motion_mon(void)
+{
+  BSP_IV18_Set_Dig(2,'M');
+  BSP_IV18_Set_Dig(3,'M');
+  BSP_IV18_Set_Dig(4,'-');
+  if(motion_sensor_enabled()) {
+    BSP_IV18_Set_Dig(5,'O');
+    BSP_IV18_Set_Dig(6,'N');
+    BSP_IV18_Set_Dig(7,BSP_IV18_BLANK);    
+  } else {
+    BSP_IV18_Set_Dig(5,'O');
+    BSP_IV18_Set_Dig(6,'F');
+    BSP_IV18_Set_Dig(7,'F');      
+  }
+  BSP_IV18_Set_Blink(5);
+  BSP_IV18_Set_Blink(6); 
+  BSP_IV18_Set_Blink(7);
 }
 
 

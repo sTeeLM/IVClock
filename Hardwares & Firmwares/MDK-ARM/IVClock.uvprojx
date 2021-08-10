@@ -774,11 +774,6 @@
               <FilePath>..\System\State Machine\sm_stop_watch.c</FilePath>
             </File>
             <File>
-              <FileName>sm_alarm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\System\State Machine\sm_alarm.c</FilePath>
-            </File>
-            <File>
               <FileName>sm_common.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\System\State Machine\sm_common.c</FilePath>

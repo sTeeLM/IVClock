@@ -74,20 +74,29 @@ static void _ds3231_initialize (void)
   delay_ms(10);
   
   // RTC内部使用24小时制
-  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TIME);  
-  count = BSP_DS3231_Time_Get_Hour();
-  BSP_DS3231_Time_Set_Hour_12(0);
-  BSP_DS3231_Time_Set_Hour(count);
-  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_TIME);  
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TIME); 
+  if(BSP_DS3231_Time_Get_Hour_12()) {
+    IVDBG("DS3231 set time format to 24");
+    count = BSP_DS3231_Time_Get_Hour();
+    BSP_DS3231_Time_Set_Hour_12(FALSE);
+    BSP_DS3231_Time_Set_Hour(count);
+    BSP_DS3231_Write_Data(BSP_DS3231_TYPE_TIME); 
+  }    
   
   // 闹钟设置为24小时格式
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0);
-  BSP_DS3231_Alarm_Set_Hour_12(0);
-  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM0);  
+  if(BSP_DS3231_Alarm_Get_Hour_12()) {
+    IVDBG("DS3231 set alarm0 format to 24");
+    BSP_DS3231_Alarm_Set_Hour_12(FALSE);
+    BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM0);  
+  }
   
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM1);
-  BSP_DS3231_Alarm_Set_Hour_12(0);
-  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM1);
+  if(BSP_DS3231_Alarm_Get_Hour_12()) {
+    IVDBG("DS3231 set alarm1 format to 24");
+    BSP_DS3231_Alarm_Set_Hour_12(FALSE);
+    BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM1);
+  }
 
   // 清除所有闹钟：闹钟配置由alarm自行从rom中读取，写入rtc
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);

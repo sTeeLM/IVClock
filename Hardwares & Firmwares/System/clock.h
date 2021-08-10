@@ -8,8 +8,8 @@
 void clock_init (void);
 void clock_enter_powersave(void);
 void clock_leave_powersave(void);
-void clock_enter_shell(void);
-void clock_leave_shell(void);
+void clock_enter_console(void);
+void clock_leave_console(void);
 void clock_time_proc(enum task_events ev);
 
 enum clock_sync_type

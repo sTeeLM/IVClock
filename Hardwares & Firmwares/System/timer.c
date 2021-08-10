@@ -4,13 +4,14 @@
 #include "task.h"
 #include <string.h>
 
-static struct timer_struct tmr[TIMER_SLOT_CNT]; // slot0 当前timer，1/2是两个瞬时值
+struct timer_struct tmr[TIMER_SLOT_CNT]; // slot0 当前timer，1/2是两个瞬时值
 
 static enum timer_mode tmr_mode;
 static bool refresh_display;
 static bool tmr_countdown_stop;
 static bool tmr_start;
-
+static uint8_t tmr_current_slot;
+static uint8_t tmr_current_history_slot;
 void timer_inc_ms39(void)
 {
   uint8_t ms10;
@@ -55,9 +56,7 @@ void timer_inc_ms39(void)
       }
     }
   }
-  if(refresh_display && !display_is_on()) {
-    display_format_timer(&tmr[0]);
-  } 
+  timer_refresh_display(0);
 }
 
 void timer_init(void)
@@ -67,6 +66,8 @@ void timer_init(void)
   refresh_display = FALSE;
   tmr_countdown_stop = 1;
   tmr_start = 0;
+  tmr_current_slot = 1;
+  tmr_current_history_slot = 1;
 }
 
 void timer_enter_powersave(void)
@@ -80,10 +81,32 @@ void timer_leave_powersave(void)
   IVDBG("timer_leave_powersave");
 }
 
-void timer_refresh_display(bool enable)
+void timer_refresh_display_enable(bool enable)
 {
   refresh_display = enable;
 }
+
+void timer_refresh_display(uint8_t slot)
+{
+  if(refresh_display && display_is_on()) {
+    if(slot >= TIMER_SLOT_CNT)
+      slot = TIMER_SLOT_CNT - 1;
+    display_format_timer(&tmr[slot]);
+  } 
+}
+
+uint8_t timer_next_history(void)
+{
+  if(tmr_current_history_slot >= TIMER_SLOT_CNT)
+    tmr_current_history_slot = 1;
+  return tmr_current_history_slot ++;
+}
+
+void timer_rwind_history(void)
+{
+  tmr_current_history_slot = 1;
+}
+
 void timer_set_mode(enum timer_mode mode)
 {
   tmr_mode = mode;
@@ -96,11 +119,18 @@ void timer_start(void)
   tmr_start = 1;
 }
 
-void timer_save(uint8_t slot)
+uint8_t timer_save(void)
 {
-  if(slot > 0 && slot < TIMER_SLOT_CNT) {
-    memcpy(&tmr[slot], &tmr[0], sizeof(tmr[0]));
+  if(tmr_current_slot >= TIMER_SLOT_CNT) {
+    tmr_current_slot = 1;
   }
+  memcpy(&tmr[tmr_current_slot], &tmr[0], sizeof(tmr[0]));
+  return tmr_current_slot ++;
+}
+
+uint8_t timer_get_slot_cnt(void)
+{
+  return TIMER_SLOT_CNT;
 }
 
 uint8_t timer_get_hour(uint8_t slot)
@@ -160,6 +190,11 @@ void timer_stop(void)
   tmr_start = 0;
 }
 
+void timer_resume(void)
+{
+  tmr_start = 1;
+}
+
 void timer_clr(void)
 {
   memset(tmr, 0, sizeof(tmr));
@@ -167,5 +202,7 @@ void timer_clr(void)
   refresh_display = FALSE;
   tmr_countdown_stop = 1;
   tmr_start = 0;
+  tmr_current_slot = 1;
+  tmr_current_history_slot = 1;
 }
 

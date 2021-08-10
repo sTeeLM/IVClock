@@ -21,7 +21,7 @@ static uint32_t now_sec; // 用于 time_diff
 
 static bool refresh_display;
 
-static bool in_shell;
+static bool in_console;
 static bool clock_tick_enabled;
 
 void clock_refresh_display_enable(bool enable)
@@ -35,6 +35,9 @@ void clock_inc_ms39(void)
 {
   int16_t y;
   clk.ms39 ++;
+  
+  if(in_console)
+    return;
   
   if(clk.ms39 == 0 ) {
     clk.sec = (++ clk.sec) % 60;
@@ -235,7 +238,7 @@ void clock_sync_to_rtc(enum clock_sync_type type)
 //  refresh_led();  
 //  giff ++;
 //  
-//  if(in_shell) {
+//  if(in_console) {
 //    TF0 = 0;
 //    return;
 //  }
@@ -275,6 +278,8 @@ uint8_t clock_get_mon_date(uint8_t year, uint8_t mon)
 void clock_init(void)
 {
   IVDBG(("clock_initialize"));
+  
+  in_console = FALSE;
   
   if(button_is_factory_reset()) { //12:10:30 PM
     IVINFO("clock factory reset time");
@@ -321,14 +326,14 @@ void clock_leave_powersave(void)
   clock_enable_interrupt(TRUE);
 }
 
-void clock_enter_shell(void)
+void clock_enter_console(void)
 {
-  in_shell = 1;
+  in_console = TRUE;
 }
 
-void clock_leave_shell(void)
+void clock_leave_console(void)
 {
-  in_shell = 0;
+  in_console = FALSE;
   clock_enable_interrupt(FALSE);
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE);

@@ -164,10 +164,11 @@ static void player_play_sequence_start(void)
 static void player_play_sequence_stop(void)
 {
   IVDBG("player_play_sequence_stop");
-    if(player_seq_in_playing) {
+  if(player_seq_in_playing) {
     BSP_MP3_Stop();
     player_seq_in_playing = FALSE;
-    player_seq_current_index = 0;   
+    player_seq_current_index = 0;  
+    task_set(EV_PLAYER_STOP);
   }
 }
 

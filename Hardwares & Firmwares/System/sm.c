@@ -6,17 +6,16 @@
 #include "sm_set_param.h"
 #include "sm_timer.h"
 #include "sm_stop_watch.h"
-#include "sm_alarm.h"
 
 #include "debug.h"
 
 static const char * sm_functions_names[] = {
   "SM_CLOCK_DISPLAY",    // 时钟功能
-  "SM_SET_TIME",         // 闹钟功能
-  "SM_SET_DATE",
-  "SM_SET_ALARM",
-  "SM_SET_PARAM",
-  "SM_TIMER",
+  "SM_SET_TIME",         // 时间设置
+  "SM_SET_DATE",         // 日期设置
+  "SM_SET_ALARM",        // 闹钟设置
+  "SM_SET_PARAM",        // 参数设置
+  "SM_TIMER",            // 计时器功能
   "SM_STOP_WATCH",       // 马表功能
   "SM_ALARM",
 };
@@ -28,8 +27,7 @@ static const char ** sm_states_names[] = {
   sm_states_names_set_alarm,
   sm_states_names_set_param,
   sm_states_names_timer,
-  sm_states_names_stop_watch,
-  sm_states_names_alarm
+  sm_states_names_stop_watch
 };
 
 static struct sm_trans ** sm_trans_table[] = {
@@ -39,8 +37,7 @@ static struct sm_trans ** sm_trans_table[] = {
   sm_trans_set_alarm,
   sm_trans_set_param,
   sm_trans_timer,
-  sm_trans_stop_watch,
-  sm_trans_alarm
+  sm_trans_stop_watch
 };
 
 static uint8_t sm_cur_fuction;
@@ -50,6 +47,7 @@ void sm_init(void)
 {
   sm_cur_fuction = SM_CLOCK_DISPLAY;
   sm_cur_state   = SM_CLOCK_DISPLAY_INIT;
+  task_set(EV_BUTTON_MOD_UP);
 }
 
 void sm_run(enum task_events ev)

@@ -41,6 +41,7 @@ void alarm_scan(void)
 
   if(alarm0_hit) {
     if(alarm0.day_mask & (1 << (clock_get_day() - 1))) {
+      power_wakeup();
       task_set(EV_ALARM0);
       if(alarm1_hit) { // 如果同时响起，整点报时被忽略
         alarm1_hit = 0;
@@ -53,9 +54,7 @@ void alarm_scan(void)
     BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TIME);
     if(BSP_DS3231_Time_Get_Min() == 0 
       && BSP_DS3231_Time_Get_Sec() == 0) {
-//      if(power_test_flag()) {
-//        power_clr_flag();
-//      }
+      power_wakeup();
       task_set(EV_ALARM1);
     }
   }
@@ -237,10 +236,22 @@ uint8_t alarm0_get_snd(void)
 
 void alarm0_stop_snd(void)
 {
-  player_stop_play();
+  if(player_is_playing())
+    player_stop_play();
 }
 
 void alarm0_play_snd(void)
 {
   player_play_snd(config_read("alm0_snd")->val8);
+}
+
+void alarm1_stop_snd(void)
+{
+  if(player_is_playing())
+    player_stop_play();
+}
+
+void alarm1_play_snd(void)
+{
+  player_report_clk();
 }

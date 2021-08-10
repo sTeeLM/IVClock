@@ -11,7 +11,10 @@
 
 #include "display.h"
 
+#define POWER_MAX_TIMEO 60
+
 static bool power_is_in_powersave;
+static uint8_t curr_power_save_dur;
 static uint8_t power_save_timeo;
 
 void power_mon_start(void)
@@ -42,7 +45,7 @@ void power_init(void)
   power_mon_start();
   
   power_is_in_powersave = FALSE;
-  power_save_timeo = 0;
+  power_save_timeo = config_read("power_timeo")->val8;
 }
 
 void power_33_enable(bool enable)
@@ -140,19 +143,36 @@ void power_wakeup(void)
   power_is_in_powersave = FALSE;
 }
 
+void power_reset_timeo(void)
+{
+  curr_power_save_dur = clock_get_now_sec();
+}
+
+uint8_t power_get_timeo(void)
+{
+  return power_save_timeo;
+}
+
+void power_inc_timeo(void)
+{
+  config_val_t val;
+  power_save_timeo += 15;
+  if(power_save_timeo > POWER_MAX_TIMEO)
+    power_save_timeo = 0;
+  val.val8 = power_save_timeo;
+  config_write("power_timeo", &val);
+}
+
 void power_test_powersave(void)
 {
   uint8_t diff;
-  diff = clock_diff_now_sec(power_save_timeo);
+  if(power_save_timeo == 0)
+    return;
+  diff = clock_diff_now_sec(curr_power_save_dur);
   IVDBG("power_test_powersave diff = %d", diff);
-  if(diff > config_read("power_timeo")->val8) {
+  if(diff > power_save_timeo) {
     power_enter_powersave();
   }
-}
-
-void power_reset_timeo(void)
-{
-  power_save_timeo = clock_get_now_sec();
 }
 
 void power_scan(void)

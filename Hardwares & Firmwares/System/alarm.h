@@ -55,5 +55,7 @@ void alarm_scan(void);
 
 void alarm0_stop_snd(void);
 void alarm0_play_snd(void);
+void alarm1_stop_snd(void);
+void alarm1_play_snd(void);
 
 #endif

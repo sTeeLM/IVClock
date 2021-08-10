@@ -30,7 +30,7 @@ static void do_set_alarm_hour(uint8_t from_func, uint8_t from_state, uint8_t to_
     case EV_BUTTON_SET_LPRESS:
       start_inc = 1;
       alarm0_inc_hour();
-      display_format_alarm0(&alarm0);
+      display_format_alarm0();
       break;
     case EV_BUTTON_SET_UP:
       display_set_blink_alarm_hour(TRUE);
@@ -42,8 +42,9 @@ static void do_set_alarm_hour(uint8_t from_func, uint8_t from_state, uint8_t to_
       break;
     case EV_BUTTON_SET_PRESS:
       alarm0_inc_hour();
-      display_format_alarm0(&alarm0);
       alarm0_sync_to_rtc();
+      alarm_save_config(ALARM_SYNC_ALARM0_HOUR);
+      display_format_alarm0();
       alarm_save_config(ALARM_SYNC_ALARM0_HOUR);
       break;
     case EV_BUTTON_MOD_UP:
@@ -53,7 +54,7 @@ static void do_set_alarm_hour(uint8_t from_func, uint8_t from_state, uint8_t to_
       display_clr();
       display_set_mode(DISPLAY_MODE_ALARM_HHMM);
       display_set_blink_alarm_hour(TRUE); 
-      display_format_alarm0(&alarm0);
+      display_format_alarm0();
       start_inc  = 0;
       day_index = 0;
       break;
@@ -70,7 +71,7 @@ static void do_set_alarm_min(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_LPRESS:
       start_inc = 1;
       alarm0_inc_min();
-      display_format_alarm0(&alarm0);
+      display_format_alarm0();
       break;
     case EV_BUTTON_SET_UP:
       display_set_blink_alarm_min(TRUE);
@@ -82,15 +83,15 @@ static void do_set_alarm_min(uint8_t from_func, uint8_t from_state, uint8_t to_f
       break;
     case EV_BUTTON_SET_PRESS:
       alarm0_inc_min();
-      display_format_alarm0(&alarm0);
       alarm0_sync_to_rtc();
       alarm_save_config(ALARM_SYNC_ALARM0_MIN);
+      display_format_alarm0();
       break;
     case EV_BUTTON_MOD_PRESS:
       display_clr();
       display_set_mode(DISPLAY_MODE_ALARM_HHMM);
       display_set_blink_alarm_min(TRUE); 
-      display_format_alarm0(&alarm0);
+      display_format_alarm0();
       start_inc  = 0;
       day_index = 0;
       break;
@@ -104,7 +105,8 @@ static void do_set_alarm_day(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_PRESS:
       alarm0_set_enable(day_index, !alarm0_test_enable(day_index));
       alarm_save_config(ALARM_SYNC_ALARM0_DAY_MASK);
-      display_format_alarm0(&alarm0);
+      alarm0_sync_to_rtc();
+      display_format_alarm0();
       break;
     case EV_BUTTON_MOD_PRESS: 
       IVDBG("day_index = %d", day_index);
@@ -116,12 +118,12 @@ static void do_set_alarm_day(uint8_t from_func, uint8_t from_state, uint8_t to_f
         display_set_mode(DISPLAY_MODE_ALARM_DAY);
         day_index ++;
         display_set_blink_alarm_day(TRUE, day_index);
-        display_format_alarm0(&alarm0);
+        display_format_alarm0();
       } else {
         display_set_blink_alarm_day(FALSE, day_index);
         day_index ++;
         display_set_blink_alarm_day(TRUE, day_index);
-        display_format_alarm0(&alarm0);
+        display_format_alarm0();
       }
       break;
       default:;
@@ -137,7 +139,7 @@ static void do_set_alarm_snd(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_LPRESS:
       start_inc = 1;
       alarm0_inc_snd();
-      display_format_alarm0(&alarm0);
+      display_format_alarm0();
       break;
     case EV_BUTTON_SET_UP:
       display_set_blink_alarm_snd(TRUE);
@@ -148,14 +150,14 @@ static void do_set_alarm_snd(uint8_t from_func, uint8_t from_state, uint8_t to_f
       break;
     case EV_BUTTON_SET_PRESS:
       alarm0_inc_snd();
-      display_format_alarm0(&alarm0);
       alarm_save_config(ALARM_SYNC_ALARM0_SND);
+      display_format_alarm0();
       break;
     case EV_VT1:
       display_clr();
       display_set_mode(DISPLAY_MODE_ALARM_SND);
       display_set_blink_alarm_snd(TRUE); 
-      display_format_alarm0(&alarm0);
+      display_format_alarm0();
       start_inc  = 0;
       break;
     default:;
