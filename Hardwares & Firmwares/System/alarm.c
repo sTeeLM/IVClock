@@ -60,6 +60,38 @@ void alarm_scan(void)
   }
 }
 
+static void alarm0_sync_to_rtc(void)
+{
+  IVDBG("alarm0_sync_to_rtc!");
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0);
+  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM0_MOD_MATCH_HOUR_MIN_SEC);
+  BSP_DS3231_Alarm_Set_Hour(alarm0.hour);
+  BSP_DS3231_Alarm_Set_Min(alarm0.min);
+  BSP_DS3231_Alarm_Set_Sec(0);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM0);
+  
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
+  BSP_DS3231_Enable_Alarm_Int(BSP_DS3231_ALARM0, alarm0.day_mask != 0);
+  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM0);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
+}
+
+static void alarm1_sync_to_rtc(void)
+{
+  IVDBG("alarm1_sync_to_rtc!");
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM1);
+  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM1_MOD_MATCH_MIN);
+  BSP_DS3231_Alarm_Set_Hour(0);
+  BSP_DS3231_Alarm_Set_Min(0);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM1);
+  
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
+  BSP_DS3231_Enable_Alarm_Int(BSP_DS3231_ALARM1, alarm1_enable);
+  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM1);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
+}
+
+
 void alarm_load_config(void)
 {
   alarm0.day_mask = config_read("alm0_day_mask")->val8;
@@ -68,6 +100,8 @@ void alarm_load_config(void)
   alarm0.snd  = config_read("alm0_snd")->val8;
   alarm0_is12 = config_read("time_12")->val8;
   alarm1_enable = config_read("alm1_en")->val8; 
+  alarm0_sync_to_rtc();
+  alarm1_sync_to_rtc();  
 }
 
 void alarm_save_config(enum alarm_sync_type t)
@@ -77,14 +111,17 @@ void alarm_save_config(enum alarm_sync_type t)
     case ALARM_SYNC_ALARM0_DAY_MASK:
       val.val8 = alarm0.day_mask;
       config_write("alm0_day_mask", &val);
+      alarm0_sync_to_rtc();
     break;
     case ALARM_SYNC_ALARM0_HOUR:
       val.val8 = alarm0.hour;
       config_write("alm0_hour", &val);
+      alarm0_sync_to_rtc();
     break;
     case ALARM_SYNC_ALARM0_MIN:
       val.val8 = alarm0.min;
       config_write("alm0_min", &val);
+      alarm0_sync_to_rtc();
     break;
     case ALARM_SYNC_ALARM0_SND:
       val.val8 = alarm0.snd;
@@ -93,19 +130,16 @@ void alarm_save_config(enum alarm_sync_type t)
     case ALARM_SYNC_ALARM1_ENABLE:
       val.val8 = alarm1_enable;
       config_write("alm1_en", &val);
+      alarm1_sync_to_rtc();
     break;
   }
 }
-
-
 
 void alarm_init (void)
 {
   IVDBG("alarm_init");
   alarm_load_config();
   alarm_dump();
-  alarm0_sync_to_rtc();
-  alarm1_sync_to_rtc();
   BSP_DS3231_Dump();
 }
 
@@ -176,22 +210,6 @@ void alarm0_inc_hour(void)
   alarm0.hour = (++ alarm0.hour) % 24;
 }
 
-void alarm0_sync_to_rtc(void)
-{
-  IVDBG("alarm0_sync_to_rtc!");
-  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0);
-  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM0_MOD_MATCH_HOUR_MIN_SEC);
-  BSP_DS3231_Alarm_Set_Hour(alarm0.hour);
-  BSP_DS3231_Alarm_Set_Min(alarm0.min);
-  BSP_DS3231_Alarm_Set_Sec(0);
-  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM0);
-  
-  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
-  BSP_DS3231_Enable_Alarm_Int(BSP_DS3231_ALARM0, alarm0.day_mask != 0);
-  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM0);
-  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
-}
-
 bool alarm1_test_enable(void)
 {
   return alarm1_enable;
@@ -200,21 +218,6 @@ bool alarm1_test_enable(void)
 void alarm1_set_enable(bool enable)
 {
   alarm1_enable = enable;
-}
-
-void alarm1_sync_to_rtc(void)
-{
-  IVDBG("alarm1_sync_to_rtc!");
-  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM1);
-  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM1_MOD_MATCH_MIN);
-  BSP_DS3231_Alarm_Set_Hour(0);
-  BSP_DS3231_Alarm_Set_Min(0);
-  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM1);
-  
-  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
-  BSP_DS3231_Enable_Alarm_Int(BSP_DS3231_ALARM1, alarm1_enable);
-  BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM1);
-  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
 }
 
 void alarm0_inc_snd(void)

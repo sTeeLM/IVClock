@@ -39,8 +39,7 @@ uint8_t alarm0_get_min(void);
 void alarm0_inc_min(void);
 uint8_t alarm0_get_hour(void);
 void alarm0_inc_hour(void);
-//void alarm0_sync_from_rtc(void);
-void alarm0_sync_to_rtc(void);
+
 // 闹铃铃声
 void alarm0_inc_snd(void);
 uint8_t alarm0_get_snd(void);
@@ -49,8 +48,7 @@ uint8_t alarm0_get_snd(void);
 // 闹钟1是整点报时闹钟
 bool alarm1_test_enable(void);
 void alarm1_set_enable(bool enable);
-//void alarm1_sync_from_rtc(void);
-void alarm1_sync_to_rtc(void);
+
 void alarm_scan(void);
 
 void alarm0_stop_snd(void);

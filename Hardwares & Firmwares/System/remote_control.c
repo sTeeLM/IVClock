@@ -5,28 +5,28 @@
 #include "delay.h"
 #include "power.h"
 
-static bool remote_control_conn;
-
 void remote_control_init(void)
 {
-  remote_control_conn = FALSE;
+  
+}
+
+static bool remote_control_connected(void)
+{
+  return HAL_GPIO_ReadPin(INT_BT_GPIO_Port, INT_BT_Pin) == RESET;
 }
 
 void remote_control_scan(void)
 {
-  if(HAL_GPIO_ReadPin(INT_BT_GPIO_Port, INT_BT_Pin) == SET) {
-    IVDBG("remote_control_scan: BLE disconnect");
-    remote_control_conn = FALSE;
+  if(remote_control_connected()) {
+    IVDBG("remote_control connected");
   } else {
-    IVDBG("remote_control_scan: BLE connect");
-    remote_control_conn = TRUE;
+    IVDBG("remote_control disconnected");
   }
 }
 
 void remote_run(void)
 {
-  while(remote_control_conn) {
-    delay_ms(1000);
-    IVDBG("remote_run");
+  while(remote_control_connected()) {
+
   }
 }
