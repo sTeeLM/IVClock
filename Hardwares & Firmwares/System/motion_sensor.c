@@ -18,7 +18,7 @@ void motion_sensor_show(void)
 
 void motion_sensor_init(void)
 {
-  motion_sensor_th = config_read("acc_th")->val8;
+  motion_sensor_th = config_read_int("acc_th");
   if(motion_sensor_th > MONTION_SENSOR_MAX_TH)
     motion_sensor_th = MONTION_SENSOR_MAX_TH;
   if(motion_sensor_th != 0) {

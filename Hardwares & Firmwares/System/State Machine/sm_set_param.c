@@ -36,7 +36,6 @@ static void do_set_param_baoshi(uint8_t from_func, uint8_t from_state, uint8_t t
   } else {
     alarm1_set_enable(!alarm1_test_enable());
     alarm_save_config(ALARM_SYNC_ALARM1_ENABLE);
-    alarm1_sync_to_rtc();
     display_format_alarm1();
   }
 }
@@ -59,7 +58,7 @@ static void do_set_param_hour12(uint8_t from_func, uint8_t from_state, uint8_t t
     display_clr();
     display_format_hour12();
   } else {
-    val.val8 = !config_read("time_12")->val8;
+    val.val8 = !config_read_int("time_12");
     config_write("time_12", &val);
     display_format_hour12();
   }

@@ -39,7 +39,7 @@ void thermometer_display(void)
   uint16_t integer, flt;
   bool sign;
   
-  if(config_read("temp_cen")->val8) {
+  if(config_read_int("temp_cen")) {
     sign = thermometer_read_cen(&integer, &flt);
   } else {
     sign = thermometer_read_fah(&integer, &flt);
@@ -58,6 +58,6 @@ void thermometer_display(void)
   display_set_dig(4, flt / 10 + 0x30);
   display_set_dig(5, flt % 10 + 0x30);
   
-  display_set_dig(7, config_read("temp_cen")->val8 ? 'C' : 'F'); 
+  display_set_dig(7, config_read_int("temp_cen") ? 'C' : 'F'); 
   display_set_dig(8, DISPLAY_DEGREE);  
 }

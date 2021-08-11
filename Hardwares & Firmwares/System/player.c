@@ -309,7 +309,7 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
   uint8_t ret = 0, hour12;
   bool ispm;
   
-  if(config_read("time_12")->val8) {
+  if(config_read_int("time_12")) {
     ispm = cext_cal_hour12(hour, &hour12);
     hour = hour12;
     player_seq[start + ret].dir  = PLAYER_DIR_MISC;
@@ -407,7 +407,7 @@ void player_report_temperature(void)
   
   memset(player_seq, 0 ,sizeof(player_seq));
   
-  if(config_read("temp_cen")->val8) {
+  if(config_read_int("temp_cen")) {
     sign = thermometer_read_cen(&integer, &flt);
   } else {
     sign = thermometer_read_fah(&integer, &flt);
@@ -418,7 +418,7 @@ void player_report_temperature(void)
   ret ++;
   
   player_seq[ret].dir  = PLAYER_DIR_MISC;
-  player_seq[ret].file = config_read("temp_cen")->val8 ? 
+  player_seq[ret].file = config_read_int("temp_cen") ? 
     PLAYER_FILE_SHESHI : PLAYER_FILE_HUASHI;
   ret ++;  
   

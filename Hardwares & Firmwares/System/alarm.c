@@ -94,12 +94,12 @@ static void alarm1_sync_to_rtc(void)
 
 void alarm_load_config(void)
 {
-  alarm0.day_mask = config_read("alm0_day_mask")->val8;
-  alarm0.hour = config_read("alm0_hour")->val8;
-  alarm0.min  = config_read("alm0_min")->val8;
-  alarm0.snd  = config_read("alm0_snd")->val8;
-  alarm0_is12 = config_read("time_12")->val8;
-  alarm1_enable = config_read("alm1_en")->val8; 
+  alarm0.day_mask = config_read_int("alm0_day_mask");
+  alarm0.hour = config_read_int("alm0_hour");
+  alarm0.min  = config_read_int("alm0_min");
+  alarm0.snd  = config_read_int("alm0_snd");
+  alarm0_is12 = config_read_int("time_12");
+  alarm1_enable = config_read_int("alm1_en"); 
   alarm0_sync_to_rtc();
   alarm1_sync_to_rtc();  
 }
@@ -244,7 +244,7 @@ void alarm0_stop_snd(void)
 
 void alarm0_play_snd(void)
 {
-  player_play_snd(config_read("alm0_snd")->val8);
+  player_play_snd(config_read_int("alm0_snd"));
 }
 
 void alarm1_stop_snd(void)

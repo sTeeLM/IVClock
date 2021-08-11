@@ -54,7 +54,7 @@ void display_format_clock(struct clock_struct * clk)
   if(_display_mode == DISPLAY_MODE_CLOCK_HHMMSS) {
     ispm = cext_cal_hour12(clk->hour, &hour12);
     BSP_IV18_Set_Dig(1, '=');
-    if(config_read("time_12")->val8) {
+    if(config_read_int("time_12")) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(2, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(3, (hour12 % 10 + 0x30));      
@@ -160,7 +160,7 @@ void display_format_alarm0(void)
     BSP_IV18_Set_Dig(3,'L');
     BSP_IV18_Set_Dig(4,'-');
     ispm = cext_cal_hour12(alarm0.hour, &hour12);
-    if(config_read("time_12")->val8) {
+    if(config_read_int("time_12")) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
@@ -193,7 +193,7 @@ void display_format_alarm1(void)
     BSP_IV18_Set_Dig(3,'S');
     BSP_IV18_Set_Dig(4,'-');
     ispm = cext_cal_hour12(clock_get_hour(), &hour12);
-    if(config_read("time_12")->val8) {
+    if(config_read_int("time_12")) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
@@ -268,7 +268,7 @@ void display_format_hour12(void)
   BSP_IV18_Set_Dig(4,'U');
   BSP_IV18_Set_Dig(5,'R');
   BSP_IV18_Set_Dig(6,'-');  
-  if(config_read("time_12")->val8) {
+  if(config_read_int("time_12")) {
     BSP_IV18_Set_Dig(7,'1');
     BSP_IV18_Set_Dig(8,'2');   
   } else {
@@ -329,7 +329,7 @@ void display_on(void)
   power_490_enable(TRUE);
   BSP_TIM4_Start();
   _display_is_on = TRUE;
-  _display_mon_light = config_read("mon_lt_en")->val8;
+  _display_mon_light = config_read_int("mon_lt_en");
   if(_display_mon_light) {
     BSP_TIM1_Start_PMW(TIM_CHANNEL_1); // light control
   }
@@ -420,8 +420,8 @@ void display_cal_100(void)
 uint8_t display_get_light_percent(void)
 {
   uint16_t val = BSP_ADC2_Get_Value();
-  uint16_t lt_0 = config_read("lt_0")->val16;
-  uint16_t lt_100 = config_read("lt_100")->val16; 
+  uint16_t lt_0 = config_read_int("lt_0");
+  uint16_t lt_100 = config_read_int("lt_100"); 
   double k, b;
   uint8_t percent;
   k = ((double)(100 - 0)) / ((double)(lt_100 - lt_0));

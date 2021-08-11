@@ -53,7 +53,7 @@ void BSP_ACC_Power_On(void)
   
   IVDBG("BSP_ACC_Power_On");
   
-  BSP_ACC_Threshold_Set(config_read("acc_th")->val8);
+  BSP_ACC_Threshold_Set(config_read_int("acc_th"));
   
   // Register 0x2E—INT_ENABLE (Read/Write), enable Activity
   val = 0x10;
@@ -121,7 +121,7 @@ static void BSP_ACC_Init_Device(void)
   BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2F, I2C_MEMADD_SIZE_8BIT, &val, 1);
   
   // THRESH_ACT (Read/Write)
-  BSP_ACC_Threshold_Set(config_read("acc_th")->val8);
+  BSP_ACC_Threshold_Set(config_read_int("acc_th"));
   
   //Register 0x27—ACT_INACT_CTL (Read/Write)
   // ACT ac/dc = 1 (ac)

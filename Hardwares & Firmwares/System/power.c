@@ -38,14 +38,14 @@ void power_init(void)
 {
   uint16_t cal65, cal84;
   
-  cal65 = config_read("bat_65")->val16;
+  cal65 = config_read_int("bat_65");
 
   power_50_enable(TRUE);
   power_wdg_set(cal65, 0xFFF);
   power_mon_start();
   
   power_is_in_powersave = FALSE;
-  power_save_timeo = config_read("power_timeo")->val8;
+  power_save_timeo = config_read_int("power_timeo");
 }
 
 void power_33_enable(bool enable)
@@ -92,8 +92,8 @@ double power_get_bat_voltage(void)
 {
   uint16_t val, cal65, cal90;
   double voltage, k, b;
-  cal65 = config_read("bat_65")->val16;
-  cal90 = config_read("bat_90")->val16;  
+  cal65 = config_read_int("bat_65");
+  cal90 = config_read_int("bat_90");  
   val = BSP_ADC1_Get_Value();
 
   k = (9.0 - 6.5) / (cal90 - cal65);

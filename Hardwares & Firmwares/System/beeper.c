@@ -31,5 +31,5 @@ void beeper_enable(bool enable)
 
 bool beeper_enabled(void)
 {
-  return config_read("bp_en")->val8;
+  return config_read_int("bp_en");
 }
