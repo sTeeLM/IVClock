@@ -5,16 +5,12 @@
 #include <stddef.h>
 #include <string.h>
 
-static const uint8_t test_blob[] = {1,2,3,4,5,6,7,8};
+static const uint8_t alarm_blob[] = {0,0,0,0};
 
 static const config_slot_t _slot[] = {
   {"time_12", CONFIG_TYPE_UINT8,   {.val8 = 1}},
   {"acc_th",CONFIG_TYPE_UINT8,     {.val8 = 50}},
   {"bp_en",CONFIG_TYPE_UINT8,      {.val8 = 1}},
-  {"alm0_day_mask", CONFIG_TYPE_UINT8, {.val8 = 0}},
-  {"alm0_hour", CONFIG_TYPE_UINT8, {.val8 = 0}}, 
-  {"alm0_min", CONFIG_TYPE_UINT8,  {.val8 = 0}},
-  {"alm0_snd", CONFIG_TYPE_UINT8,  {.val8 = 0}},   
   {"alm1_en", CONFIG_TYPE_UINT8,   {.val8 = 1}},  
   {"bat_65", CONFIG_TYPE_UINT16,   {.val16 = 0}},
   {"bat_90", CONFIG_TYPE_UINT16,   {.val16 = 0}},   
@@ -23,7 +19,26 @@ static const config_slot_t _slot[] = {
   {"mon_lt_en", CONFIG_TYPE_UINT8, {.val8 = 1}},
   {"temp_cen", CONFIG_TYPE_UINT8,  {.val8 = 1}}, 
   {"power_timeo", CONFIG_TYPE_UINT8,  {.val8 = 30}},
-  {"test", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(test_blob), .valblob.body = test_blob}},  
+  {"alm00_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}}, 
+  {"alm01_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}},
+  {"alm02_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}}, 
+  {"alm03_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}},
+  {"alm04_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}}, 
+  {"alm05_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}},
+  {"alm06_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}}, 
+  {"alm07_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}},
+  {"alm08_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}}, 
+  {"alm09_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
+    .valblob.body = alarm_blob}},  
 };
 
 

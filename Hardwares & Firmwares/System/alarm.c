@@ -156,15 +156,16 @@ void alarm_scan(void)
   }
 }
 
+static char alarm0_name[] = {'a', 'l', 'm', '0', 0, '_', 'c', 'f', 'g', 0};
+
 void alarm_load_config(void)
 {
   uint8_t i;
   config_val_t val;
-  char name[9] = {'a', 'l', 'm', 0, '_', 'c', 'f', 'g',0};
   for(i = 0 ; i < ALARM0_CNT ; i ++) {
     val.valblob.body = (uint8_t *) &alarm0[i];
-    name[3] = i + 0x30;
-    config_read(name, &val);
+    alarm0_name[4] = i + 0x30;
+    config_read(alarm0_name, &val);
   }
   alarm1_enable = config_read_int("alm1_en"); 
   alarm0_sync_to_rtc((alarm0_cur = alarm0_find_curr()));
@@ -184,13 +185,12 @@ uint8_t alarm0_get_cnt(void)
 void alarm_save_config(enum alarm_sync_type t, uint8_t index)
 {
   config_val_t val;
-  char name[9] = {'a', 'l', 'm', 0, '_', 'c', 'f', 'g', 0};
   switch (t) {
     case ALARM_SYNC_ALARM0:
       val.valblob.len  = sizeof(struct alarm0_struct);
       val.valblob.body = (uint8_t*)&alarm0[index];
-      name[3] = index + 0x30;
-      config_write(name, &val);
+      alarm0_name[4] = index + 0x30;
+      config_write(alarm0_name, &val);
       alarm0_sync_to_rtc((alarm0_cur = alarm0_find_curr()));
     break;
     case ALARM_SYNC_ALARM1:

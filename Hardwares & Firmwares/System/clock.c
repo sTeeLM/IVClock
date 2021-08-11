@@ -10,6 +10,16 @@
 #include "button.h"
 #include "key.h"
 
+
+#define CLOCK_FACTORY_RESET_HOUR 12
+#define CLOCK_FACTORY_RESET_MIN  11
+#define CLOCK_FACTORY_RESET_SEC  0
+#define CLOCK_FACTORY_RESET_YEAR 14
+#define CLOCK_FACTORY_RESET_MON  8
+#define CLOCK_FACTORY_RESET_DATA 19
+#define CLOCK_FACTORY_RESET_DAY  2
+      
+
 static uint8_t date_table[2][12] = 
 {
 {31,29,31,30,31,30,31,31,30,31,30,31,}, // 2000
@@ -288,14 +298,21 @@ void clock_init(void)
 //    BSP_RTC_Time_Set_Min(10);
 //    BSP_RTC_Time_Set_Sec(30); 
 //    BSP_RTC_Write_Data(RTC_TYPE_TIME);
-    rtc_set_time(12,10,30);
+    rtc_set_time(
+      CLOCK_FACTORY_RESET_HOUR,
+      CLOCK_FACTORY_RESET_MIN,
+      CLOCK_FACTORY_RESET_SEC);
 
     IVINFO("clock factory reset date");
 //    BSP_RTC_Read_Data(RTC_TYPE_DATE);
 //    BSP_RTC_Date_Set_Year(14);
 //    BSP_RTC_Date_Set_Month(8);
 //    BSP_RTC_Date_Set_Date(19);
-    rtc_set_date(14, 8, 19, 2);
+    rtc_set_date(
+      CLOCK_FACTORY_RESET_YEAR,
+      CLOCK_FACTORY_RESET_MON,
+      CLOCK_FACTORY_RESET_DATA,
+      CLOCK_FACTORY_RESET_DAY);
   
 //    BSP_RTC_Date_Set_Day(cext_yymmdd_to_day(
 //    BSP_RTC_Date_Get_Year() ,
