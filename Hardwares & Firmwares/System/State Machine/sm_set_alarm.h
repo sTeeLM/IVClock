@@ -8,7 +8,8 @@ extern struct sm_trans * sm_trans_set_alarm[];
 
 enum sm_states_set_alarm
 {
-  SM_SET_ALARM_INIT, 
+  SM_SET_ALARM_INIT,
+  SM_SET_ALARM_SEL,
   SM_SET_ALARM_HOUR, 
   SM_SET_ALARM_MIN,  
   SM_SET_ALARM_DAY,

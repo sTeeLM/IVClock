@@ -80,8 +80,8 @@ static void do_clock_display_alarm0(uint8_t from_func, uint8_t from_state, uint8
     clock_refresh_display_enable(FALSE);
     display_clr();
     display_set_mode(DISPLAY_MODE_ALARM_HHMM);
-    display_format_alarm0();
-    alarm0_play_snd();
+    display_format_alarm0(alarm0_get_hit_index());
+    alarm0_play_snd(alarm0_get_hit_index());
   } else {
     alarm0_stop_snd();    
     task_set(EV_VT1);

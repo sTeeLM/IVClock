@@ -35,7 +35,7 @@ static void do_set_param_baoshi(uint8_t from_func, uint8_t from_state, uint8_t t
     display_format_alarm1();
   } else {
     alarm1_set_enable(!alarm1_test_enable());
-    alarm_save_config(ALARM_SYNC_ALARM1_ENABLE);
+    alarm_save_config(ALARM_SYNC_ALARM1, 0);
     display_format_alarm1();
   }
 }

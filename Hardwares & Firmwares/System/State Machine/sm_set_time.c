@@ -4,6 +4,7 @@
 #include "sm.h"
 #include "clock.h"
 #include "display.h"
+#include "alarm.h"
 
 #include "sm_set_date.h"
 
@@ -31,6 +32,7 @@ static void do_set_time_hour(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_UP:
       display_set_blink_clock_hour(TRUE);
       if(start_inc) {
+        alarm_resync_rtc();
         clock_sync_to_rtc(CLOCK_SYNC_TIME);
         start_inc = 0;
       }
@@ -38,6 +40,7 @@ static void do_set_time_hour(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_PRESS:
       clock_inc_hour();
       clock_refresh_display();
+      alarm_resync_rtc();
       clock_sync_to_rtc(CLOCK_SYNC_TIME);
       break;
     case EV_BUTTON_MOD_UP:
@@ -69,6 +72,7 @@ static void do_set_time_min(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     case EV_BUTTON_SET_UP:
       display_set_blink_clock_min(TRUE);
       if(start_inc) {
+        alarm_resync_rtc();
         clock_sync_to_rtc(CLOCK_SYNC_TIME);
         start_inc = 0;
       }
@@ -76,6 +80,7 @@ static void do_set_time_min(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     case EV_BUTTON_SET_PRESS:
       clock_inc_min();
       clock_refresh_display();
+      alarm_resync_rtc();
       clock_sync_to_rtc(CLOCK_SYNC_TIME);
       break;
     case EV_BUTTON_MOD_PRESS:
@@ -96,6 +101,7 @@ static void do_set_time_sec(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     case EV_BUTTON_SET_PRESS:
       clock_clr_sec();
       clock_refresh_display();
+      alarm_resync_rtc();
       clock_sync_to_rtc(CLOCK_SYNC_TIME);
       break;
     case EV_BUTTON_MOD_PRESS:

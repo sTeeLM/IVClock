@@ -150,37 +150,41 @@ void display_set_blink_timer_sec(bool enable)
   }
 }
 
-void display_format_alarm0(void)
+void display_format_alarm0(uint8_t index)
 {
   bool ispm;
   uint8_t hour12, i;
   
   if(_display_mode == DISPLAY_MODE_ALARM_HHMM) {
-    BSP_IV18_Set_Dig(2,'A');
-    BSP_IV18_Set_Dig(3,'L');
+    BSP_IV18_Set_Dig(1,'A');
+    BSP_IV18_Set_Dig(2,'L');
+    BSP_IV18_Set_Dig(3, index + 0x30);     
     BSP_IV18_Set_Dig(4,'-');
-    ispm = cext_cal_hour12(alarm0.hour, &hour12);
+    ispm = cext_cal_hour12(alarm0[index].hour, &hour12);
     if(config_read_int("time_12")) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
     } else {
-      BSP_IV18_Set_Dig(5, (alarm0.hour / 10 + 0x30));
-      BSP_IV18_Set_Dig(6, (alarm0.hour % 10 + 0x30));
+      BSP_IV18_Set_Dig(5, (alarm0[index].hour / 10 + 0x30));
+      BSP_IV18_Set_Dig(6, (alarm0[index].hour % 10 + 0x30));
     }
     BSP_IV18_Set_DP(6);
-    BSP_IV18_Set_Dig(7, (alarm0.min / 10 + 0x30));
-    BSP_IV18_Set_Dig(8, (alarm0.min % 10 + 0x30));
+    BSP_IV18_Set_Dig(7, (alarm0[index].min / 10 + 0x30));
+    BSP_IV18_Set_Dig(8, (alarm0[index].min % 10 + 0x30));
   } else if(_display_mode == DISPLAY_MODE_ALARM_DAY) {
     for(i = 0 ; i < 7 ; i++) {
-      BSP_IV18_Set_Dig(i + 1, alarm0_test_enable(i + 1) ? '0' : '-');
+      BSP_IV18_Set_Dig(i + 1, alarm0_test_enable(index, i + 1) ? '0' : '-');
     }
   } else if(_display_mode == DISPLAY_MODE_ALARM_SND) {
-    BSP_IV18_Set_Dig(1, 'S');
-    BSP_IV18_Set_Dig(2, 'N');
-    BSP_IV18_Set_Dig(3, 'D'); 
-    BSP_IV18_Set_Dig(4, '-');
-    BSP_IV18_Set_Dig(5, alarm0.snd + 0x30);
+    BSP_IV18_Set_Dig(1,'A');
+    BSP_IV18_Set_Dig(2,'L');
+    BSP_IV18_Set_Dig(3, index + 0x30);     
+    BSP_IV18_Set_Dig(4,'-');
+    BSP_IV18_Set_Dig(5, 'S');    
+    BSP_IV18_Set_Dig(6, 'N');
+    BSP_IV18_Set_Dig(7, 'D');    
+    BSP_IV18_Set_Dig(8, alarm0[index].snd + 0x30);
   }
 }
 
