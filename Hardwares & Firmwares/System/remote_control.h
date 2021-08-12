@@ -6,11 +6,7 @@
 #include "alarm.h"
 #include "clock.h"
 
-typedef struct remote_control_msg_header
-{
-  uint32_t magic;
-  uint16_t length; // body length
-}remote_control_msg_header_t;
+#define REMOTE_CONTROL_MSG_HEADER_MAGIC 0x12345678
 
 typedef enum remote_control_cmd_type
 {
@@ -44,6 +40,15 @@ typedef enum remote_control_code_type
   REMOTE_CONTROL_CODE_ERROR
 }remote_control_code_type_t;
 
+typedef struct remote_control_msg_header
+{
+  uint32_t magic;
+  uint16_t length; // body length
+  remote_control_cmd_type_t cmd; // command
+  remote_control_res_type_t res; // response
+  remote_control_code_type_t code;  // ret code
+}remote_control_msg_header_t;
+
 typedef struct remote_control_body_time
 {
   struct clock_struct time;
@@ -69,8 +74,6 @@ typedef struct remote_control_body_param
 typedef struct remote_control_cmd
 {
   remote_control_msg_header_t header;
-  remote_control_cmd_type_t cmd;
-  remote_control_code_type_t code;
   union {
     remote_control_body_time_t time;
     remote_control_body_alarm_t alarm; 
@@ -82,8 +85,6 @@ typedef struct remote_control_cmd
 typedef struct remote_control_res
 {
   remote_control_msg_header_t header;
-  remote_control_res_type_t res;
-  remote_control_code_type_t code;
   union {
     remote_control_body_time_t time;
     remote_control_body_alarm_t alarm; 
