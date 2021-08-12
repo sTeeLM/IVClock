@@ -9,8 +9,6 @@
 
 #define ALARM0_MAX_SND_INDEX 9
 
-#define ALARM0_CNT 10
-
 static int8_t alarm0_cur; // -1说明当前rtc中没有alarm0生效
 static int8_t alarm0_hit_index;
 struct alarm0_struct alarm0[ALARM0_CNT];

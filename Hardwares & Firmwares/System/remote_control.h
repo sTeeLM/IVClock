@@ -3,73 +3,97 @@
 
 #include <stdint.h>
 
-struct remote_control_msg_header
+#include "alarm.h"
+#include "clock.h"
+
+typedef struct remote_control_msg_header
 {
   uint32_t magic;
   uint16_t length; // body length
-};
+}remote_control_msg_header_t;
 
-enum remote_control_cmd_type
+typedef enum remote_control_cmd_type
 {
-  REMOTE_CONTROL_CMD_NONE = 0,
-  REMOTE_CONTROL_CMD_SYNC_TIME,
-  REMOTE_CONTROL_CMD_READ_ALARM,
+  REMOTE_CONTROL_CMD_BASE = 0,
+  REMOTE_CONTROL_CMD_GET_TIME,
+  REMOTE_CONTROL_CMD_SET_TIME,  
+  REMOTE_CONTROL_CMD_GET_ALARM,
   REMOTE_CONTROL_CMD_SET_ALARM,
-  REMOTE_CONTROL_CMD_READ_PARAM,
-  REMOTE_CONTROL_CMD_SET_PARAM
-};
+  REMOTE_CONTROL_CMD_GET_PARAM,
+  REMOTE_CONTROL_CMD_SET_PARAM,
+  REMOTE_CONTROL_CMD_GET_BAT,
+  REMOTE_CONTROL_CMD_STOP_ALARM  
+}remote_control_cmd_type_t;
 
-
-struct remote_control_cmd_sync_time
+typedef enum remote_control_res_type
 {
-  uint8_t year;   // 0 - 99 (2000 ~ 2099)
-  uint8_t mon;    // 0 - 11
-  uint8_t date;   // 0 - 30(29/28/27)
-  uint8_t day;    // 0 - 6
-  uint8_t hour;   // 0 - 23
-  uint8_t min;    // 0 - 59
-  uint8_t sec;    // 0 - 59 
-};
+  REMOTE_CONTROL_RES_BASE = 100,
+  REMOTE_CONTROL_RES_GET_TIME,
+  REMOTE_CONTROL_RES_SET_TIME,  
+  REMOTE_CONTROL_RES_GET_ALARM,
+  REMOTE_CONTROL_RES_SET_ALARM,
+  REMOTE_CONTROL_RES_GET_PARAM,
+  REMOTE_CONTROL_RES_SET_PARAM,
+  REMOTE_CONTROL_RES_GET_BAT,
+  REMOTE_CONTROL_RES_STOP_ALARM 
+}remote_control_res_type_t;
 
-struct remote_control_cmd_set_param
+typedef enum remote_control_code_type
 {
-  
-};
+  REMOTE_CONTROL_CODE_OK   = 0,
+  REMOTE_CONTROL_CODE_ERROR
+}remote_control_code_type_t;
+
+typedef struct remote_control_body_time
+{
+  struct clock_struct time;
+}remote_control_body_time_t;
+
+typedef struct remote_control_body_alarm
+{
+  struct  alarm0_struct alarm0[ALARM0_CNT];
+}remote_control_body_alarm_t;
+
+typedef struct remote_control_body_param
+{
+  uint8_t time_12;
+  uint8_t acc_th;
+  uint8_t bp_en;
+  uint8_t alm1_en;
+  uint8_t mon_lt_en;
+  uint8_t temp_cen;
+  uint8_t power_timeo; 
+}remote_control_body_param_t;
 
 // command
-struct remote_control_cmd
+typedef struct remote_control_cmd
 {
-  struct remote_control_msg_header header;
-  uint16_t cmd;
+  remote_control_msg_header_t header;
+  remote_control_cmd_type_t cmd;
+  remote_control_code_type_t code;
   union {
-    struct remote_control_cmd_sync_time sync_time;
+    remote_control_body_time_t time;
+    remote_control_body_alarm_t alarm; 
+    remote_control_body_param_t param;    
   }body;
-};
+}remote_control_cmd_t;
 
 // respond
-struct remote_control_res
+typedef struct remote_control_res
 {
-  struct remote_control_msg_header header;
-  uint16_t res;
+  remote_control_msg_header_t header;
+  remote_control_res_type_t res;
+  remote_control_code_type_t code;
   union {
-    struct remote_control_cmd_sync_time sync_time;
+    remote_control_body_time_t time;
+    remote_control_body_alarm_t alarm; 
+    remote_control_body_param_t param;
+    double bat_voltage;
   }body;
-};
-
-
-struct remote_control_msg_get_param
-{
-  uint8_t year;   // 0 - 99 (2000 ~ 2099)
-  uint8_t mon;    // 0 - 11
-  uint8_t date;   // 0 - 30(29/28/27)
-  uint8_t day;    // 0 - 6
-  uint8_t hour;   // 0 - 23
-  uint8_t min;    // 0 - 59
-  uint8_t sec;    // 0 - 59 
-};
+}remote_control_res_t;
 
 void remote_control_init(void);
 void remote_control_scan(void);
-void remote_run(void);
+void remote_control_run(void);
 
 #endif

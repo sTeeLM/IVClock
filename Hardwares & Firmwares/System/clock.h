@@ -30,6 +30,8 @@ struct clock_struct
   uint8_t ms39;   // 0 - 255
 };
 
+extern struct clock_struct clk;
+
 void clock_show(void);
 
 uint8_t clock_get_sec(void);

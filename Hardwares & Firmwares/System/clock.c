@@ -26,7 +26,7 @@ static uint8_t date_table[2][12] =
 {31,28,31,30,31,30,31,31,30,31,30,31,},
 };
 
-static struct clock_struct clk;
+struct clock_struct clk;
 static uint32_t now_sec; // 用于 time_diff
 
 static bool refresh_display;

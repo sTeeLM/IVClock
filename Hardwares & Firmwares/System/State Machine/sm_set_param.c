@@ -22,7 +22,8 @@ static void do_set_param_beeper(uint8_t from_func, uint8_t from_state, uint8_t t
     display_clr();
     display_format_param_beeper();
   } else {
-    beeper_enable(!beeper_enabled());
+    beeper_set_enable(!beeper_test_enable());
+    beeper_save_config();
     display_format_param_beeper();
   }
 }
@@ -47,6 +48,7 @@ static void do_set_param_ps(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     display_format_power();
   } else {
     power_inc_timeo();
+    power_timeo_save_config();
     display_format_power();
   }
 }
@@ -70,7 +72,8 @@ static void do_set_param_light_mon(uint8_t from_func, uint8_t from_state, uint8_
     display_clr();
     display_format_light_mon();
   } else {
-    display_mon_light_enable(!display_mon_light_enabled());
+    display_mon_light_set_enable(!display_mon_light_test_enable());
+    display_mon_light_save_config();
     display_format_light_mon();
   }
 }
@@ -82,6 +85,7 @@ static void do_set_param_motion_mon(uint8_t from_func, uint8_t from_state, uint8
     display_format_motion_mon();
   } else {
     motion_sensor_inc_th();
+    motion_sensor_save_config();
     display_format_motion_mon();
   }
 }

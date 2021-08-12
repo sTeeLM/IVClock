@@ -232,7 +232,7 @@ void display_format_param_beeper(void)
   BSP_IV18_Set_Dig(2,'B');
   BSP_IV18_Set_Dig(3,'P');
   BSP_IV18_Set_Dig(4,'-');
-  if(beeper_enabled()) {
+  if(beeper_test_enable()) {
     BSP_IV18_Set_Dig(5,'O');
     BSP_IV18_Set_Dig(6,'N');
     BSP_IV18_Set_Dig(7,BSP_IV18_BLANK);    
@@ -288,7 +288,7 @@ void display_format_light_mon(void)
   BSP_IV18_Set_Dig(2,'L');
   BSP_IV18_Set_Dig(3,'M');
   BSP_IV18_Set_Dig(4,'-');
-  if(display_mon_light_enabled()) {
+  if(display_mon_light_test_enable()) {
     BSP_IV18_Set_Dig(5,'O');
     BSP_IV18_Set_Dig(6,'N');
     BSP_IV18_Set_Dig(7,BSP_IV18_BLANK);    
@@ -441,21 +441,26 @@ uint8_t display_get_light_percent(void)
   return (uint8_t)percent;
 }
 
-void display_mon_light_enable(bool enable)
+void display_mon_light_set_enable(bool enable)
 {
-  config_val_t val;
+  
   _display_mon_light = enable;
-  val.val8 = enable;
-  config_write("mon_lt_en", &val);
   if(enable)
     BSP_TIM1_Start_PMW(TIM_CHANNEL_1);
   else
     BSP_TIM1_Stop_PMW(TIM_CHANNEL_1);
 }
 
-bool display_mon_light_enabled(void)
+bool display_mon_light_test_enable(void)
 {
   return _display_mon_light;
+}
+
+void display_mon_light_save_config(void)
+{
+  config_val_t val;
+  val.val8 = _display_mon_light;
+  config_write("mon_lt_en", &val);
 }
 
 static uint8_t display_light_to_brightness(uint8_t light)
@@ -605,8 +610,8 @@ void display_set_blink_alarm_day(bool enable, uint8_t day)
 void display_set_blink_alarm_snd(bool enable)
 {
   if(enable) {
-    display_set_blink(5);    
+    display_set_blink(8);    
   } else {
-    display_clr_blink(5); 
+    display_clr_blink(8); 
   }
 }

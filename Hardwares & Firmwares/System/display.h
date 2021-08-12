@@ -15,8 +15,9 @@ bool display_is_on(void);
 void display_on(void);
 void display_off(void);
 
-void display_mon_light_enable(bool enable);
-bool display_mon_light_enabled(void);
+void display_mon_light_set_enable(bool enable);
+bool display_mon_light_test_enable(void);
+void display_mon_light_save_config(void);
 
 void display_format_clock(struct clock_struct * clk);
 void display_format_timer(struct timer_struct * tmr);

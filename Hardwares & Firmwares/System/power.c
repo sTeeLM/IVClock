@@ -148,9 +148,25 @@ void power_reset_timeo(void)
   curr_power_save_dur = clock_get_now_sec();
 }
 
+void power_set_timeo(uint8_t timeo)
+{
+  uint8_t r = power_save_timeo / 15;
+  power_save_timeo = r * 15;
+  if(power_save_timeo > POWER_MAX_TIMEO)
+    power_save_timeo = 0;
+  power_save_timeo = timeo;
+}
+
 uint8_t power_get_timeo(void)
 {
   return power_save_timeo;
+}
+
+void power_timeo_save_config(void)
+{
+  config_val_t val;
+  val.val8 = power_save_timeo;
+  config_write("power_timeo", &val);
 }
 
 void power_inc_timeo(void)
@@ -159,8 +175,6 @@ void power_inc_timeo(void)
   power_save_timeo += 15;
   if(power_save_timeo > POWER_MAX_TIMEO)
     power_save_timeo = 0;
-  val.val8 = power_save_timeo;
-  config_write("power_timeo", &val);
 }
 
 void power_test_powersave(void)

@@ -171,7 +171,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
     task_run();
-    remote_run();
+    remote_control_run();
     console_run();
     /* USER CODE BEGIN 3 */
   }

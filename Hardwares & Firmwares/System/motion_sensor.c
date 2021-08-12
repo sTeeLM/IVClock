@@ -35,6 +35,28 @@ void motion_sensor_scan(void)
     task_set(EV_ACC);
 }
 
+void motion_sensor_set_th(uint8_t th)
+{
+  if(th > MONTION_SENSOR_MAX_TH)
+    th = 0;
+  
+  motion_sensor_th = th;
+  
+  if(motion_sensor_th) {
+    BSP_ACC_Power_On();
+    BSP_ACC_Threshold_Set(motion_sensor_th);
+  } else {
+    BSP_ACC_Power_Off();
+  }
+}
+
+void motion_sensor_save_config(void)
+{
+  config_val_t val;
+  val.val8 = motion_sensor_th;
+  config_write("acc_th", &val);
+}
+
 uint8_t motion_sensor_inc_th(void)
 {
   motion_sensor_th ++;
