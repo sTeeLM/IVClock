@@ -38,6 +38,7 @@ void debug_printf(uint8_t newline, ivlog_type_t level, const char * fmt, ...);
 #define IVINFO(...)  do{}while(0)
 #define IVINFO_R(...)  do{}while(0)
 #define IVINFO_RH
+#define IVINFO_RT
 #endif
 
 #if (IV_DEBUG_LEVEL >= 3)
