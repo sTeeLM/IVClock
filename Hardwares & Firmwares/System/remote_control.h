@@ -44,8 +44,10 @@ typedef struct remote_control_msg_header
 {
   uint32_t magic;
   uint16_t length; // body length
-  remote_control_cmd_type_t cmd; // command
-  remote_control_res_type_t res; // response
+  union{
+    remote_control_cmd_type_t cmd; // command
+    remote_control_res_type_t res; // response  
+  };
   remote_control_code_type_t code;  // ret code
 }remote_control_msg_header_t;
 
@@ -56,7 +58,8 @@ typedef struct remote_control_body_time
 
 typedef struct remote_control_body_alarm
 {
-  struct  alarm0_struct alarm0[ALARM0_CNT];
+  uint8_t alarm_index;
+  struct  alarm0_struct alarm0;
 }remote_control_body_alarm_t;
 
 typedef struct remote_control_body_param
@@ -70,19 +73,8 @@ typedef struct remote_control_body_param
   uint8_t power_timeo; 
 }remote_control_body_param_t;
 
-// command
-typedef struct remote_control_cmd
-{
-  remote_control_msg_header_t header;
-  union {
-    remote_control_body_time_t time;
-    remote_control_body_alarm_t alarm; 
-    remote_control_body_param_t param;    
-  }body;
-}remote_control_cmd_t;
-
-// respond
-typedef struct remote_control_res
+// msg
+typedef struct remote_control_msg
 {
   remote_control_msg_header_t header;
   union {
@@ -91,7 +83,7 @@ typedef struct remote_control_res
     remote_control_body_param_t param;
     double bat_voltage;
   }body;
-}remote_control_res_t;
+}remote_control_msg_t;
 
 void remote_control_init(void);
 void remote_control_scan(void);

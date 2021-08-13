@@ -137,18 +137,18 @@ static void config_dump(void)
       for(j = 0 ; j < val.valblob.len / 8 ; j ++) {
         BSP_ROM_Read(offset, buffer, sizeof(buffer));
         offset += 8;
-        IVDBG(" 0x%02x %02x %02x %02x 02x %02x %02x %02x ",
+        IVDBG(" %02x %02x %02x %02x 02x %02x %02x %02x",
           buffer[0],buffer[1],buffer[2],buffer[3],
           buffer[4],buffer[5],buffer[6],buffer[7]
         );
       }
       BSP_ROM_Read(offset, buffer, val.valblob.len % 8);
       offset += val.valblob.len % 8;
-      IVDBG_N("[DBG ] 0x");
+      IVDBG_RH;
       for(j = 0 ; j < val.valblob.len % 8 ; j ++) {
-        IVDBG_N("%02x ", buffer[j]);
+        IVDBG_R(" %02x", buffer[j]);
       }
-      IVDBG_N("\r\n");
+      IVDBG_RT;
     }
   } 
   IVDBG("dump all config end ----------------------");

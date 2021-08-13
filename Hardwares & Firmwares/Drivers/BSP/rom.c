@@ -21,11 +21,11 @@ void _rom_dump(void)
   IVDBG("dump rom content begin------------------------");
   for(i = 0 ; i < ROM_PAGES ; i ++) {
       BSP_ROM_Read(i * ROM_PAGE_SIZE, buf, ROM_PAGE_SIZE);
-      IVDBG_N("[DBG ] ");
+      IVDBG_RH;
       for(j = 0 ; j < ROM_PAGE_SIZE ; j ++) {
-        IVDBG_N("%02X ", buf[j]);
+        IVDBG_R("%02X ", buf[j]);
       }
-      IVDBG_N("\r\n");
+      IVDBG_RT;
   }
   IVDBG("dump rom content end------------------------");
 }
