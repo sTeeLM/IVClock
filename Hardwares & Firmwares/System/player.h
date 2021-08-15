@@ -10,9 +10,15 @@ struct player_seq_node
   uint8_t file;
 };
 
+enum player_snd_dir
+{
+  PLAYER_SND_DIR_ALARM = 4,
+  PLAYER_SND_DIR_EFFETS
+};
+
 enum player_snd_index
 {
-  PLAYER_SND_1,
+  PLAYER_SND_1 = 0,
   PLAYER_SND_2,
   PLAYER_SND_3,
   PLAYER_SND_4,
@@ -31,9 +37,13 @@ void player_off(void);
 bool player_is_on(void);
 void player_report_clk(void);
 void player_report_temperature(void);
-void player_play_snd(enum player_snd_index index);
+void player_play_snd(enum player_snd_dir dir, enum player_snd_index index);
 void player_stop_play(void);
 bool player_is_playing(void);
 void player_show(void);
+uint8_t player_get_vol(void);
+uint8_t player_inc_vol(void);
+uint8_t player_set_vol(uint8_t vol);
+void player_save_config(void);
 
 #endif

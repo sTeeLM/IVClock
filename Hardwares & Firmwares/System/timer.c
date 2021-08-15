@@ -2,6 +2,8 @@
 #include "display.h"
 #include "debug.h"
 #include "task.h"
+#include "config.h"
+#include "player.h"
 #include <string.h>
 
 struct timer_struct tmr[TIMER_SLOT_CNT]; // slot0 当前timer，1/2是两个瞬时值
@@ -12,6 +14,8 @@ static bool tmr_countdown_stop;
 static bool tmr_start;
 static uint8_t tmr_current_slot;
 static uint8_t tmr_current_history_slot;
+static uint8_t tmr_snd;
+
 void timer_inc_ms39(void)
 {
   uint8_t ms10;
@@ -68,6 +72,7 @@ void timer_init(void)
   tmr_start = 0;
   tmr_current_slot = 1;
   tmr_current_history_slot = 1;
+  tmr_snd = config_read_int("tmr_snd");
 }
 
 void timer_enter_powersave(void)
@@ -198,11 +203,48 @@ void timer_resume(void)
 void timer_clr(void)
 {
   memset(tmr, 0, sizeof(tmr));
-  
-  refresh_display = FALSE;
   tmr_countdown_stop = 1;
   tmr_start = 0;
   tmr_current_slot = 1;
   tmr_current_history_slot = 1;
+}
+
+uint8_t timer_get_snd(void)
+{
+  return tmr_snd;
+}
+
+uint8_t timer_inc_snd(void)
+{
+  tmr_snd ++;
+  if(tmr_snd > PLAYER_SND_10)
+    tmr_snd = 0;
+  return tmr_snd;
+}
+
+void timer_set_snd(uint8_t snd)
+{
+  tmr_snd = snd;
+  if(tmr_snd > PLAYER_SND_10)
+    tmr_snd = 0;
+}
+
+void timer_play_snd(void)
+{
+   player_play_snd(PLAYER_SND_DIR_EFFETS, tmr_snd);
+}
+
+void timer_stop_play(void)
+{
+  if(player_is_playing()) {
+     player_stop_play();
+  }
+}
+
+void timer_save_config(void)
+{
+  config_val_t val;
+  val.val8 = tmr_snd;
+  config_write("tmr_snd", &val);
 }
 

@@ -18,7 +18,7 @@ bool BSP_Read_Int_Status(void)
 {
   uint8_t val;
   BSP_I2C_Read(ACC_I2C_ADDRESS, 0x30, I2C_MEMADD_SIZE_8BIT, &val, 1);
-  IVDBG("Acc int port status %02x", val);
+  IVDBG("BSP_Read_Int_Status return %02x", val);
   return (val & 0x80) != 0;
 }
 
@@ -31,6 +31,7 @@ uint8_t BSP_ACC_Threshold_Get(void)
 
 void BSP_ACC_Threshold_Set(uint8_t th)
 {
+  uint8_t val;
   if(th != ACC_THRESHOLD_INVALID) {
     if(th > ACC_THRESHOLD_MAX) {
       th = ACC_THRESHOLD_MAX;
@@ -38,7 +39,18 @@ void BSP_ACC_Threshold_Set(uint8_t th)
     if(th < ACC_THRESHOLD_MIN) {
       th = ACC_THRESHOLD_MIN;
     }
+    // Register 0x2E—INT_ENABLE (Read/Write), enable Activity
+    val = 0;
+    BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2E, I2C_MEMADD_SIZE_8BIT, &val, 1);
+    
+    delay_ms(10);
     BSP_I2C_Write(ACC_I2C_ADDRESS, 0x24, I2C_MEMADD_SIZE_8BIT, &th, 1);
+    
+    delay_ms(10);
+    // Register 0x2E—INT_ENABLE (Read/Write), enable Activity
+    val = 0x10;
+    BSP_I2C_Write(ACC_I2C_ADDRESS, 0x2E, I2C_MEMADD_SIZE_8BIT, &val, 1);
+    BSP_I2C_Read(ACC_I2C_ADDRESS, 0x30, I2C_MEMADD_SIZE_8BIT, &val, 1);
   } 
 }
 

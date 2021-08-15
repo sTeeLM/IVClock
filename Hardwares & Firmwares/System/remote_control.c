@@ -10,6 +10,8 @@
 #include "display.h"
 #include "power.h"
 #include "usart.h"
+#include "timer.h"
+#include "player.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -211,12 +213,14 @@ static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   res->body.param.acc_th = motion_sensor_get_th();
   res->body.param.alm1_en = alarm1_test_enable();  
-  res->body.param.bp_en = config_read_int("bp_en"); 
-  res->body.param.mon_lt_en = config_read_int("mon_lt_en");  
-  res->body.param.power_timeo = config_read_int("power_timeo"); 
+  res->body.param.bp_en = beeper_test_enable(); 
+  res->body.param.mon_lt_en = display_mon_light_test_enable();  
+  res->body.param.power_timeo = power_get_timeo(); 
   res->body.param.temp_cen = config_read_int("temp_cen");
   res->body.param.time_12 = config_read_int("time_12"); 
-
+  res->body.param.tmr_snd = timer_get_snd(); 
+  res->body.param.ply_vol = player_get_vol();
+  
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
   res->header.length = sizeof(res->body.param);
@@ -265,7 +269,19 @@ static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   if(val.val8 != config_read_int("time_12")) {
     config_write("time_12", &val);
   } 
+  
+  val.val8 = cmd->body.param.tmr_snd;
+  if(val.val8 != timer_get_snd()) {
+    timer_set_snd(val.val8);
+    timer_save_config();
+  }   
 
+  val.val8 = cmd->body.param.ply_vol;
+  if(val.val8 != player_get_vol()) {
+    player_set_vol(val.val8);
+    player_save_config();
+  }   
+  
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
   res->header.length = 0;  

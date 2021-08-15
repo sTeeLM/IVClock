@@ -19,6 +19,8 @@ static const config_slot_t _slot[] = {
   {"mon_lt_en", CONFIG_TYPE_UINT8, {.val8 = 1}},
   {"temp_cen", CONFIG_TYPE_UINT8,  {.val8 = 1}}, 
   {"power_timeo", CONFIG_TYPE_UINT8,  {.val8 = 30}},
+  {"tmr_snd", CONFIG_TYPE_UINT8, {.val8 = 0}},
+  {"ply_vol", CONFIG_TYPE_UINT8, {.val8 = 10}},  
   {"alm00_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
     .valblob.body = alarm_blob}}, 
   {"alm01_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
@@ -64,7 +66,7 @@ static void config_factory_reset(void)
         BSP_ROM_Write(offset, (uint8_t *)(&_slot[i].default_val.valblob.len),
           sizeof(_slot[i].default_val.valblob.len));
         offset += sizeof(_slot[i].default_val.valblob.len);
-        BSP_ROM_Write(offset, (uint8_t *)(&_slot[i].default_val.valblob.body), 4);
+        BSP_ROM_Write(offset, (uint8_t *)(_slot[i].default_val.valblob.body), _slot[i].default_val.valblob.len);
         offset += _slot[i].default_val.valblob.len;
         break; 
       default: ;
@@ -137,7 +139,7 @@ static void config_dump(void)
       for(j = 0 ; j < val.valblob.len / 8 ; j ++) {
         BSP_ROM_Read(offset, buffer, sizeof(buffer));
         offset += 8;
-        IVDBG(" %02x %02x %02x %02x 02x %02x %02x %02x",
+        IVDBG(" %02x %02x %02x %02x %02x %02x %02x %02x",
           buffer[0],buffer[1],buffer[2],buffer[3],
           buffer[4],buffer[5],buffer[6],buffer[7]
         );
@@ -182,7 +184,7 @@ bool config_read(const char * name, config_val_t * val)
         break;
       case CONFIG_TYPE_BLOB:
         BSP_ROM_Read(off, (uint8_t *)(&val->valblob.len), sizeof(val->valblob.len));
-        BSP_ROM_Read(off + sizeof(val->valblob.len), (uint8_t *)(&val->valblob.body), val->valblob.len);      
+        BSP_ROM_Read(off + sizeof(val->valblob.len), (uint8_t *)(val->valblob.body), val->valblob.len);      
       default: ;
     }
   }
@@ -233,7 +235,7 @@ void config_write(const char * name, const config_val_t * val)
         break;
       case CONFIG_TYPE_BLOB:
         BSP_ROM_Write(off, (uint8_t *)(&val->valblob.len), sizeof(val->valblob.len));
-        BSP_ROM_Write(off + sizeof(val->valblob.len), (uint8_t *)(&val->valblob.body), val->valblob.len);
+        BSP_ROM_Write(off + sizeof(val->valblob.len), (uint8_t *)(val->valblob.body), val->valblob.len);
       default: ;
     }
   } else {

@@ -105,6 +105,8 @@ bool BSP_MP3_Prev_Track(void);
 bool BSP_MP3_Play_Track(uint16_t Track);
 bool BSP_MP3_Inc_Volume(void);
 bool BSP_MP3_Dec_Volume(void);
+uint8_t BSP_MP3_Get_Max_Volume(void);
+uint8_t BSP_MP3_Get_Min_Volume(void);
 bool BSP_MP3_Set_Volume(uint8_t Volume);
 bool BSP_MP3_Set_Eq(BSP_MP3_Eq_Type Eq);
 bool BSP_MP3_Set_Dev(BSP_MP3_Dev_Type Dev);

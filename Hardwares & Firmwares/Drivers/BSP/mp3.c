@@ -229,6 +229,16 @@ bool BSP_MP3_Set_Volume(uint8_t Volume)
   return BSP_MP3_Send_Message(&BSP_MP3_Cmd);
 }
 
+uint8_t BSP_MP3_Get_Max_Volume(void)
+{
+  return BSP_MP3_MAX_VOLUME;
+}
+
+uint8_t BSP_MP3_Get_Min_Volume(void)
+{
+  return BSP_MP3_MIN_VOLUME;
+}
+
 bool BSP_MP3_Set_Eq(BSP_MP3_Eq_Type Eq)
 {
   BSP_MP3_Fill_Msg(&BSP_MP3_Cmd);

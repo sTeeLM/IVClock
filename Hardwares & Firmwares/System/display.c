@@ -10,6 +10,7 @@
 #include "alarm.h"
 #include "beeper.h"
 #include "motion_sensor.h"
+#include "player.h"
 #include <string.h>
 
 static bool _display_is_on;
@@ -108,12 +109,30 @@ void display_format_timer(struct timer_struct * tmr)
     BSP_IV18_Set_DP(2);    
     BSP_IV18_Set_Dig(3, (tmr->min / 10 + 0x30));
     BSP_IV18_Set_Dig(4, (tmr->min % 10 + 0x30)); 
-    BSP_IV18_Set_DP(5);
+    BSP_IV18_Set_DP(4);
     BSP_IV18_Set_Dig(5, (tmr->sec / 10 + 0x30));
     BSP_IV18_Set_Dig(6, (tmr->sec % 10 + 0x30)); 
     BSP_IV18_Set_DP(6); 
     BSP_IV18_Set_Dig(7, (ms10 / 10 + 0x30));
     BSP_IV18_Set_Dig(8, (ms10 % 10 + 0x30));
+  } else if(_display_mode == DISPLAY_MODE_TIMER_SND) {
+    BSP_IV18_Set_Dig(1, 'T');
+    BSP_IV18_Set_Dig(2, 'M');
+    BSP_IV18_Set_Dig(3, 'R'); 
+    BSP_IV18_Set_Dig(4, 'S');
+    BSP_IV18_Set_Dig(5, 'N');
+    BSP_IV18_Set_Dig(6, 'D');  
+    BSP_IV18_Set_Dig(7, '-'); 
+    BSP_IV18_Set_Dig(8, timer_get_snd() + 0x30);     
+  }
+}
+
+void display_set_blink_timer_snd(bool enable)
+{
+  if(enable) {
+    display_set_blink(8);    
+  } else {
+    display_clr_blink(8); 
   }
 }
 
@@ -147,6 +166,29 @@ void display_set_blink_timer_sec(bool enable)
   } else {
     display_clr_blink(6);
     display_clr_blink(7); 
+  }
+}
+
+void display_set_blink_all(bool enable)
+{
+  if(enable) {
+    display_set_blink(1);
+    display_set_blink(2);   
+    display_set_blink(3);
+    display_set_blink(4);
+    display_set_blink(5);
+    display_set_blink(6);   
+    display_set_blink(7);
+    display_set_blink(8);    
+  } else {
+    display_clr_blink(1);
+    display_clr_blink(2);   
+    display_clr_blink(3);
+    display_clr_blink(4);
+    display_clr_blink(5);
+    display_clr_blink(6);   
+    display_clr_blink(7);
+    display_clr_blink(8);  
   }
 }
 
@@ -302,6 +344,21 @@ void display_format_light_mon(void)
   BSP_IV18_Set_Blink(7);
 }
 
+void display_format_player_vol(void)
+{
+  BSP_IV18_Set_Dig(1,'P');
+  BSP_IV18_Set_Dig(2,'L');
+  BSP_IV18_Set_Dig(3,'Y');
+  BSP_IV18_Set_Dig(4,'V');
+  BSP_IV18_Set_Dig(5,'O');
+  BSP_IV18_Set_Dig(6,'L'); 
+  BSP_IV18_Set_Dig(7, player_get_vol() / 10 + 0x30);
+  BSP_IV18_Set_Dig(8, player_get_vol() % 10 + 0x30); 
+  
+  BSP_IV18_Set_Blink(7); 
+  BSP_IV18_Set_Blink(8);
+}
+
 void display_format_motion_mon(void)
 {
   BSP_IV18_Set_Dig(2,'M');
@@ -356,13 +413,12 @@ void display_show_string(uint8_t index, const char * str)
   for(i = 0 ; i < len ; i++) {
     if(index > 8)
       return;
-    display_set_dig(index ++, str[i]);
+    BSP_IV18_Set_Dig(index ++, str[i]);
   }
 }
 
 void display_set_dig(uint8_t index, uint8_t code)
 {
-  IVDBG("display_set_dig %d %c", index, code);
   BSP_IV18_Set_Dig(index, code);
 }
 
@@ -570,6 +626,15 @@ void display_set_blink_clock_date(bool enable)
   } else {
     display_clr_blink(7);
     display_clr_blink(8); 
+  }
+}
+
+void display_set_blink_alarm_sel(bool enable)
+{
+  if(enable) {
+    display_set_blink(3); 
+  } else {
+    display_clr_blink(3);
   }
 }
 

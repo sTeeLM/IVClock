@@ -29,6 +29,7 @@ static void do_set_alarm_sel(uint8_t from_func, uint8_t from_state, uint8_t to_f
     display_clr();
     display_set_mode(DISPLAY_MODE_ALARM_HHMM);  
     display_format_alarm0(alarm_sel);
+    display_set_blink_alarm_sel(TRUE);
     start_inc  = 0;
     day_index = 0;
   } else if(EV_BUTTON_SET_PRESS == ev) {
@@ -234,6 +235,7 @@ static struct sm_trans sm_trans_set_alarm_snd[] = {
 
 struct sm_trans * sm_trans_set_alarm[] = {
   sm_trans_set_alarm_init,
+  sm_trans_set_alarm_sel,
   sm_trans_set_alarm_hour,
   sm_trans_set_alarm_min,
   sm_trans_set_alarm_day,

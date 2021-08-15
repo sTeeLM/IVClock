@@ -48,15 +48,20 @@ void BSP_I2C_DeInit(void)
   HAL_I2C_DeInit(&hi2c1);
 }
 
+#define BSP_I2C_MAX_WAIT_CNT 5000
+
 BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
   HAL_StatusTypeDef ret;
-
+  uint32_t wait_cnt;
+  wait_cnt = 0;
   while((ret = HAL_I2C_Mem_Write(&hi2c1, DevAddress, MemAddress, MemAddSize, pData, Size, BSP_I2C_SEND_TIMEOUT)) == HAL_BUSY) {
-//    hi2c1.Instance->CR1 = I2C_CR1_SWRST;
-//    delay_us(10);
-//    hi2c1.Instance->CR1 = 0;
-//    delay_us(10);   
+    delay_us(100);
+    wait_cnt ++;
+    if(wait_cnt > BSP_I2C_MAX_WAIT_CNT) {
+      IVERR("BSP_I2C_Write busy too long");
+      break;
+    }
   };
   if(ret != HAL_OK) IVERR("BSP_I2C_Write ret %d", ret);
   return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
@@ -65,12 +70,15 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
 BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
   HAL_StatusTypeDef ret;
-
+  uint32_t wait_cnt;
+  wait_cnt = 0;
   while((ret = HAL_I2C_Mem_Read(&hi2c1, DevAddress, MemAddress, MemAddSize, pData, Size, BSP_I2C_RECV_TIMEOUT)) == HAL_BUSY) {
-//    hi2c1.Instance->CR1 = I2C_CR1_SWRST;
-//    delay_us(10);
-//    hi2c1.Instance->CR1 = 0;
-//    delay_us(10);   
+    delay_us(100);
+    wait_cnt ++;
+    if(wait_cnt > BSP_I2C_MAX_WAIT_CNT) {
+      IVERR("BSP_I2C_Read busy too long");
+      break;
+    } 
   };
   if(ret != HAL_OK) IVERR("BSP_I2C_Read ret %d", ret);
   return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;

@@ -10,7 +10,7 @@
 #define ALARM0_MAX_SND_INDEX 9
 
 static int8_t alarm0_cur; // -1说明当前rtc中没有alarm0生效
-static int8_t alarm0_hit_index;
+static uint8_t alarm0_hit_index;
 struct alarm0_struct alarm0[ALARM0_CNT];
 
 static bool alarm1_enable;
@@ -130,12 +130,15 @@ void alarm_scan(void)
   BSP_DS3231_Clr_Alarm_Int_Flag(BSP_DS3231_ALARM1);
   BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL); 
 
-  if(alarm0_hit && alarm0_cur >= 0) {
-    if(alarm0[alarm0_cur].day_mask & (1 << (clock_get_day() - 1))) {
-      power_wakeup();
-      task_set(EV_ALARM0);
-      if(alarm1_hit) { // 如果同时响起，整点报时被忽略
-        alarm1_hit = 0;
+  if(alarm0_hit) {
+    if(alarm0_cur >= 0) {
+      if(alarm0[alarm0_cur].day_mask & (1 << (clock_get_day() - 1))) {
+        power_wakeup();
+        alarm0_hit_index = alarm0_cur;
+        task_set(EV_ALARM0);
+        if(alarm1_hit) { // 如果同时响起，整点报时被忽略
+          alarm1_hit = 0;
+        }
       }
     }
     // 尝试在rtc里设置下一个时钟
@@ -297,7 +300,7 @@ void alarm0_stop_snd(void)
 
 void alarm0_play_snd(uint8_t index)
 {
-  player_play_snd(alarm0[index].snd);
+  player_play_snd(PLAYER_SND_DIR_ALARM, alarm0[index].snd);
 }
 
 bool alarm1_test_enable(void)

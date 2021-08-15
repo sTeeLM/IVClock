@@ -49,6 +49,7 @@ const char * task_names[] =
   "EV_ALARM0",
   "EV_ALARM1", 
   "EV_VT1",
+  "EV_VT2",  
   "EV_PLAYER_STOP"
 };
 
@@ -84,6 +85,7 @@ static const TASK_PROC task_procs[EV_CNT] =
   alarm_proc,
   alarm_proc,
   null_proc,  
+  null_proc,
   null_proc
 };
 

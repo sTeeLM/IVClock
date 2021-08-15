@@ -91,6 +91,22 @@ dir 04（闹钟）：
 #define PLAYER_FILE_ALARM9  9
 #define PLAYER_FILE_ALARM10  10
 
+#define PLAYER_DIR_EFECTS 5
+/*
+dir 04（音效）：
+001 ~ 010：音效声音
+*/
+#define PLAYER_FILE_EFECTS1  1
+#define PLAYER_FILE_EFECTS2  2
+#define PLAYER_FILE_EFECTS3  3
+#define PLAYER_FILE_EFECTS4  4
+#define PLAYER_FILE_EFECTS5  5
+#define PLAYER_FILE_EFECTS6  6
+#define PLAYER_FILE_EFECTS7  7
+#define PLAYER_FILE_EFECTS8  8
+#define PLAYER_FILE_EFECTS9  9
+#define PLAYER_FILE_EFECTS10  10
+
 /*
 现在时间            1
 二 零 一 二         4
@@ -122,6 +138,8 @@ static bool _player_is_on;
 
 static void player_play_sequence_start(void);
   
+static uint8_t player_vol;
+  
 void player_init(void)
 {
   memset(player_seq, 0 ,sizeof(player_seq));
@@ -129,7 +147,8 @@ void player_init(void)
   player_seq_in_playing = FALSE;
   _player_is_on = FALSE;
   player_on();
-  player_play_sequence_start();
+  player_vol = config_read_int("ply_vol");
+  BSP_MP3_Set_Volume(player_vol);
 }
 
 bool player_is_on(void)
@@ -455,18 +474,24 @@ void player_report_temperature(void)
   player_play_sequence_start();
 }
 
-static uint8_t player_play_snd_index_to_file(enum player_snd_index index)
+static uint8_t player_play_snd_index_to_file(enum player_snd_dir dir, enum player_snd_index index)
 {
-  if(index > 9)
-    index = 9;
-  return index + 1;
+  if(dir == PLAYER_SND_DIR_ALARM) {
+    if(index > 9)
+      index = 9;
+    return index + 1;
+  } else {
+    if(index > 9)
+      index = 9;
+    return index + 1;
+  }
 }
 
 
-void player_play_snd(enum player_snd_index index)
+void player_play_snd(enum player_snd_dir dir, enum player_snd_index index)
 {
-  player_seq[player_seq_current_index].dir  = PLAYER_DIR_ALARM;
-  player_seq[player_seq_current_index].file = player_play_snd_index_to_file(index);
+  player_seq[player_seq_current_index].dir  = dir;
+  player_seq[player_seq_current_index].file = player_play_snd_index_to_file(dir, index);
   player_play_sequence_start();
 }
 
@@ -507,3 +532,39 @@ void player_show(void)
   );
 }
 
+uint8_t player_get_vol(void)
+{
+  return player_vol;
+}
+
+uint8_t player_inc_vol(void)
+{
+  player_vol ++;
+  if(player_vol > BSP_MP3_Get_Max_Volume())
+    player_vol = BSP_MP3_Get_Min_Volume();
+  
+  BSP_MP3_Set_Volume(player_vol);
+  
+  return player_vol;
+}
+
+uint8_t player_set_vol(uint8_t vol)
+{
+  player_vol = vol;
+  if(player_vol > BSP_MP3_Get_Max_Volume())
+    player_vol = BSP_MP3_Get_Max_Volume();
+  
+  if(player_vol < BSP_MP3_Get_Min_Volume())
+    player_vol = BSP_MP3_Get_Min_Volume();
+  
+  BSP_MP3_Set_Volume(player_vol);
+  
+  return player_vol;
+}
+
+void player_save_config(void)
+{
+  config_val_t val;
+  val.val8 = player_vol;
+  config_write("ply_vol", &val);
+}

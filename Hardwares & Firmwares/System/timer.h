@@ -44,4 +44,11 @@ void timer_stop(void);
 void timer_resume(void);
 void timer_clr(void);
 
+uint8_t timer_get_snd(void);
+uint8_t timer_inc_snd(void);
+void timer_play_snd(void);
+void timer_stop_play(void);
+void timer_save_config(void);
+void timer_set_snd(uint8_t snd);
+
 #endif

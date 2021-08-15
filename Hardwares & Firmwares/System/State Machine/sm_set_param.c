@@ -6,6 +6,7 @@
 #include "power.h"
 #include "config.h"
 #include "motion_sensor.h"
+#include "player.h"
 #include "sm_common.h"
 
 #include "sm_timer.h"
@@ -41,6 +42,19 @@ static void do_set_param_baoshi(uint8_t from_func, uint8_t from_state, uint8_t t
   }
 }
 
+static void do_set_param_timer_snd(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
+{
+  if(EV_BUTTON_MOD_PRESS == ev) {
+    display_clr();
+    display_set_mode(DISPLAY_MODE_TIMER_SND);
+    display_format_timer(0);
+  } else {
+    timer_inc_snd();
+    timer_save_config();
+    display_format_timer(0);
+  }
+}
+
 static void do_set_param_ps(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   if(EV_BUTTON_MOD_PRESS == ev) {
@@ -50,6 +64,19 @@ static void do_set_param_ps(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     power_inc_timeo();
     power_timeo_save_config();
     display_format_power();
+  }
+}
+
+static void do_set_param_player_vol(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
+{
+
+  if(EV_BUTTON_MOD_PRESS == ev) {
+    display_clr();
+    display_format_player_vol();
+  } else {
+    player_inc_vol();
+    player_save_config();
+    display_format_player_vol();
   }
 }
 
@@ -94,7 +121,9 @@ const char * sm_states_names_set_param[] = {
   "SM_SET_PARAM_INIT",
   "SM_SET_PARAM_BEEPER",
   "SM_SET_PARAM_BAOSHI",
+  "SM_SET_PARAM_TIMER_SND",
   "SM_SET_PARAM_PS",
+  "SM_SET_PARAM_PLAYER_VOL",
   "SM_SET_PARAM_HOUR12",
   "SM_SET_PARAM_LIGHT_MON",
   "SM_SET_PARAM_MOTION_MON"
@@ -112,12 +141,34 @@ static struct sm_trans sm_trans_set_param_beeper[] = {
   {NULL, NULL, NULL, NULL}
 };
 
+static struct sm_trans sm_trans_set_param_baoshi[] = {
+  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_BAOSHI, do_set_param_baoshi},
+  {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_TIMER_SND, do_set_param_timer_snd}, 
+  {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},   
+  {NULL, NULL, NULL, NULL}
+};
+
+static struct sm_trans sm_trans_set_param_timer_snd[] = {
+  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_TIMER_SND, do_set_param_timer_snd},
+  {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_PS, do_set_param_ps}, 
+  {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},   
+  {NULL, NULL, NULL, NULL}
+};
+
 static struct sm_trans sm_trans_set_param_ps[] = {
   {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_PS, do_set_param_ps},
+  {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_PLAYER_VOL, do_set_param_player_vol}, 
+  {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},  
+  {NULL, NULL, NULL, NULL}
+};
+
+static struct sm_trans sm_trans_set_param_player_vol[] = {
+  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_PLAYER_VOL, do_set_param_player_vol},
   {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_HOUR12, do_set_param_hour12}, 
   {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},  
   {NULL, NULL, NULL, NULL}
 };
+
 
 static struct sm_trans sm_trans_set_param_hour12[] = {
   {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_HOUR12, do_set_param_hour12},
@@ -134,7 +185,7 @@ static struct sm_trans sm_trans_set_param_light_mon[] = {
 };
 
 static struct sm_trans sm_trans_set_param_motion_mon[] = {
-  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_MOTION_MON, do_set_param_motion_mon},
+  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_MOTION_MON,  do_set_param_motion_mon},
   {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_BEEPER, do_set_param_beeper}, 
   {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},  
   {NULL, NULL, NULL, NULL}
@@ -142,4 +193,12 @@ static struct sm_trans sm_trans_set_param_motion_mon[] = {
 
 struct sm_trans * sm_trans_set_param[] = {
   sm_trans_set_param_init,
+  sm_trans_set_param_beeper,
+  sm_trans_set_param_baoshi,
+  sm_trans_set_param_timer_snd,
+  sm_trans_set_param_ps,
+  sm_trans_set_param_player_vol,
+  sm_trans_set_param_hour12,
+  sm_trans_set_param_light_mon,
+  sm_trans_set_param_motion_mon
 };

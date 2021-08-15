@@ -46,27 +46,27 @@
 #define INT_MP3_GPIO_Port GPIOB
 #define INT_MP3_EXTI_IRQn EXTI1_IRQn
 
-// beeper pmw
-#define BSP_TIM1_IRQ_PRIORITY     3
-#define BSP_TIM1_IRQ_SUB_PRIORITY 3
-
 // clock
-#define BSP_TIM2_IRQ_PRIORITY     1
+#define BSP_TIM2_IRQ_PRIORITY     0
 #define BSP_TIM2_IRQ_SUB_PRIORITY 0
 
 // display refresh
-#define BSP_TIM4_IRQ_PRIORITY     2
-#define BSP_TIM4_IRQ_SUB_PRIORITY 0
+#define BSP_TIM4_IRQ_PRIORITY     1
+#define BSP_TIM4_IRQ_SUB_PRIORITY 1
+
+// beeper pmw
+#define BSP_TIM1_IRQ_PRIORITY     1
+#define BSP_TIM1_IRQ_SUB_PRIORITY 2
 
 // key
-#define BSP_KEY_IRQ_PRIORITY      2
-#define BSP_KEY_IRQ_SUB_PRIORITY  1
+#define BSP_KEY_IRQ_PRIORITY      1
+#define BSP_KEY_IRQ_SUB_PRIORITY  2
 
 #define BSP_USART_IRQ_PRIORITY       2
-#define BSP_USART_IRQ_SUB_PRIORITY   2
+#define BSP_USART_IRQ_SUB_PRIORITY   1
 
 #define BSP_MP3_IRQ_PRIORITY          2
-#define BSP_MP3_IRQ_SUB_PRIORITY      3
+#define BSP_MP3_IRQ_SUB_PRIORITY      2
 
 // alarm
 #define BSP_ALARM_IRQ_PRIORITY        3
