@@ -21,6 +21,12 @@
 # Precompiled Headers
 *.gch
 *.pch
+*.ipch
+*.tlog
+*.pdb
+*.idb
+*.ilk
+*.res
 
 # Compiled Dynamic libraries
 *.so

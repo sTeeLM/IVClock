@@ -52,21 +52,21 @@
 
 // display refresh
 #define BSP_TIM4_IRQ_PRIORITY     1
-#define BSP_TIM4_IRQ_SUB_PRIORITY 1
+#define BSP_TIM4_IRQ_SUB_PRIORITY 0
 
 // beeper pmw
 #define BSP_TIM1_IRQ_PRIORITY     1
-#define BSP_TIM1_IRQ_SUB_PRIORITY 2
+#define BSP_TIM1_IRQ_SUB_PRIORITY 1
 
 // key
 #define BSP_KEY_IRQ_PRIORITY      1
 #define BSP_KEY_IRQ_SUB_PRIORITY  2
 
 #define BSP_USART_IRQ_PRIORITY       2
-#define BSP_USART_IRQ_SUB_PRIORITY   1
+#define BSP_USART_IRQ_SUB_PRIORITY   0
 
 #define BSP_MP3_IRQ_PRIORITY          2
-#define BSP_MP3_IRQ_SUB_PRIORITY      2
+#define BSP_MP3_IRQ_SUB_PRIORITY      1
 
 // alarm
 #define BSP_ALARM_IRQ_PRIORITY        3

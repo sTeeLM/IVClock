@@ -176,6 +176,7 @@ void alarm_load_config(void)
 void alarm_resync_rtc(void)
 {
   alarm0_sync_to_rtc((alarm0_cur = alarm0_find_curr()));
+  alarm_dump();
 }
 
 uint8_t alarm0_get_cnt(void)
@@ -222,11 +223,12 @@ void alarm_dump(void)
   IVDBG("----------- alarm dump begin -----------------");
   for(i = 0 ; i < ALARM0_CNT ; i++) {
     IVDBG("alarm0[%d].day_mask = 0x%02x", i, alarm0[i].day_mask);
-    IVDBG("alarm0[%d].hour = %u", i, alarm0[i].hour);
-    IVDBG("alarm0[%d].min  = %u", i, alarm0[i].min);
-    IVDBG("alarm0[%d].snd  = %u", i, alarm0[i].snd);
+    IVDBG("alarm0[%d].hour = %d", i, alarm0[i].hour);
+    IVDBG("alarm0[%d].min  = %d", i, alarm0[i].min);
+    IVDBG("alarm0[%d].snd  = %d", i, alarm0[i].snd);
   }
-  IVDBG("current synced alarm0: %d", alarm0_cur);
+  IVDBG("current actived alarm0: %d", alarm0_cur);
+  IVDBG("current alarm0_hit_index %d: %d", alarm0_hit_index); 
   IVDBG("alarm1.enable = %s",  alarm1_enable ? "ON" : "OFF"); 
   IVDBG("----------- alarm dump end -----------------");  
 }
