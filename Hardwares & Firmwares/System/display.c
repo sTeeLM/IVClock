@@ -11,6 +11,7 @@
 #include "beeper.h"
 #include "motion_sensor.h"
 #include "player.h"
+#include "thermometer.h"
 #include <string.h>
 
 static bool _display_is_on;
@@ -286,6 +287,60 @@ void display_format_param_beeper(void)
   BSP_IV18_Set_Blink(5);
   BSP_IV18_Set_Blink(6); 
   BSP_IV18_Set_Blink(7); 
+}
+void display_format_poweroff(void)
+{
+  BSP_IV18_Set_Dig(1,'P');
+  BSP_IV18_Set_Dig(2,'O');
+  BSP_IV18_Set_Dig(3,'W');
+  BSP_IV18_Set_Dig(4,'E');
+  BSP_IV18_Set_Dig(5,'R');
+  BSP_IV18_Set_Dig(6,'O');
+  BSP_IV18_Set_Dig(7,'F');
+  BSP_IV18_Set_Dig(8,'F'); 
+  display_set_blink_all(TRUE);
+}
+
+void display_format_thermo(void)
+{
+  uint16_t integer, flt;
+  bool sign;
+  
+  if(thermometer_get_unit() == THERMOMETER_UNIT_CEN) {
+    sign = thermometer_read_cen(&integer, &flt);
+  } else {
+    sign = thermometer_read_fah(&integer, &flt);
+  }
+  
+  display_clr();
+  
+  if(integer / 100)
+    display_set_dig(1, (integer / 100) % 10 + 0x30);  
+  
+  if((integer % 100) / 10 || integer / 100)
+    display_set_dig(2, (integer % 100) / 10 + 0x30);
+  
+  display_set_dig(3, integer % 10 + 0x30);
+  display_set_dp(3);
+  display_set_dig(4, flt / 10 + 0x30);
+  display_set_dig(5, flt % 10 + 0x30);
+  
+  display_set_dig(7, thermometer_get_unit() ==  THERMOMETER_UNIT_CEN? 'C' : 'F'); 
+  display_set_dig(8, DISPLAY_DEGREE);  
+}
+
+void display_format_thermo_unit(void)
+{
+  BSP_IV18_Set_Dig(1,'T');
+  BSP_IV18_Set_Dig(2,'H');
+  BSP_IV18_Set_Dig(3,'E'); 
+  BSP_IV18_Set_Dig(4,'R');  
+  BSP_IV18_Set_Dig(5,'M'); 
+  BSP_IV18_Set_Dig(6,'-');
+  display_set_dig(7, thermometer_get_unit() ==  THERMOMETER_UNIT_CEN? 'C' : 'F'); 
+  display_set_dig(8, DISPLAY_DEGREE);
+  BSP_IV18_Set_Blink(7); 
+  BSP_IV18_Set_Blink(8); 
 }
 
 void display_format_power(void)

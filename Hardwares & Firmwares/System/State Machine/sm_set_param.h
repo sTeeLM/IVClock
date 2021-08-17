@@ -13,6 +13,7 @@ enum sm_states_set_param
   SM_SET_PARAM_BAOSHI,     // 整点报时
   SM_SET_PARAM_TIMER_SND,  // 计时器铃声 
   SM_SET_PARAM_PS,         // 省电设置
+  SM_SET_PARAM_THERMO,     // 摄氏、华氏
   SM_SET_PARAM_PLAYER_VOL, // player音量
   SM_SET_PARAM_HOUR12,     // 12/24显示格式
   SM_SET_PARAM_LIGHT_MON,  // 光照亮度调整

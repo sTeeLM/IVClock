@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "CheckComboBox.h"
 
 // CIVClockDlg 对话框
 class CIVClockDlg : public CDialog
@@ -34,4 +35,21 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
+	CString m_strRemoteTimeDate;
+	CString m_strLocalTimeDate;
+	BOOL m_bAutoSyncTimeDate;
+	BOOL m_bTime12;
+	BOOL m_bTempCen;
+	BOOL m_bLightMon;
+	BOOL m_bPowerSave;
+	CString m_strPowerSave;
+	CSpinButtonCtrl m_ctlSpinPowerSave;
+	CString m_strTimerSnd;
+	CSpinButtonCtrl m_ctlTimerSnd;
+	CString m_strPlayVol;
+	CSpinButtonCtrl m_ctlPlayVol;
+	BOOL m_bBeeper;
+	BOOL m_bBaoShi;
+	CCheckComboBox m_ctlComboAlm0;
+	CCheckComboBox m_ctlComboAlm1;
 };

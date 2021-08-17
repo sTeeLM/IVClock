@@ -18,7 +18,6 @@ bool BSP_Read_Int_Status(void)
 {
   uint8_t val;
   BSP_I2C_Read(ACC_I2C_ADDRESS, 0x30, I2C_MEMADD_SIZE_8BIT, &val, 1);
-  IVDBG("BSP_Read_Int_Status return %02x", val);
   return (val & 0x80) != 0;
 }
 

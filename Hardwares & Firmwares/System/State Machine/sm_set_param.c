@@ -7,7 +7,9 @@
 #include "config.h"
 #include "motion_sensor.h"
 #include "player.h"
+#include "thermometer.h"
 #include "sm_common.h"
+#include "delay.h"
 
 #include "sm_timer.h"
 
@@ -51,6 +53,9 @@ static void do_set_param_timer_snd(uint8_t from_func, uint8_t from_state, uint8_
   } else {
     timer_inc_snd();
     timer_save_config();
+    timer_stop_play();
+    delay_ms(400);
+    timer_play_snd();
     display_format_timer(0);
   }
 }
@@ -60,10 +65,23 @@ static void do_set_param_ps(uint8_t from_func, uint8_t from_state, uint8_t to_fu
   if(EV_BUTTON_MOD_PRESS == ev) {
     display_clr();
     display_format_power();
+    timer_stop_play();
   } else {
     power_inc_timeo();
     power_timeo_save_config();
     display_format_power();
+  }
+}
+
+static void do_set_param_thermo(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
+{
+  if(EV_BUTTON_MOD_PRESS == ev) {
+    display_clr();
+    display_format_thermo_unit();
+  } else {
+    thermometer_set_unit(thermometer_get_unit() == THERMOMETER_UNIT_CEN ? THERMOMETER_UNIT_FAH : THERMOMETER_UNIT_CEN);
+    thermometer_save_config();
+    display_format_thermo_unit();
   }
 }
 
@@ -123,6 +141,7 @@ const char * sm_states_names_set_param[] = {
   "SM_SET_PARAM_BAOSHI",
   "SM_SET_PARAM_TIMER_SND",
   "SM_SET_PARAM_PS",
+  "SM_SET_PARAM_THERMO",
   "SM_SET_PARAM_PLAYER_VOL",
   "SM_SET_PARAM_HOUR12",
   "SM_SET_PARAM_LIGHT_MON",
@@ -157,6 +176,13 @@ static struct sm_trans sm_trans_set_param_timer_snd[] = {
 
 static struct sm_trans sm_trans_set_param_ps[] = {
   {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_PS, do_set_param_ps},
+  {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_THERMO, do_set_param_thermo}, 
+  {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},  
+  {NULL, NULL, NULL, NULL}
+};
+
+static struct sm_trans sm_trans_set_param_thermo[] = {
+  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_THERMO, do_set_param_thermo},
   {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_PLAYER_VOL, do_set_param_player_vol}, 
   {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},  
   {NULL, NULL, NULL, NULL}
@@ -197,6 +223,7 @@ struct sm_trans * sm_trans_set_param[] = {
   sm_trans_set_param_baoshi,
   sm_trans_set_param_timer_snd,
   sm_trans_set_param_ps,
+  sm_trans_set_param_thermo,
   sm_trans_set_param_player_vol,
   sm_trans_set_param_hour12,
   sm_trans_set_param_light_mon,

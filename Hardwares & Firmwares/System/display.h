@@ -23,6 +23,8 @@ void display_format_clock(struct clock_struct * clk);
 void display_format_timer(struct timer_struct * tmr);
 void display_format_alarm0(uint8_t index);
 void display_format_alarm1(void);
+void display_format_thermo(void);
+void display_format_poweroff(void);
 
 void display_set_dig(uint8_t index, uint8_t code);
 void display_set_dp(uint8_t index);
@@ -87,4 +89,5 @@ void display_format_hour12(void);
 void display_format_light_mon(void);
 void display_format_motion_mon(void);
 void display_format_player_vol(void);
+void display_format_thermo_unit(void);
 #endif

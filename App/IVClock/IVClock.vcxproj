@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CheckComboBox.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="IVClock.h" />
     <ClInclude Include="IVClockDlg.h" />
@@ -191,6 +192,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CheckComboBox.cpp" />
     <ClCompile Include="IVClock.cpp" />
     <ClCompile Include="IVClockDlg.cpp" />
     <ClCompile Include="pch.cpp">

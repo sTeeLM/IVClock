@@ -3,6 +3,7 @@
 #include "task.h"
 #include "sm.h"
 #include "debug.h"
+#include "delay.h"
 
 #include "alarm.h"
 #include "display.h"
@@ -32,6 +33,7 @@ static void do_set_alarm_sel(uint8_t from_func, uint8_t from_state, uint8_t to_f
     display_set_blink_alarm_sel(TRUE);
     start_inc  = 0;
     day_index = 0;
+    alarm0_stop_snd();
   } else if(EV_BUTTON_SET_PRESS == ev) {
     alarm_sel ++;
     alarm_sel %= alarm0_get_cnt();
@@ -154,6 +156,9 @@ static void do_set_alarm_snd(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_UP:
       display_set_blink_alarm_snd(TRUE);
       if(start_inc) {
+        alarm0_stop_snd();
+        delay_ms(400);
+        alarm0_play_snd(alarm_sel);
         alarm_save_config(ALARM_SYNC_ALARM0, alarm_sel);
         start_inc = 0;
       }
@@ -161,6 +166,9 @@ static void do_set_alarm_snd(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_PRESS:
       alarm0_inc_snd(alarm_sel);
       alarm_save_config(ALARM_SYNC_ALARM0, alarm_sel);
+      alarm0_stop_snd();
+      delay_ms(400);
+      alarm0_play_snd(alarm_sel);
       display_format_alarm0(alarm_sel);
       break;
     case EV_VT1:

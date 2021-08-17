@@ -10,13 +10,26 @@
 #include "power.h"
 #include "config.h"
 #include "player.h"
+#include "power.h"
+#include "delay.h"
 
 
 void do_clock_display_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
-  display_clr();
-  power_reset_timeo();
-  sm_common_show_function("---F0---");
+  if(ev == EV_BUTTON_SET_LPRESS && from_state == SM_CLOCK_DISPLAY_TIME) {
+    clock_refresh_display_enable(FALSE);
+    display_clr();
+    display_format_poweroff();
+    delay_ms(5000);
+    display_clr();
+    power_490_enable(FALSE);
+    power_50_enable(FALSE);
+    power_33_enable(FALSE);
+  } else {
+    display_clr();
+    power_reset_timeo();
+    sm_common_show_function("---F0---");
+  }
 }
 
 static void do_clock_display_time(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
@@ -70,7 +83,7 @@ static void do_clock_display_temp(uint8_t from_func, uint8_t from_state, uint8_t
     power_reset_timeo();
     clock_refresh_display_enable(FALSE);
     display_clr();
-    thermometer_display();
+    display_format_thermo();
   }
 }
 
@@ -123,7 +136,8 @@ static struct sm_trans sm_trans_clock_display_time[] = {
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},
   {EV_ALARM0, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_ALARM0, do_clock_display_alarm0}, 
   {EV_ALARM1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_ALARM1, do_clock_display_alarm1},   
-  {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},    
+  {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},
+  {EV_BUTTON_SET_LPRESS, SM_SET_TIME, SM_CLOCK_DISPLAY_INIT, do_clock_display_init}, // power off
   {NULL, NULL, NULL, NULL}
 };
 

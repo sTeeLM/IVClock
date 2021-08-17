@@ -2,10 +2,13 @@
 #include "ds3231.h"
 #include "display.h"
 #include "config.h"
+#include "debug.h"
+
+static enum thermometer_unit_type thermometer_unit;
 
 void thermometer_init(void)
 {
-
+  thermometer_unit = config_read_int("temp_cen");
 }
 
 bool thermometer_read_fah(uint16_t * integer, uint16_t * flt)
@@ -16,9 +19,10 @@ bool thermometer_read_fah(uint16_t * integer, uint16_t * flt)
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TEMP);
   sign = BSP_DS3231_Get_Temperature(&_integer, &_flt);
   
-  res = ((double)(*integer) + (double)(*flt) / 100) * 33.8;
+  res = ((double)(_integer) + (double)(_flt) / 100) * 1.8 + 32;
   *integer = (uint16_t) res;
   *flt     = (uint16_t)((res * 100)) % 100;
+  IVDBG("thermometer_read_fah %f %d %d", res, *integer, *flt);
   return sign;
 }
 
@@ -34,30 +38,19 @@ bool thermometer_read_cen(uint16_t * integer, uint16_t * flt)
   return sign;
 }
 
-void thermometer_display(void)
+enum thermometer_unit_type thermometer_get_unit(void)
 {
-  uint16_t integer, flt;
-  bool sign;
-  
-  if(config_read_int("temp_cen")) {
-    sign = thermometer_read_cen(&integer, &flt);
-  } else {
-    sign = thermometer_read_fah(&integer, &flt);
-  }
-  
-  display_clr();
-  
-  if(integer / 100)
-    display_set_dig(1, (integer / 100) % 10 + 0x30);  
-  
-  if((integer % 100) / 10 || integer / 100)
-    display_set_dig(2, (integer % 100) / 10 + 0x30);
-  
-  display_set_dig(3, integer % 10 + 0x30);
-  display_set_dp(3);
-  display_set_dig(4, flt / 10 + 0x30);
-  display_set_dig(5, flt % 10 + 0x30);
-  
-  display_set_dig(7, config_read_int("temp_cen") ? 'C' : 'F'); 
-  display_set_dig(8, DISPLAY_DEGREE);  
+  return thermometer_unit;
+}
+
+void thermometer_set_unit(enum thermometer_unit_type unit)
+{
+  thermometer_unit = unit;
+}
+
+void thermometer_save_config(void)
+{
+  config_val_t val;
+  val.val8 = thermometer_unit;
+  config_write("temp_cen", &val);
 }

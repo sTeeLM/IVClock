@@ -52,6 +52,18 @@ END_MESSAGE_MAP()
 
 CIVClockDlg::CIVClockDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_IVCLOCK_DIALOG, pParent)
+	, m_strRemoteTimeDate(_T(""))
+	, m_strLocalTimeDate(_T(""))
+	, m_bAutoSyncTimeDate(FALSE)
+	, m_bTime12(FALSE)
+	, m_bTempCen(FALSE)
+	, m_bLightMon(FALSE)
+	, m_bPowerSave(FALSE)
+	, m_strPowerSave(_T(""))
+	, m_strTimerSnd(_T(""))
+	, m_strPlayVol(_T(""))
+	, m_bBeeper(FALSE)
+	, m_bBaoShi(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,6 +71,23 @@ CIVClockDlg::CIVClockDlg(CWnd* pParent /*=nullptr*/)
 void CIVClockDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_STATIC_REMOTE_TIME_DATE, m_strRemoteTimeDate);
+	DDX_Text(pDX, IDC_STATIC_LOCAL_TIME_DATE, m_strLocalTimeDate);
+	DDX_Check(pDX, IDC_CHECK_AUTO_SYNC_TIME_DATE, m_bAutoSyncTimeDate);
+	DDX_Radio(pDX, IDC_RADIO_TIME12, m_bTime12);
+	DDX_Radio(pDX, IDC_RADIO_TEMP_CEN, m_bTempCen);
+	DDX_Check(pDX, IDC_CHECK_LM, m_bLightMon);
+	DDX_Check(pDX, IDC_CHECK_PS, m_bPowerSave);
+	DDX_Text(pDX, IDC_EDIT_PS, m_strPowerSave);
+	DDX_Control(pDX, IDC_SPIN_PS, m_ctlSpinPowerSave);
+	DDX_Text(pDX, IDC_EDIT_TMR_SND, m_strTimerSnd);
+	DDX_Control(pDX, IDC_SPIN_TMR_SND, m_ctlTimerSnd);
+	DDX_Text(pDX, IDC_EDIT_PLY_VOL, m_strPlayVol);
+	DDX_Control(pDX, IDC_SPIN_PLY_VOL, m_ctlPlayVol);
+	DDX_Check(pDX, IDC_CHECK_BEEPER, m_bBeeper);
+	DDX_Check(pDX, IDC_CHECK_BAOSHI, m_bBaoShi);
+	DDX_Control(pDX, IDC_COMBO_ALM0, m_ctlComboAlm0);
+	DDX_Control(pDX, IDC_COMBO_ALM1, m_ctlComboAlm1);
 }
 
 BEGIN_MESSAGE_MAP(CIVClockDlg, CDialog)
@@ -104,7 +133,8 @@ BOOL CIVClockDlg::OnInitDialog()
 	ShowWindow(SW_MINIMIZE);
 
 	// TODO: 在此添加额外的初始化代码
-
+//  	m_ctlComboAlm0.SubclassDlgItem(IDC_COMBO_ALM0, this);
+	 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
