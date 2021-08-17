@@ -733,6 +733,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\Console\con_player.c</FilePath>
             </File>
+            <File>
+              <FileName>con_alarm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_alarm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

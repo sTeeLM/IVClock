@@ -13,7 +13,7 @@
 #define KEY_LPRESS_DELAY 3 // 长按时间，3s
 #define KEY_2_KEY_LPRESS_DELAY 2 // 同时按下长按时间，2s
 
-#define KEY_LPRESS_DELAY_MOD  16 // 降低 LPRESS 的发送速度
+#define KEY_LPRESS_DELAY_MOD  8 // 降低 LPRESS 的发送速度
 
 
 static uint32_t last_mod_tmr_count; 

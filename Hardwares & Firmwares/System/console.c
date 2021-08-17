@@ -13,6 +13,7 @@
 #include "con_beeper.h"
 #include "con_display.h"
 #include "con_player.h"
+#include "con_alarm.h"
 
 #define CONSOLE_BUFFER_SIZE 41
 
@@ -35,7 +36,10 @@ struct console_cmds cmds[] =
   {"?",  "show help", "?: list cmd\r\n"
                       "? <cmd>: show usage of cmd",
                       con_help},
-  {"clk", "show clock", "clk", con_clock},
+  {"clk", "show clock", "clk: show clock\r\n", con_clock},
+  {"alm", "show alarm", 
+                        "alm: show alarm\r\n",
+                        con_alarm},
   {"mon", "motion control",
                         "mon: show motion sensor status\r\n"
                         "mon int: read motion sensor isr\r\n"

@@ -5,7 +5,11 @@
 #include <stddef.h>
 #include <string.h>
 
-static const uint8_t alarm_blob[] = {0,0,0,0};
+static const uint8_t alarm_blob0[] = {0,0,0,0};
+static const uint8_t alarm_blob1[] = {0x7F,12,6,1};
+static const uint8_t alarm_blob2[] = {0x7F,12,13,3};
+static const uint8_t alarm_blob3[] = {0x7F,12,25,9};
+static const uint8_t alarm_blob4[] = {0x7F,12,16,4};
 
 static const config_slot_t _slot[] = {
   {"time_12", CONFIG_TYPE_UINT8,   {.val8 = 1}},
@@ -18,29 +22,29 @@ static const config_slot_t _slot[] = {
   {"lt_100", CONFIG_TYPE_UINT16,   {.val16 = 0}}, 
   {"mon_lt_en", CONFIG_TYPE_UINT8, {.val8 = 1}},
   {"temp_cen", CONFIG_TYPE_UINT8,  {.val8 = 1}}, 
-  {"power_timeo", CONFIG_TYPE_UINT8,  {.val8 = 30}},
+  {"power_timeo", CONFIG_TYPE_UINT8,  {.val8 = 15}},
   {"tmr_snd", CONFIG_TYPE_UINT8, {.val8 = 0}},
   {"ply_vol", CONFIG_TYPE_UINT8, {.val8 = 10}},  
-  {"alm00_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}}, 
-  {"alm01_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}},
-  {"alm02_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}}, 
-  {"alm03_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}},
-  {"alm04_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}}, 
-  {"alm05_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}},
-  {"alm06_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}}, 
-  {"alm07_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}},
-  {"alm08_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}}, 
-  {"alm09_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob),
-    .valblob.body = alarm_blob}},  
+  {"alm00_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob1),
+    .valblob.body = alarm_blob1}}, 
+  {"alm01_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob2),
+    .valblob.body = alarm_blob2}},
+  {"alm02_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob3),
+    .valblob.body = alarm_blob3}}, 
+  {"alm03_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob4),
+    .valblob.body = alarm_blob4}},
+  {"alm04_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}}, 
+  {"alm05_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}},
+  {"alm06_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}}, 
+  {"alm07_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}},
+  {"alm08_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}}, 
+  {"alm09_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}},  
 };
 
 

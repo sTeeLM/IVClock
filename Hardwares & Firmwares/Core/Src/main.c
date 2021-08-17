@@ -132,6 +132,7 @@ int main(void)
   PrintBsp("Key   ", BSP_Key_Init());  
   PrintBsp("I2C   ", BSP_I2C_Init());
   PrintBsp("ROM   ", BSP_ROM_Init());
+  config_init();  
   PrintBsp("DS3231", BSP_DS3231_Init());
   PrintBsp("ADC1  ", BSP_ADC1_Init());
   PrintBsp("ADC2  ", BSP_ADC2_Init());  
@@ -146,12 +147,11 @@ int main(void)
   
   IVDBG("initialize sub systems...");
   /* System initialize */
-  config_init();
   rtc_init();
   power_init();
   console_init();
-  alarm_init();
   clock_init();
+  alarm_init();
   timer_init();
   button_init();
   beeper_init();

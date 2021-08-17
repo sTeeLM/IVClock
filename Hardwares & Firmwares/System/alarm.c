@@ -6,6 +6,8 @@
 #include "config.h"
 #include "player.h"
 #include "power.h"
+#include "console.h"
+#include "rtc.h"
 
 #define ALARM0_MAX_SND_INDEX 9
 
@@ -91,38 +93,46 @@ void  alarm_bubble_sort(uint8_t * arr, uint8_t len)
 static int8_t alarm0_find_curr(void)
 {
   uint8_t index[ALARM0_CNT];
-  uint8_t i, hour, min;
+  uint8_t i, hour, min, sec;
   for(i = 0 ; i < ALARM0_CNT ; i++){
     index[i] = i;
   }
   // 对alarm从早到晚排序
   alarm_bubble_sort(index, ALARM0_CNT);
-  hour = clock_get_hour();
-  min = clock_get_min();  
+  IVDBG("alarm_bubble_sort:");
+  IVDBG_RH;
+  for(i = 0 ; i < ALARM0_CNT; i ++) {
+    IVDBG_R(" %d", index[i]);
+  }
+  IVDBG_RT;
+  
+  rtc_get_time(&hour, &min, &sec);
   
   // 寻找第一个晚于当前时间的alarm0 slot
   // 如果没有就从前朝后找第一个有效的
   for(i = 0 ; i < ALARM0_CNT ; i ++) {
     if((alarm0[index[i]].hour >  hour 
       || (alarm0[index[i]].hour  ==  hour && alarm0[index[i]].min > min))
-      && alarm0[index[i]].day_mask
-    ) {
+      && alarm0[index[i]].day_mask) {
+      IVDBG("alarm0_find_curr return %d", index[i]);
       return index[i];
     }
   }
   
   for(i = 0 ; i < ALARM0_CNT ; i ++) {
-    if(alarm0[index[i]].day_mask)
+    if(alarm0[index[i]].day_mask) {
+      IVDBG("alarm0_find_curr return %d", index[i]);
       return index[i];
+    }
   }
-  
+  IVDBG("alarm0_find_curr return %d", -1);
   return -1;
 }
 
 void alarm_scan(void)
 {
   bool alarm0_hit, alarm1_hit;
-  
+  uint8_t year, mon, date, day, hour, min, sec;
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
   alarm0_hit = BSP_DS3231_Test_Alarm_Int_Flag(BSP_DS3231_ALARM0);
   alarm1_hit = BSP_DS3231_Test_Alarm_Int_Flag(BSP_DS3231_ALARM1);
@@ -132,7 +142,8 @@ void alarm_scan(void)
 
   if(alarm0_hit) {
     if(alarm0_cur >= 0) {
-      if(alarm0[alarm0_cur].day_mask & (1 << (clock_get_day() - 1))) {
+      rtc_get_date(&year, &mon, &date, &day);
+      if(alarm0[alarm0_cur].day_mask & (1 << (day - 1))) {
         power_wakeup();
         alarm0_hit_index = alarm0_cur;
         task_set(EV_ALARM0);
@@ -144,13 +155,13 @@ void alarm_scan(void)
     // 尝试在rtc里设置下一个时钟
     alarm0_cur = alarm0_find_curr();
     alarm0_sync_to_rtc(alarm0_cur);
+    alarm_dump();
   }
   
   // 这段逻辑会被频繁调1S用长达1分钟
   if(alarm1_hit) {
-    BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TIME);
-    if(BSP_DS3231_Time_Get_Min() == 0 
-      && BSP_DS3231_Time_Get_Sec() == 0) {
+    rtc_get_time(&hour, &min, &sec);
+    if(min == 0 && sec == 0) {
       power_wakeup();
       task_set(EV_ALARM1);
     }
@@ -228,11 +239,24 @@ void alarm_dump(void)
     IVDBG("alarm0[%d].snd  = %d", i, alarm0[i].snd);
   }
   IVDBG("current actived alarm0: %d", alarm0_cur);
-  IVDBG("current alarm0_hit_index %d: %d", alarm0_hit_index); 
+  IVDBG("current alarm0_hit_index: %d", alarm0_hit_index); 
   IVDBG("alarm1.enable = %s",  alarm1_enable ? "ON" : "OFF"); 
   IVDBG("----------- alarm dump end -----------------");  
 }
 
+void alarm_show(void)
+{
+  uint8_t i;
+  for(i = 0 ; i < ALARM0_CNT ; i++) {
+    console_printf("alarm0[%d].day_mask = 0x%02x\r\n", i, alarm0[i].day_mask);
+    console_printf("alarm0[%d].hour = %d\r\n", i, alarm0[i].hour);
+    console_printf("alarm0[%d].min  = %d\r\n", i, alarm0[i].min);
+    console_printf("alarm0[%d].snd  = %d\r\n", i, alarm0[i].snd);
+  }
+  console_printf("current actived alarm0: %d\r\n", alarm0_cur);
+  console_printf("current alarm0_hit_index: %d\r\n", alarm0_hit_index); 
+  console_printf("alarm1.enable = %s\r\n",  alarm1_enable ? "ON" : "OFF"); 
+}
 
 // day  1-7
 bool alarm0_test_enable(uint8_t index, uint8_t day)

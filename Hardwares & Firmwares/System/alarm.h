@@ -50,6 +50,7 @@ bool alarm1_test_enable(void);
 void alarm1_set_enable(bool enable);
 
 void alarm_scan(void);
+void alarm_show(void);
 
 void alarm0_stop_snd(void);
 void alarm0_play_snd(uint8_t index);

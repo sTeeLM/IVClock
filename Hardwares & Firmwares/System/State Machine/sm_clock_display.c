@@ -122,7 +122,7 @@ static struct sm_trans sm_trans_clock_display_time[] = {
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},
   {EV_ALARM0, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_ALARM0, do_clock_display_alarm0}, 
-  {EV_ALARM0, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_ALARM1, do_clock_display_alarm1},   
+  {EV_ALARM1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_ALARM1, do_clock_display_alarm1},   
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},    
   {NULL, NULL, NULL, NULL}
 };
