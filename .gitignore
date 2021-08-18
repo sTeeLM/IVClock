@@ -57,4 +57,7 @@
 # Other Files
 IVClock.vcxproj.FileListAbsolute.txt
 .DS_Store
+IVClock.build_log.htm
+IVClock.htm
+IVClock.hex.asm
 
