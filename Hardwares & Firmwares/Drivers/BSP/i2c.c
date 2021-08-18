@@ -58,18 +58,39 @@ static void BSP_I2C_Quit_Busy(void)
   PB6     ------> I2C1_SCL
   PB7     ------> I2C1_SDA
   */
+  IVDBG("enter BSP_I2C_Quit_Busy");
   
   GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;  //此行原有
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;   //GPIO配置为输出
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;   //GPIO配置为输出
   GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;      //强上拉
   HAL_GPIO_Init(GPIOB,&GPIO_InitStruct);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET); 
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
   
+  IVDBG("wait I2C1_SDA up...");
+  while(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) != GPIO_PIN_SET) {
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+    delay_us(10);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+    delay_us(10);
+  }
+  IVDBG("done!");
+  
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+  
+  delay_ms(10);
+  // SDA 输出一个低脉冲
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+  delay_us(10);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
+  
+  delay_ms(10);
   hi2c1.Instance->CR1 = I2C_CR1_SWRST;          //复位I2C控制器
+  delay_us(10);
   hi2c1.Instance->CR1 = 0;
   
   // 恢复控制器
+  IVDBG("reinit!");
   BSP_I2C_DeInit();
   BSP_I2C_Init();
 }
