@@ -127,6 +127,12 @@ uint8_t clock_get_sec(void)
 {
   return clk.sec;
 }
+
+void clock_set_sec(uint8_t sec)
+{
+  clk.sec = sec % 60;
+}
+
 void clock_clr_sec(void)
 {
    clk.sec = 0;
@@ -136,6 +142,12 @@ uint8_t clock_get_min(void)
 {
   return clk.min;
 }
+
+void clock_set_min(uint8_t min)
+{
+  clk.min = min % 60;
+}
+
 void clock_inc_min(void)
 {
   clk.min = (++ clk.min) % 60;
@@ -145,6 +157,12 @@ uint8_t clock_get_hour(void)
 {
   return clk.hour;
 }
+
+void clock_set_hour(uint8_t hour)
+{
+  clk.hour = hour % 24;
+}
+
 void clock_inc_hour(void)
 {
   clk.hour = (++ clk.hour) % 24;
@@ -155,10 +173,32 @@ uint8_t clock_get_date(void)
 {
   return clk.date + 1;
 }
+
+
+//
+// 在调整了year，mon，date之后都得调用
+//
+static void clock_recal_date_day(void)
+{
+  // 如果是2月并且不是闰年，需要保证不能出现2月29日
+  // 以及不能出现4月31日这样的情况
+  if(clk.date > clock_get_mon_date(clk.year, clk.mon) - 1)
+    clk.date = clock_get_mon_date(clk.year, clk.mon) - 1;
+  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
+}
+
+void clock_set_date(uint8_t date)
+{
+  if(date == 0)
+    return;
+  clk.date = (date - 1) % clock_get_mon_date(clk.year, clk.mon);
+  clock_recal_date_day();
+}
+
 void clock_inc_date(void)
 {
   clk.date = ( ++ clk.date) % clock_get_mon_date(clk.year, clk.mon);
-  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
+  clock_recal_date_day();
 }
 
 uint8_t clock_get_day(void)
@@ -170,28 +210,37 @@ uint8_t clock_get_month(void)
 {
   return clk.mon + 1;
 }
+
+
+void clock_set_month(uint8_t mon)
+{
+  if(mon == 0)
+    return;
+  clk.mon = (mon - 1) % 12;
+  clock_recal_date_day();
+}
+
 void clock_inc_month(void)
 {
   clk.mon = (++ clk.mon) % 12;
-  // 如果是2月并且不是闰年，需要保证不能出现2月29日
-  // 以及不能出现4月31日这样的情况
-  if(clk.date > clock_get_mon_date(clk.year, clk.mon) - 1)
-    clk.date = clock_get_mon_date(clk.year, clk.mon) - 1;
-  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
+  clock_recal_date_day();
 }
 
 uint8_t clock_get_year(void)
 {
   return clk.year;
 }
+
+void clock_set_year(uint8_t year)
+{
+  clk.year = year % 100;
+  clock_recal_date_day();
+}
+
 void clock_inc_year(void)
 {
   clk.year = (++ clk.year) % 100;
-  // 如果是2月并且不是闰年，需要保证不能出现2月29日
-  // 以及不能出现4月31日这样的情况
-  if(clk.date > clock_get_mon_date(clk.year, clk.mon) - 1)
-    clk.date = clock_get_mon_date(clk.year, clk.mon) - 1;
-  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
+  clock_recal_date_day();
 }
 
 void clock_sync_from_rtc(enum clock_sync_type type)

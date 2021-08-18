@@ -283,9 +283,18 @@ uint8_t alarm0_get_day_mask(uint8_t index)
   return alarm0[index].day_mask;
 }
 
+void alarm0_set_day_mask(uint8_t index, uint8_t daymask)
+{
+  alarm0[index].day_mask = (daymask & 0x7F);
+}
+
 uint8_t alarm0_get_min(uint8_t index)
 {
   return alarm0[index].min;
+}
+void alarm0_set_min(uint8_t index, uint8_t min)
+{
+  alarm0[index].min = min % 60;
 }
 
 void alarm0_inc_min(uint8_t index)
@@ -298,6 +307,11 @@ uint8_t alarm0_get_hour(uint8_t index)
   return alarm0[index].hour;
 }
 
+void alarm0_set_hour(uint8_t index, uint8_t hour)
+{
+  alarm0[index].hour = hour % 24;
+}
+
 void alarm0_inc_hour(uint8_t index)
 {
   alarm0[index].hour = (++ alarm0[index].hour) % 24;
@@ -305,17 +319,23 @@ void alarm0_inc_hour(uint8_t index)
 
 void alarm0_inc_snd(uint8_t index)
 {
-  config_val_t val;
   alarm0[index].snd ++;
   if(alarm0[index].snd > ALARM0_MAX_SND_INDEX) {
     alarm0[index].snd = 0;
   }
-  val.val8 = alarm0[index].snd;
 }
 
 uint8_t alarm0_get_snd(uint8_t index)
 {
   return alarm0[index].snd;
+}
+
+void alarm0_set_snd(uint8_t index, uint8_t snd)
+{
+  alarm0[index].snd = snd;
+  if(alarm0[index].snd > ALARM0_MAX_SND_INDEX) {
+    alarm0[index].snd = 0;
+  }
 }
 
 void alarm0_stop_snd(void)

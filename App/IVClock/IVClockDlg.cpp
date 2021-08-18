@@ -88,6 +88,14 @@ void CIVClockDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_BAOSHI, m_bBaoShi);
 	DDX_Control(pDX, IDC_COMBO_ALM0, m_ctlComboAlm0);
 	DDX_Control(pDX, IDC_COMBO_ALM1, m_ctlComboAlm1);
+	DDX_Control(pDX, IDC_COMBO_ALM2, m_ctlComboAlm2);
+	DDX_Control(pDX, IDC_COMBO_ALM3, m_ctlComboAlm3);
+	DDX_Control(pDX, IDC_COMBO_ALM4, m_ctlComboAlm4);
+	DDX_Control(pDX, IDC_COMBO_ALM5, m_ctlComboAlm5);
+	DDX_Control(pDX, IDC_COMBO_ALM6, m_ctlComboAlm6);
+	DDX_Control(pDX, IDC_COMBO_ALM7, m_ctlComboAlm7);
+	DDX_Control(pDX, IDC_COMBO_ALM8, m_ctlComboAlm8);
+	DDX_Control(pDX, IDC_COMBO_ALM9, m_ctlComboAlm9);
 }
 
 BEGIN_MESSAGE_MAP(CIVClockDlg, CDialog)
@@ -96,6 +104,8 @@ BEGIN_MESSAGE_MAP(CIVClockDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CIVClockDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CIVClockDlg::OnBnClickedCancel)
+	ON_BN_CLICKED(IDC_BUTTON_SET_ALARM, &CIVClockDlg::OnBnClickedButtonSetAlarm)
+	ON_BN_CLICKED(IDC_BUTTON_SYNC_TIME_DATE, &CIVClockDlg::OnBnClickedButtonSyncTimeDate)
 END_MESSAGE_MAP()
 
 
@@ -200,4 +210,16 @@ void CIVClockDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	CDialog::OnCancel();
+}
+
+
+void CIVClockDlg::OnBnClickedButtonSetAlarm()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CIVClockDlg::OnBnClickedButtonSyncTimeDate()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

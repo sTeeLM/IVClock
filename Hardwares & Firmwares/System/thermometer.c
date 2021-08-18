@@ -45,6 +45,8 @@ enum thermometer_unit_type thermometer_get_unit(void)
 
 void thermometer_set_unit(enum thermometer_unit_type unit)
 {
+  if(unit > THERMOMETER_UNIT_CEN)
+    unit = THERMOMETER_UNIT_CEN;
   thermometer_unit = unit;
 }
 

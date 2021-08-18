@@ -12,6 +12,7 @@
 #include "usart.h"
 #include "timer.h"
 #include "player.h"
+#include "thermometer.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -159,7 +160,13 @@ void remote_control_run(void)
 
 static void do_get_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
-  memcpy(&res->body.time.time, &clk, sizeof(clk));
+
+  res->body.time.year = clock_get_year();
+  res->body.time.mon = clock_get_month();
+  res->body.time.date = clock_get_date(); 
+  res->body.time.hour = clock_get_hour(); 
+  res->body.time.min = clock_get_min();
+  res->body.time.sec = clock_get_sec();  
   
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
@@ -169,7 +176,14 @@ static void do_get_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_set_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   clock_enable_interrupt(FALSE);
-  memcpy(&clk, &cmd->body.time.time, sizeof(clk));
+
+  clock_set_year(cmd->body.time.year);
+  clock_set_month(cmd->body.time.mon);
+  clock_set_date(cmd->body.time.date); 
+  clock_set_hour(cmd->body.time.hour); 
+  clock_set_min(cmd->body.time.min);
+  clock_set_sec(cmd->body.time.sec); 
+  
   clock_sync_to_rtc(CLOCK_SYNC_TIME);
   clock_sync_to_rtc(CLOCK_SYNC_DATE);
   clock_enable_interrupt(TRUE);
@@ -181,8 +195,11 @@ static void do_set_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_get_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   if(cmd->body.alarm.alarm_index < ALARM0_CNT) {
-    memcpy(&res->body.alarm.alarm0,
-    &alarm0[cmd->body.alarm.alarm_index], sizeof(res->body.alarm.alarm0));
+    res->body.alarm.alarm_index = cmd->body.alarm.alarm_index;
+    res->body.alarm.day_mask = alarm0_get_day_mask(cmd->body.alarm.alarm_index);
+    res->body.alarm.hour = alarm0_get_hour(cmd->body.alarm.alarm_index);   
+    res->body.alarm.min = alarm0_get_min(cmd->body.alarm.alarm_index);
+    res->body.alarm.snd = alarm0_get_snd(cmd->body.alarm.alarm_index);
   
     res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
     res->header.code = REMOTE_CONTROL_CODE_OK;
@@ -198,7 +215,10 @@ static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   uint8_t i;
   if(cmd->body.alarm.alarm_index < ALARM0_CNT) {
-    memcpy(&alarm0[cmd->body.alarm.alarm_index], &cmd->body.alarm.alarm0, sizeof(cmd->body.alarm.alarm0));
+    alarm0_set_day_mask(cmd->body.alarm.alarm_index, cmd->body.alarm.day_mask);
+    alarm0_set_hour(cmd->body.alarm.alarm_index, cmd->body.alarm.hour);
+    alarm0_set_min(cmd->body.alarm.alarm_index, cmd->body.alarm.min); 
+    alarm0_set_snd(cmd->body.alarm.alarm_index, cmd->body.alarm.snd);     
     alarm_save_config(ALARM_SYNC_ALARM0, cmd->body.alarm.alarm_index);
     alarm_resync_rtc();
     res->header.code = REMOTE_CONTROL_CODE_OK; 
@@ -216,7 +236,7 @@ static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   res->body.param.bp_en = beeper_test_enable(); 
   res->body.param.mon_lt_en = display_mon_light_test_enable();  
   res->body.param.power_timeo = power_get_timeo(); 
-  res->body.param.temp_cen = config_read_int("temp_cen");
+  res->body.param.temp_cen = thermometer_get_unit();
   res->body.param.time_12 = config_read_int("time_12"); 
   res->body.param.tmr_snd = timer_get_snd(); 
   res->body.param.ply_vol = player_get_vol();
@@ -261,8 +281,9 @@ static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   }   
 
   val.val8 = cmd->body.param.temp_cen;
-  if(val.val8 != config_read_int("temp_cen")) {
-    config_write("temp_cen", &val);
+  if(val.val8 != thermometer_get_unit()) {
+    thermometer_set_unit(val.val8);
+    thermometer_save_config();
   }  
 
   val.val8 = cmd->body.param.time_12;

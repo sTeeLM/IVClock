@@ -35,15 +35,18 @@ void alarm_resync_rtc(void);
 bool alarm0_test_enable(uint8_t index, uint8_t day);
 void alarm0_set_enable(uint8_t index, uint8_t day, bool enable);
 uint8_t alarm0_get_day_mask(uint8_t index);
+void alarm0_set_day_mask(uint8_t index, uint8_t daymask);
 uint8_t alarm0_get_min(uint8_t index);
+void alarm0_set_min(uint8_t index, uint8_t min);
 void alarm0_inc_min(uint8_t index);
 uint8_t alarm0_get_hour(uint8_t index);
+void alarm0_set_hour(uint8_t index, uint8_t hour);
 void alarm0_inc_hour(uint8_t index);
 
 // 闹铃铃声
 void alarm0_inc_snd(uint8_t index);
 uint8_t alarm0_get_snd(uint8_t index);
-
+void alarm0_set_snd(uint8_t index, uint8_t snd);
 
 // 闹钟1是整点报时闹钟
 bool alarm1_test_enable(void);

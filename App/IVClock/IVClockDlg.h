@@ -35,6 +35,9 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
+	afx_msg void OnBnClickedButtonSetAlarm();
+	afx_msg void OnBnClickedButtonSyncTimeDate();
+
 	CString m_strRemoteTimeDate;
 	CString m_strLocalTimeDate;
 	BOOL m_bAutoSyncTimeDate;
@@ -52,4 +55,13 @@ public:
 	BOOL m_bBaoShi;
 	CCheckComboBox m_ctlComboAlm0;
 	CCheckComboBox m_ctlComboAlm1;
+	CCheckComboBox m_ctlComboAlm2;
+	CCheckComboBox m_ctlComboAlm3;
+	CCheckComboBox m_ctlComboAlm4;
+	CCheckComboBox m_ctlComboAlm5;
+	CCheckComboBox m_ctlComboAlm6;
+	CCheckComboBox m_ctlComboAlm7;
+	CCheckComboBox m_ctlComboAlm8;
+	CCheckComboBox m_ctlComboAlm9;
+
 };
