@@ -27,6 +27,8 @@
 *.idb
 *.ilk
 *.res
+*.exe.recipe
+*.log
 
 # Compiled Dynamic libraries
 *.so
@@ -51,3 +53,8 @@
 *.axf
 *.hex
 *.bin
+
+# Other Files
+IVClock.vcxproj.FileListAbsolute.txt
+.DS_Store
+
