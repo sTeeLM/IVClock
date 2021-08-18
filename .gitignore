@@ -60,4 +60,6 @@ IVClock.vcxproj.FileListAbsolute.txt
 IVClock.build_log.htm
 IVClock.htm
 IVClock.hex.asm
-
+.vs
+Debug
+Release
