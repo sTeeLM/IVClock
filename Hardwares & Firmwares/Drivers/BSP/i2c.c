@@ -5,6 +5,25 @@
 
 static I2C_HandleTypeDef hi2c1;
 
+static void BSP_I2C_DisableIRQ(void)
+{
+//  HAL_NVIC_DisableIRQ(INT_KEY_SET_EXTI_IRQn);
+//  HAL_NVIC_DisableIRQ(INT_KEY_MOD_EXTI_IRQn); 
+//  HAL_NVIC_DisableIRQ(INT_BT_EXTI_IRQn);
+//  HAL_NVIC_DisableIRQ(INT_ALARM_EXTI_IRQn); 
+//  HAL_NVIC_DisableIRQ(INT_ACC_EXTI_IRQn);  
+//  HAL_NVIC_DisableIRQ(INT_MP3_EXTI_IRQn);   
+}
+
+static void BSP_I2C_EnableIRQ(void)
+{
+//  HAL_NVIC_EnableIRQ(INT_KEY_SET_EXTI_IRQn);
+//  HAL_NVIC_EnableIRQ(INT_KEY_MOD_EXTI_IRQn); 
+//  HAL_NVIC_EnableIRQ(INT_BT_EXTI_IRQn);
+//  HAL_NVIC_EnableIRQ(INT_ALARM_EXTI_IRQn); 
+//  HAL_NVIC_EnableIRQ(INT_ACC_EXTI_IRQn);  
+//  HAL_NVIC_EnableIRQ(INT_MP3_EXTI_IRQn);  
+}
 
 /**
   * @brief I2C1 Initialization Function
@@ -21,10 +40,10 @@ BSP_Error_Type BSP_I2C_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-//  hi2c1.Init.ClockSpeed = 400000;
-//  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_16_9;
-  hi2c1.Init.ClockSpeed = 100000;
-  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.ClockSpeed = 400000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_16_9;
+//  hi2c1.Init.ClockSpeed = 100000;
+//  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -84,15 +103,32 @@ static void BSP_I2C_Quit_Busy(void)
   delay_us(10);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
   
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET); 
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);  
+  
   delay_ms(10);
-  hi2c1.Instance->CR1 = I2C_CR1_SWRST;          //复位I2C控制器
-  delay_us(10);
-  hi2c1.Instance->CR1 = 0;
+  I2C1->CR1 = I2C_CR1_SWRST;
+  delay_ms(10);
+  I2C1->CR1 = 0;
+  
+  __HAL_RCC_I2C1_FORCE_RESET();
   
   // 恢复控制器
   IVDBG("reinit!");
   BSP_I2C_DeInit();
+  delay_ms(10);
   BSP_I2C_Init();
+//  I2C1->CR1 = I2C_INIT_SAVE_CR1;
+//  I2C1->CR2 = I2C_INIT_SAVE_CR2; 
+//  I2C1->OAR1 = I2C_INIT_SAVE_OAR1;
+//  I2C1->OAR2 = I2C_INIT_SAVE_OAR2;
+//  I2C1->CCR = I2C_INIT_SAVE_CCR; 
+//  I2C1->TRISE = I2C_INIT_SAVE_TRISE; 
+//  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+//  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+//  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+//  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  IVDBG("done!");
 }
 
 #define BSP_I2C_MAX_WAIT_CNT 5000
@@ -102,6 +138,7 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
   HAL_StatusTypeDef ret;
   uint32_t wait_cnt;
   wait_cnt = 0;
+  BSP_I2C_DisableIRQ();
   while((ret = HAL_I2C_Mem_Write(&hi2c1, DevAddress, MemAddress, MemAddSize, pData, Size, BSP_I2C_SEND_TIMEOUT)) == HAL_BUSY) {
     delay_us(100);
     wait_cnt ++;
@@ -111,6 +148,7 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
       delay_ms(10);
     }
   };
+  BSP_I2C_EnableIRQ();
   if(ret != HAL_OK) IVERR("BSP_I2C_Write ret %d", ret);
   return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
@@ -120,6 +158,7 @@ BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t M
   HAL_StatusTypeDef ret;
   uint32_t wait_cnt;
   wait_cnt = 0;
+  BSP_I2C_DisableIRQ();
   while((ret = HAL_I2C_Mem_Read(&hi2c1, DevAddress, MemAddress, MemAddSize, pData, Size, BSP_I2C_RECV_TIMEOUT)) == HAL_BUSY) {
     delay_us(100);
     wait_cnt ++;
@@ -129,6 +168,7 @@ BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t M
       delay_ms(10);
     } 
   };
+  BSP_I2C_EnableIRQ();
   if(ret != HAL_OK) IVERR("BSP_I2C_Read ret %d", ret);
   return ret ==  HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
@@ -161,6 +201,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET); 
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
     
     for( i = 0 ; i < 100; i ++) {
       HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
@@ -169,8 +211,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
       delay_us(10);
     }
     
-    hi2c->Instance->CR1 = I2C_CR1_SWRST;
-    hi2c->Instance->CR1 = 0;
+    I2C1->CR1 = I2C_CR1_SWRST;
+    I2C1->CR1 = 0;
     /**I2C1 GPIO Configuration
     PB6     ------> I2C1_SCL
     PB7     ------> I2C1_SDA
@@ -181,9 +223,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     
     /* Peripheral clock enable */
-  
-  /* USER CODE BEGIN I2C1_MspInit 1 */
-  
+  /* USER CODE BEGIN I2C1_MspInit 1 */ 
+    
   /* USER CODE END I2C1_MspInit 1 */
   }
 }

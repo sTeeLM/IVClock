@@ -50,6 +50,18 @@
 #define IDC_COMBO_ALM9                  1099
 #define IDC_DATETIMEPICKER_ALM9         1100
 #define IDC_MFCLINK1                    1107
+#define IDC_COMBO_ALM_SND0              1108
+#define IDC_COMBO_ALM_SND1              1109
+#define IDC_COMBO_ALM_SND2              1110
+#define IDC_COMBO_ALM_SND3              1111
+#define IDC_COMBO_ALM_SND4              1112
+#define IDC_COMBO_ALM_SND5              1113
+#define IDC_COMBO_ALM_SND6              1114
+#define IDC_COMBO_ALM_SND7              1115
+#define IDC_COMBO_ALM_SND8              1116
+#define IDC_COMBO_ALM_SND9              1117
+#define IDC_COMBO_ALM_SND10             1118
+#define IDC_COMBO_TIMER_SND             1118
 
 // Next default values for new objects
 // 
@@ -57,7 +69,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1108
+#define _APS_NEXT_CONTROL_VALUE         1109
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

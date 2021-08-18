@@ -35,7 +35,6 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
-	afx_msg void OnBnClickedButtonSetAlarm();
 	afx_msg void OnBnClickedButtonSyncTimeDate();
 
 	CString m_strRemoteTimeDate;
@@ -47,8 +46,6 @@ public:
 	BOOL m_bPowerSave;
 	CString m_strPowerSave;
 	CSpinButtonCtrl m_ctlSpinPowerSave;
-	CString m_strTimerSnd;
-	CSpinButtonCtrl m_ctlTimerSnd;
 	CString m_strPlayVol;
 	CSpinButtonCtrl m_ctlPlayVol;
 	BOOL m_bBeeper;

@@ -60,7 +60,6 @@ CIVClockDlg::CIVClockDlg(CWnd* pParent /*=nullptr*/)
 	, m_bLightMon(FALSE)
 	, m_bPowerSave(FALSE)
 	, m_strPowerSave(_T(""))
-	, m_strTimerSnd(_T(""))
 	, m_strPlayVol(_T(""))
 	, m_bBeeper(FALSE)
 	, m_bBaoShi(FALSE)
@@ -80,8 +79,6 @@ void CIVClockDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_PS, m_bPowerSave);
 	DDX_Text(pDX, IDC_EDIT_PS, m_strPowerSave);
 	DDX_Control(pDX, IDC_SPIN_PS, m_ctlSpinPowerSave);
-	DDX_Text(pDX, IDC_EDIT_TMR_SND, m_strTimerSnd);
-	DDX_Control(pDX, IDC_SPIN_TMR_SND, m_ctlTimerSnd);
 	DDX_Text(pDX, IDC_EDIT_PLY_VOL, m_strPlayVol);
 	DDX_Control(pDX, IDC_SPIN_PLY_VOL, m_ctlPlayVol);
 	DDX_Check(pDX, IDC_CHECK_BEEPER, m_bBeeper);
@@ -104,7 +101,6 @@ BEGIN_MESSAGE_MAP(CIVClockDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CIVClockDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CIVClockDlg::OnBnClickedCancel)
-	ON_BN_CLICKED(IDC_BUTTON_SET_ALARM, &CIVClockDlg::OnBnClickedButtonSetAlarm)
 	ON_BN_CLICKED(IDC_BUTTON_SYNC_TIME_DATE, &CIVClockDlg::OnBnClickedButtonSyncTimeDate)
 END_MESSAGE_MAP()
 
@@ -212,11 +208,6 @@ void CIVClockDlg::OnBnClickedCancel()
 	CDialog::OnCancel();
 }
 
-
-void CIVClockDlg::OnBnClickedButtonSetAlarm()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
 
 
 void CIVClockDlg::OnBnClickedButtonSyncTimeDate()
