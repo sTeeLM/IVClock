@@ -538,15 +538,15 @@ uint8_t display_get_light_percent(void)
   uint16_t lt_0 = config_read_int("lt_0");
   uint16_t lt_100 = config_read_int("lt_100"); 
   double k, b;
-  uint8_t percent;
+  int8_t percent;
   k = ((double)(100 - 0)) / ((double)(lt_100 - lt_0));
   b = 100 - k * lt_100;
-  percent = (uint8_t)(k * val + b); 
+  percent = (int8_t)(k * val + b); 
   IVDBG("display_get_light_percent: val = %d, k = %f, b = %f, v = %d", val, k, b, percent);
   if(percent > 100) {
     percent = 100;
   }
-  if(percent == 0) {
+  if(percent < 0) {
     percent = 0;
   }
   return (uint8_t)percent;

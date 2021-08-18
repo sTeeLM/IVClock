@@ -60,40 +60,18 @@ static void BSP_I2C_Quit_Busy(void)
   */
   
   GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;  //此行原有
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;   //GPIO配置为输出
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;   //GPIO配置为输出
   GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;      //强上拉
   HAL_GPIO_Init(GPIOB,&GPIO_InitStruct);
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET); 
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
   
-  // SCL输出脉冲，直到SDA被拉高
-  while(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) != GPIO_PIN_SET) {
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
-    delay_us(10);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-    delay_us(10);
-  }
-  // SCL拉高
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
-  
-  delay_ms(10);
-  // SDA 输出一个低脉冲
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
-  delay_us(10);
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
-  
   hi2c1.Instance->CR1 = I2C_CR1_SWRST;          //复位I2C控制器
-  delay_us(10);
   hi2c1.Instance->CR1 = 0;
   
   // 恢复控制器
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-  
-  __HAL_RCC_I2C1_CLK_DISABLE();
-  __HAL_RCC_I2C1_CLK_ENABLE();
+  BSP_I2C_DeInit();
+  BSP_I2C_Init();
 }
 
 #define BSP_I2C_MAX_WAIT_CNT 5000
@@ -109,6 +87,7 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
     if(wait_cnt > BSP_I2C_MAX_WAIT_CNT && ret == HAL_BUSY) {
       IVERR("BSP_I2C_Write busy too long");
       BSP_I2C_Quit_Busy();
+      delay_ms(10);
     }
   };
   if(ret != HAL_OK) IVERR("BSP_I2C_Write ret %d", ret);
@@ -126,7 +105,7 @@ BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t M
     if(wait_cnt > BSP_I2C_MAX_WAIT_CNT && ret == HAL_BUSY) {
       IVERR("BSP_I2C_Read busy too long");
       BSP_I2C_Quit_Busy();
-      break;
+      delay_ms(10);
     } 
   };
   if(ret != HAL_OK) IVERR("BSP_I2C_Read ret %d", ret);
