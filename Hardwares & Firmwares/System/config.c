@@ -6,16 +6,14 @@
 #include <string.h>
 
 static const uint8_t alarm_blob0[] = {0,0,0,0};
-static const uint8_t alarm_blob1[] = {0x7F,12,6,1};
-static const uint8_t alarm_blob2[] = {0x7F,12,13,3};
-static const uint8_t alarm_blob3[] = {0x7F,12,25,9};
-static const uint8_t alarm_blob4[] = {0x7F,12,16,4};
 
 static const config_slot_t _slot[] = {
   {"time_12", CONFIG_TYPE_UINT8,   {.val8 = 1}},
   {"acc_th",CONFIG_TYPE_UINT8,     {.val8 = 50}},
   {"bp_en",CONFIG_TYPE_UINT8,      {.val8 = 1}},
-  {"alm1_en", CONFIG_TYPE_UINT8,   {.val8 = 1}},  
+  {"alm1_en", CONFIG_TYPE_UINT8,   {.val8 = 1}}, 
+  {"alm1_begin", CONFIG_TYPE_UINT8, {.val8 = 8}}, 
+  {"alm1_end", CONFIG_TYPE_UINT8,   {.val8 = 22}},  
   {"bat_65", CONFIG_TYPE_UINT16,   {.val16 = 2421}},
   {"bat_90", CONFIG_TYPE_UINT16,   {.val16 = 3667}},   
   {"lt_0", CONFIG_TYPE_UINT16,     {.val16 = 354}},
@@ -25,14 +23,14 @@ static const config_slot_t _slot[] = {
   {"power_timeo", CONFIG_TYPE_UINT8,  {.val8 = 15}},
   {"tmr_snd", CONFIG_TYPE_UINT8, {.val8 = 0}},
   {"ply_vol", CONFIG_TYPE_UINT8, {.val8 = 10}},  
-  {"alm00_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob1),
-    .valblob.body = alarm_blob1}}, 
-  {"alm01_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob2),
-    .valblob.body = alarm_blob2}},
-  {"alm02_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob3),
-    .valblob.body = alarm_blob3}}, 
-  {"alm03_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob4),
-    .valblob.body = alarm_blob4}},
+  {"alm00_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}}, 
+  {"alm01_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}},
+  {"alm02_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}}, 
+  {"alm03_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
+    .valblob.body = alarm_blob0}},
   {"alm04_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
     .valblob.body = alarm_blob0}}, 
   {"alm05_cfg", CONFIG_TYPE_BLOB,  {.valblob.len = sizeof(alarm_blob0),
