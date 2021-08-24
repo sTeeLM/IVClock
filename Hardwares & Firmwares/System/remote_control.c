@@ -232,7 +232,9 @@ static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   res->body.param.acc_th = motion_sensor_get_th();
-  res->body.param.alm1_en = alarm1_test_enable();  
+  res->body.param.alm1_en = alarm1_test_enable();
+  res->body.param.alm1_begin = alarm1_get_begin();
+  res->body.param.alm1_end = alarm1_get_end();  
   res->body.param.bp_en = beeper_test_enable(); 
   res->body.param.mon_lt_en = display_mon_light_test_enable();  
   res->body.param.power_timeo = power_get_timeo(); 
@@ -261,6 +263,18 @@ static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
     alarm1_set_enable(val.val8);
     alarm_save_config(ALARM_SYNC_ALARM1, 0);
   }  
+  
+  val.val8 = cmd->body.param.alm1_begin;
+  if(val.val8 != alarm1_get_begin()) {
+    alarm1_set_begin(val.val8);
+    alarm_save_config(ALARM_SYNC_ALARM1, 0);
+  }    
+
+  val.val8 = cmd->body.param.alm1_end;
+  if(val.val8 != alarm1_get_end()) {
+    alarm1_set_begin(val.val8);
+    alarm_save_config(ALARM_SYNC_ALARM1, 0);
+  }
   
   val.val8 = cmd->body.param.bp_en;
   if(val.val8 != beeper_test_enable()) {

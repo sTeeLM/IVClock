@@ -51,6 +51,12 @@ void alarm0_set_snd(uint8_t index, uint8_t snd);
 // 闹钟1是整点报时闹钟
 bool alarm1_test_enable(void);
 void alarm1_set_enable(bool enable);
+uint8_t alarm1_get_begin(void);
+void alarm1_inc_begin(void);
+void alarm1_set_begin(uint8_t begin);
+uint8_t alarm1_get_end(void);
+void alarm1_inc_end(void);
+void alarm1_set_end(uint8_t end);
 
 void alarm_scan(void);
 void alarm_show(void);

@@ -267,6 +267,37 @@ void display_format_alarm1(void)
     BSP_IV18_Set_Blink(5);
     BSP_IV18_Set_Blink(6); 
     BSP_IV18_Set_Blink(7);     
+  } else if(_display_mode == DISPLAY_MODE_ALARM_BAOSHI_BEGIN 
+    ||_display_mode == DISPLAY_MODE_ALARM_BAOSHI_END) {
+    BSP_IV18_Set_Dig(2,'B');
+    BSP_IV18_Set_Dig(3,'S');
+    BSP_IV18_Set_Dig(4,'-');
+    
+    if(_display_mode == DISPLAY_MODE_ALARM_BAOSHI_BEGIN) {
+      BSP_IV18_Set_Dig(5,'B'); 
+      ispm = cext_cal_hour12(alarm1_get_begin(), &hour12);
+      if(config_read_int("time_12")) {
+        ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
+        BSP_IV18_Set_Dig(6, hour12 / 10);
+        BSP_IV18_Set_Dig(7, hour12 % 10); 
+      } else {
+        BSP_IV18_Set_Dig(6, alarm1_get_begin() / 10);
+        BSP_IV18_Set_Dig(7, alarm1_get_begin() % 10);
+      }
+    } else {
+      BSP_IV18_Set_Dig(5,'E'); 
+      ispm = cext_cal_hour12(alarm1_get_end(), &hour12);
+      if(config_read_int("time_12")) {
+        ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
+        BSP_IV18_Set_Dig(6, hour12 / 10);
+        BSP_IV18_Set_Dig(7, hour12 % 10); 
+      } else {
+        BSP_IV18_Set_Dig(6, alarm1_get_end() / 10);
+        BSP_IV18_Set_Dig(7, alarm1_get_end() % 10);
+      }
+    }
+    BSP_IV18_Set_Blink(6); 
+    BSP_IV18_Set_Blink(7); 
   }
 }
 

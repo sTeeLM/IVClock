@@ -14,6 +14,8 @@
 static int8_t alarm0_cur; // -1说明当前rtc中没有alarm0生效
 static uint8_t alarm0_hit_index;
 struct alarm0_struct alarm0[ALARM0_CNT];
+static uint8_t alarm1_begin;
+static uint8_t alarm1_end;
 
 static bool alarm1_enable;
 
@@ -162,8 +164,13 @@ void alarm_scan(void)
   if(alarm1_hit) {
     rtc_get_time(&hour, &min, &sec);
     if(min == 0 && sec == 0) {
-      power_wakeup();
-      task_set(EV_ALARM1);
+      IVDBG("alarm1 hour = %d, begin = %d, end = %d", hour, alarm1_begin, alarm1_end);
+      if(alarm1_begin < alarm1_end && (hour >= alarm1_begin && hour <= alarm1_end)
+        || alarm1_begin >= alarm1_end && (hour >= alarm1_begin || hour <= alarm1_end)) {
+          IVDBG("alarm1 really hit!");
+          power_wakeup();
+          task_set(EV_ALARM1);
+        }
     }
   }
 }
@@ -182,6 +189,8 @@ void alarm_load_config(void)
   alarm1_enable = config_read_int("alm1_en"); 
   alarm0_sync_to_rtc((alarm0_cur = alarm0_find_curr()));
   alarm1_sync_to_rtc();  
+  alarm1_begin = config_read_int("alm1_begin");
+  alarm1_end = config_read_int("alm1_end");  
 }
 
 void alarm_resync_rtc(void)
@@ -209,6 +218,10 @@ void alarm_save_config(enum alarm_sync_type t, uint8_t index)
     case ALARM_SYNC_ALARM1:
       val.val8 = alarm1_enable;
       config_write("alm1_en", &val);
+      val.val8 = alarm1_begin;
+      config_write("alm1_begin", &val);
+      val.val8 = alarm1_end;
+      config_write("alm1_end", &val);   
       alarm1_sync_to_rtc();
     break;
   }
@@ -241,6 +254,8 @@ void alarm_dump(void)
   IVDBG("current actived alarm0: %d", alarm0_cur);
   IVDBG("current alarm0_hit_index: %d", alarm0_hit_index); 
   IVDBG("alarm1.enable = %s",  alarm1_enable ? "ON" : "OFF"); 
+  IVDBG("alarm1.begin = %d",  alarm1_begin);
+  IVDBG("alarm1.end = %d",  alarm1_end);  
   IVDBG("----------- alarm dump end -----------------");  
 }
 
@@ -256,6 +271,8 @@ void alarm_show(void)
   console_printf("current actived alarm0: %d\r\n", alarm0_cur);
   console_printf("current alarm0_hit_index: %d\r\n", alarm0_hit_index); 
   console_printf("alarm1.enable = %s\r\n",  alarm1_enable ? "ON" : "OFF"); 
+  console_printf("alarm1.begin = %d\r\n",  alarm1_begin);
+  console_printf("alarm1.end = %d\r\n",  alarm1_end); 
 }
 
 // day  1-7
@@ -357,6 +374,40 @@ bool alarm1_test_enable(void)
 void alarm1_set_enable(bool enable)
 {
   alarm1_enable = enable;
+}
+
+uint8_t alarm1_get_begin(void)
+{
+  return alarm1_begin;
+}
+
+void alarm1_inc_begin(void)
+{
+  alarm1_begin ++;
+  alarm1_begin %= 24;
+}
+
+void alarm1_set_begin(uint8_t begin)
+{
+  alarm1_begin = begin;
+  alarm1_begin %= 24;
+}
+
+uint8_t alarm1_get_end(void)
+{
+  return alarm1_end;
+}
+
+void alarm1_inc_end(void)
+{
+  alarm1_end ++;
+  alarm1_end %= 24;
+}
+
+void alarm1_set_end(uint8_t end)
+{
+  alarm1_end = end;
+  alarm1_end %= 24;
 }
 
 void alarm1_stop_snd(void)

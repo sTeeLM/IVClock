@@ -84,6 +84,8 @@ typedef struct remote_control_body_param
   uint8_t acc_th;
   uint8_t bp_en;
   uint8_t alm1_en;
+  uint8_t alm1_begin;
+  uint8_t alm1_end;
   uint8_t mon_lt_en;
   uint8_t temp_cen;
   uint8_t power_timeo; 

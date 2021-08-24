@@ -33,10 +33,16 @@ static void do_set_param_beeper(uint8_t from_func, uint8_t from_state, uint8_t t
 
 static void do_set_param_baoshi(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
-  if(EV_BUTTON_MOD_PRESS == ev) {
+  if(EV_BUTTON_MOD_PRESS == ev && SM_SET_PARAM_BEEPER == from_state) {
     display_clr();
     display_set_mode(DISPLAY_MODE_ALARM_BAOSHI);
     display_format_alarm1();
+  } else if(EV_BUTTON_MOD_PRESS == ev) {
+    if(!alarm1_test_enable()) {
+      task_set(EV_VT1); // goto snd
+    } else { 
+      task_set(EV_VT2); // goto baosi begin
+    }
   } else {
     alarm1_set_enable(!alarm1_test_enable());
     alarm_save_config(ALARM_SYNC_ALARM1, 0);
@@ -44,9 +50,35 @@ static void do_set_param_baoshi(uint8_t from_func, uint8_t from_state, uint8_t t
   }
 }
 
-static void do_set_param_timer_snd(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
+static void do_set_param_baoshi_begin(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
+{
+  if(EV_VT2 == ev) {
+    display_clr();
+    display_set_mode(DISPLAY_MODE_ALARM_BAOSHI_BEGIN);
+    display_format_alarm1();
+  } else {
+    alarm1_inc_begin();
+    alarm_save_config(ALARM_SYNC_ALARM1, 0);
+    display_format_alarm1();
+  }
+}
+
+static void do_set_param_baoshi_end(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   if(EV_BUTTON_MOD_PRESS == ev) {
+    display_clr();
+    display_set_mode(DISPLAY_MODE_ALARM_BAOSHI_END);
+    display_format_alarm1();
+  } else {
+    alarm1_inc_end();
+    alarm_save_config(ALARM_SYNC_ALARM1, 0);
+    display_format_alarm1();
+  }
+}
+
+static void do_set_param_timer_snd(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
+{
+  if(EV_BUTTON_MOD_PRESS == ev || EV_VT1 == ev) {
     display_clr();
     display_set_mode(DISPLAY_MODE_TIMER_SND);
     display_format_timer(0);
@@ -139,6 +171,8 @@ const char * sm_states_names_set_param[] = {
   "SM_SET_PARAM_INIT",
   "SM_SET_PARAM_BEEPER",
   "SM_SET_PARAM_BAOSHI",
+  "SM_SET_PARAM_BAOSHI_BEGIN",
+  "SM_SET_PARAM_BAOSHI_END",  
   "SM_SET_PARAM_TIMER_SND",
   "SM_SET_PARAM_PS",
   "SM_SET_PARAM_THERMO",
@@ -162,10 +196,27 @@ static struct sm_trans sm_trans_set_param_beeper[] = {
 
 static struct sm_trans sm_trans_set_param_baoshi[] = {
   {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_BAOSHI, do_set_param_baoshi},
+  {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_BAOSHI, do_set_param_baoshi}, 
+  {EV_VT1, SM_SET_PARAM, SM_SET_PARAM_TIMER_SND, do_set_param_timer_snd},  
+  {EV_VT2, SM_SET_PARAM, SM_SET_PARAM_BAOSHI_BEGIN, do_set_param_baoshi_begin},      
+  {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},   
+  {NULL, NULL, NULL, NULL}
+};
+
+static struct sm_trans sm_trans_set_param_baoshi_begin[] = {
+  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_BAOSHI_BEGIN, do_set_param_baoshi_begin},
+  {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_BAOSHI_END, do_set_param_baoshi_end}, 
+  {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},   
+  {NULL, NULL, NULL, NULL}
+};
+
+static struct sm_trans sm_trans_set_param_baoshi_end[] = {
+  {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_BAOSHI_END, do_set_param_baoshi_end},
   {EV_BUTTON_MOD_PRESS, SM_SET_PARAM, SM_SET_PARAM_TIMER_SND, do_set_param_timer_snd}, 
   {EV_BUTTON_MOD_LPRESS, SM_TIMER, SM_TIMER_INIT, do_timer_init},   
   {NULL, NULL, NULL, NULL}
 };
+
 
 static struct sm_trans sm_trans_set_param_timer_snd[] = {
   {EV_BUTTON_SET_PRESS, SM_SET_PARAM, SM_SET_PARAM_TIMER_SND, do_set_param_timer_snd},
@@ -221,6 +272,8 @@ struct sm_trans * sm_trans_set_param[] = {
   sm_trans_set_param_init,
   sm_trans_set_param_beeper,
   sm_trans_set_param_baoshi,
+  sm_trans_set_param_baoshi_begin,
+  sm_trans_set_param_baoshi_end,
   sm_trans_set_param_timer_snd,
   sm_trans_set_param_ps,
   sm_trans_set_param_thermo,
