@@ -328,7 +328,7 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
   uint8_t ret = 0, hour12;
   bool ispm;
   
-  if(config_read_int("time_12")) {
+  if(clock_test_hour12()) {
     ispm = cext_cal_hour12(hour, &hour12);
     hour = hour12;
     player_seq[start + ret].dir  = PLAYER_DIR_MISC;

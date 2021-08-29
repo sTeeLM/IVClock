@@ -56,7 +56,7 @@ void display_format_clock(struct clock_struct * clk)
   if(_display_mode == DISPLAY_MODE_CLOCK_HHMMSS) {
     ispm = cext_cal_hour12(clk->hour, &hour12);
     BSP_IV18_Set_Dig(1, '=');
-    if(config_read_int("time_12")) {
+    if(clock_test_hour12()) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(2, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(3, (hour12 % 10 + 0x30));      
@@ -204,7 +204,7 @@ void display_format_alarm0(uint8_t index)
     BSP_IV18_Set_Dig(3, index + 0x30);     
     BSP_IV18_Set_Dig(4,'-');
     ispm = cext_cal_hour12(alarm0[index].hour, &hour12);
-    if(config_read_int("time_12")) {
+    if(clock_test_hour12()) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
@@ -240,7 +240,7 @@ void display_format_alarm1(void)
     BSP_IV18_Set_Dig(3,'S');
     BSP_IV18_Set_Dig(4,'-');
     ispm = cext_cal_hour12(clock_get_hour(), &hour12);
-    if(config_read_int("time_12")) {
+    if(clock_test_hour12()) {
       ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
       BSP_IV18_Set_Dig(5, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(6, (hour12 % 10 + 0x30)); 
@@ -276,7 +276,7 @@ void display_format_alarm1(void)
     if(_display_mode == DISPLAY_MODE_ALARM_BAOSHI_BEGIN) {
       BSP_IV18_Set_Dig(5,'B'); 
       ispm = cext_cal_hour12(alarm1_get_begin(), &hour12);
-      if(config_read_int("time_12")) {
+      if(clock_test_hour12()) {
         ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
         BSP_IV18_Set_Dig(6, hour12 / 10);
         BSP_IV18_Set_Dig(7, hour12 % 10); 
@@ -287,7 +287,7 @@ void display_format_alarm1(void)
     } else {
       BSP_IV18_Set_Dig(5,'E'); 
       ispm = cext_cal_hour12(alarm1_get_end(), &hour12);
-      if(config_read_int("time_12")) {
+      if(clock_test_hour12()) {
         ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
         BSP_IV18_Set_Dig(6, hour12 / 10);
         BSP_IV18_Set_Dig(7, hour12 % 10); 
@@ -400,7 +400,7 @@ void display_format_hour12(void)
   BSP_IV18_Set_Dig(4,'U');
   BSP_IV18_Set_Dig(5,'R');
   BSP_IV18_Set_Dig(6,'-');  
-  if(config_read_int("time_12")) {
+  if(clock_test_hour12()) {
     BSP_IV18_Set_Dig(7,'1');
     BSP_IV18_Set_Dig(8,'2');   
   } else {

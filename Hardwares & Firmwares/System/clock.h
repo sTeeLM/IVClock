@@ -72,4 +72,8 @@ void clock_refresh_display(void);
 uint32_t clock_get_now_sec(void);
 uint32_t clock_diff_now_sec(uint32_t sec);
 
+bool clock_test_hour12(void);
+void clock_set_hour12(bool enable);
+void clock_save_config(void);
+
 #endif

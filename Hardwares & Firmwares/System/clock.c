@@ -28,7 +28,7 @@ static uint8_t date_table[2][12] =
 
 struct clock_struct clk;
 static uint32_t now_sec; // 用于 time_diff
-
+static bool clock_is_hour12;
 static bool refresh_display;
 
 static bool in_console;
@@ -39,6 +39,22 @@ void clock_refresh_display_enable(bool enable)
   refresh_display = enable;
 }
 
+bool clock_test_hour12(void)
+{
+  return clock_is_hour12;
+}
+
+void clock_set_hour12(bool enable)
+{
+  clock_is_hour12 = enable;
+}
+
+void clock_save_config(void)
+{
+  config_val_t val;
+  val.val8 = clock_is_hour12;
+    config_write("time_12", &val);
+}
 
 // 1 / 256 = 0.00390625
 void clock_inc_ms39(void)
@@ -374,6 +390,7 @@ void clock_init(void)
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   refresh_display = FALSE;
+  clock_is_hour12 = config_read_int("time_12");
   clock_dump();
 }
 

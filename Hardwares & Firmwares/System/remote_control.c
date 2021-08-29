@@ -239,7 +239,7 @@ static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   res->body.param.mon_lt_en = display_mon_light_test_enable();  
   res->body.param.power_timeo = power_get_timeo(); 
   res->body.param.temp_cen = thermometer_get_unit();
-  res->body.param.time_12 = config_read_int("time_12"); 
+  res->body.param.time_12 = clock_test_hour12(); 
   res->body.param.tmr_snd = timer_get_snd(); 
   res->body.param.ply_vol = player_get_vol();
   
@@ -301,8 +301,9 @@ static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   }  
 
   val.val8 = cmd->body.param.time_12;
-  if(val.val8 != config_read_int("time_12")) {
-    config_write("time_12", &val);
+  if(val.val8 != clock_test_hour12()) {
+    clock_set_hour12(val.val8);
+    clock_save_config();
   } 
   
   val.val8 = cmd->body.param.tmr_snd;

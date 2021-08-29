@@ -139,8 +139,8 @@ static void do_set_param_hour12(uint8_t from_func, uint8_t from_state, uint8_t t
     display_clr();
     display_format_hour12();
   } else {
-    val.val8 = !config_read_int("time_12");
-    config_write("time_12", &val);
+    clock_set_hour12(!clock_test_hour12());
+    clock_save_config();
     display_format_hour12();
   }
 }
