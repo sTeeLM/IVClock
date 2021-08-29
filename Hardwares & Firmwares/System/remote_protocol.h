@@ -81,7 +81,7 @@ typedef struct remote_control_body_alarm
 typedef struct remote_control_body_param
 {
   uint8_t time_12;
-  uint8_t acc_th;
+  uint8_t acc_en;
   uint8_t bp_en;
   uint8_t alm1_en;
   uint8_t alm1_begin;

@@ -13,9 +13,6 @@ int8_t con_motion_sensor(char arg1, char arg2)
     motion_sensor_show();
   }	else if(!strcmp(console_buf + arg1, "int")) {
     motion_sensor_scan();
-  } else if(!strcmp(console_buf + arg1, "inc")) {
-    motion_sensor_inc_th();
-    motion_sensor_show();
   } else {
     return -1;
   }

@@ -281,8 +281,8 @@ void display_format_alarm1(void)
         BSP_IV18_Set_Dig(6, hour12 / 10);
         BSP_IV18_Set_Dig(7, hour12 % 10); 
       } else {
-        BSP_IV18_Set_Dig(6, alarm1_get_begin() / 10);
-        BSP_IV18_Set_Dig(7, alarm1_get_begin() % 10);
+        BSP_IV18_Set_Dig(6, alarm1_get_begin() / 10 + 0x30);
+        BSP_IV18_Set_Dig(7, alarm1_get_begin() % 10 + 0x30);
       }
     } else {
       BSP_IV18_Set_Dig(5,'E'); 
@@ -292,8 +292,8 @@ void display_format_alarm1(void)
         BSP_IV18_Set_Dig(6, hour12 / 10);
         BSP_IV18_Set_Dig(7, hour12 % 10); 
       } else {
-        BSP_IV18_Set_Dig(6, alarm1_get_end() / 10);
-        BSP_IV18_Set_Dig(7, alarm1_get_end() % 10);
+        BSP_IV18_Set_Dig(6, alarm1_get_end() / 10 + 0x30);
+        BSP_IV18_Set_Dig(7, alarm1_get_end() % 10 + 0x30);
       }
     }
     BSP_IV18_Set_Blink(6); 
@@ -450,13 +450,13 @@ void display_format_motion_mon(void)
   BSP_IV18_Set_Dig(2,'M');
   BSP_IV18_Set_Dig(3,'M');
   BSP_IV18_Set_Dig(4,'-');
-  if(motion_sensor_get_th() == 0) {
+  if(!motion_sensor_test_enable()) {
     BSP_IV18_Set_Dig(5,'O');
     BSP_IV18_Set_Dig(6,'F');
     BSP_IV18_Set_Dig(7,'F');    
   } else {
-    BSP_IV18_Set_Dig(5, motion_sensor_get_th() / 10 + 0x30);
-    BSP_IV18_Set_Dig(6, motion_sensor_get_th() % 10 + 0x30);
+    BSP_IV18_Set_Dig(5, 'O');
+    BSP_IV18_Set_Dig(6, 'N');
     BSP_IV18_Set_Dig(7, BSP_IV18_BLANK);      
   }
   BSP_IV18_Set_Blink(5);

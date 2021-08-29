@@ -16,6 +16,8 @@
 void do_set_param_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   display_clr();
+  alarm0_stop_snd();
+  alarm1_stop_snd();
   sm_common_show_function("---F4---");
 }
 
@@ -161,7 +163,7 @@ static void do_set_param_motion_mon(uint8_t from_func, uint8_t from_state, uint8
     display_clr();
     display_format_motion_mon();
   } else {
-    motion_sensor_inc_th();
+    motion_sensor_set_enable(!motion_sensor_test_enable());
     motion_sensor_save_config();
     display_format_motion_mon();
   }

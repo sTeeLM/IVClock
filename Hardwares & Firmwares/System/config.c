@@ -9,7 +9,7 @@ static const uint8_t alarm_blob0[] = {0,0,0,0};
 
 static const config_slot_t _slot[] = {
   {"time_12", CONFIG_TYPE_UINT8,   {.val8 = 1}},
-  {"acc_th",CONFIG_TYPE_UINT8,     {.val8 = 50}},
+  {"acc_en",CONFIG_TYPE_UINT8,     {.val8 = 1}},
   {"bp_en",CONFIG_TYPE_UINT8,      {.val8 = 1}},
   {"alm1_en", CONFIG_TYPE_UINT8,   {.val8 = 1}}, 
   {"alm1_begin", CONFIG_TYPE_UINT8, {.val8 = 8}}, 

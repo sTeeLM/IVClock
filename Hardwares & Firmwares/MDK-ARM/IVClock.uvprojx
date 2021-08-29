@@ -593,6 +593,11 @@
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\ds3231.c</FilePath>
             </File>
+            <File>
+              <FileName>bias.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\bias.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

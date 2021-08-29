@@ -14,6 +14,8 @@
 void do_timer_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   display_clr();
+  alarm0_stop_snd();
+  alarm1_stop_snd();
   timer_refresh_display_enable(FALSE);  
   sm_common_show_function("---F5---");
 }

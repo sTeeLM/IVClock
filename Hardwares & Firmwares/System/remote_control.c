@@ -231,7 +231,7 @@ static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 
 static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
-  res->body.param.acc_th = motion_sensor_get_th();
+  res->body.param.acc_en = motion_sensor_test_enable();
   res->body.param.alm1_en = alarm1_test_enable();
   res->body.param.alm1_begin = alarm1_get_begin();
   res->body.param.alm1_end = alarm1_get_end();  
@@ -252,9 +252,9 @@ static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   config_val_t val;
   
-  val.val8 = cmd->body.param.acc_th;
-  if(val.val8 != motion_sensor_get_th()) {
-    motion_sensor_set_th(val.val8);
+  val.val8 = cmd->body.param.acc_en;
+  if(val.val8 != motion_sensor_test_enable()) {
+    motion_sensor_set_enable(val.val8);
     motion_sensor_save_config();
   }
   

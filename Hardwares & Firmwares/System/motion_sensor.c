@@ -1,5 +1,5 @@
 #include "motion_sensor.h"
-#include "acc.h"
+#include "bias.h"
 #include "task.h"
 #include "config.h"
 #include "console.h"
@@ -7,73 +7,45 @@
 
 #define MONTION_SENSOR_MAX_TH 50
 
-static uint8_t motion_sensor_th;
+static uint8_t motion_sensor_en;
 
 void motion_sensor_show(void)
 {
-  console_printf("motion sensoris %s, th is %d\r\n", 
-  motion_sensor_get_th() == 0 ? "OFF" : "ON", motion_sensor_get_th());
+  console_printf("motion sensoris %s\r\n", 
+  motion_sensor_test_enable() ? "OFF" : "ON");
 }
 
 
 void motion_sensor_init(void)
 {
-  motion_sensor_th = config_read_int("acc_th");
-  if(motion_sensor_th > MONTION_SENSOR_MAX_TH)
-    motion_sensor_th = MONTION_SENSOR_MAX_TH;
-  if(motion_sensor_th != 0) {
-    BSP_ACC_Power_On();
-    BSP_ACC_Threshold_Set(motion_sensor_th);
-  } else {
-    BSP_ACC_Power_Off();
-  }
+  motion_sensor_en = config_read_int("acc_en");
+  
 }
 
 void motion_sensor_scan(void)
 {
-  if(BSP_Read_Int_Status())
+  uint8_t val;
+  val = BSP_BIAS_Read_Int();
+  if(motion_sensor_en) {
     task_set(EV_ACC);
-}
-
-void motion_sensor_set_th(uint8_t th)
-{
-  if(th > MONTION_SENSOR_MAX_TH)
-    th = 0;
-  
-  motion_sensor_th = th;
-  
-  if(motion_sensor_th) {
-    BSP_ACC_Power_On();
-    BSP_ACC_Threshold_Set(motion_sensor_th);
-  } else {
-    BSP_ACC_Power_Off();
   }
 }
 
 void motion_sensor_save_config(void)
 {
   config_val_t val;
-  val.val8 = motion_sensor_th;
-  config_write("acc_th", &val);
+  val.val8 = motion_sensor_en;
+  config_write("acc_en", &val);
 }
 
-uint8_t motion_sensor_inc_th(void)
+
+void motion_sensor_set_enable(bool enable)
 {
-  motion_sensor_th ++;
-  if(motion_sensor_th > MONTION_SENSOR_MAX_TH)
-    motion_sensor_th = 0;
-  
-  if(motion_sensor_th) {
-    BSP_ACC_Power_On();
-    BSP_ACC_Threshold_Set(motion_sensor_th);
-  } else {
-    BSP_ACC_Power_Off();
-  }
-  
-  return motion_sensor_th;
+  motion_sensor_en = enable;
 }
 
-uint8_t motion_sensor_get_th(void)
+bool motion_sensor_test_enable(void)
 {
-  return motion_sensor_th;
+  return motion_sensor_en;
 }
+

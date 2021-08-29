@@ -30,10 +30,10 @@
 #include "mp3.h"
 #include "tim.h"
 #include "usart.h"
-#include "acc.h"
 #include "blue_tooth.h"
 #include "gpio.h"
 #include "rom.h"
+#include "bias.h"
 #include "ds3231.h"
 #include "pwr.h"
 
@@ -142,7 +142,8 @@ int main(void)
   PrintBsp("TIM2  ", BSP_TIM2_Init());
   PrintBsp("TIM3  ", BSP_TIM3_Init());
   PrintBsp("TIM4  ", BSP_TIM4_Init());  
-  PrintBsp("ACC   ", BSP_ACC_Init());
+//  PrintBsp("ACC   ", BSP_ACC_Init());
+  PrintBsp("BIAS  ", BSP_BIAS_Init());  
   PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
   
   IVDBG("initialize sub systems...");
