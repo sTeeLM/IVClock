@@ -7,6 +7,12 @@
 #include "sm_timer.h"
 #include "sm_stop_watch.h"
 
+#include "clock.h"
+#include "timer.h"
+#include "delay.h"
+#include "power.h"
+#include "display.h"
+
 #include "debug.h"
 
 static const char * sm_functions_names[] = {
@@ -56,23 +62,35 @@ void sm_run(enum task_events ev)
   uint8_t new_fun, new_state;
   
   struct sm_trans *p = NULL;
-
-  p = sm_trans_table[sm_cur_fuction][sm_cur_state];
-  while(p != NULL && p->sm_proc) {
-    if(p->event == ev) {
-      IVDBG("[%s] [%s][%s] -> [%s][%s]",
-        task_names[ev],
-        sm_functions_names[sm_cur_fuction],
-        sm_states_names[sm_cur_fuction][sm_cur_state],
-        sm_functions_names[p->to_function],
-        sm_states_names[p->to_function][p->to_state]     
-      );
-      p->sm_proc(sm_cur_fuction, sm_cur_state, p->to_function, p->to_state, ev);
-      sm_cur_fuction = p->to_function;
-      sm_cur_state   = p->to_state;
-      break;
+  
+  if(ev == EV_POWEROFF) {
+    clock_refresh_display_enable(FALSE);
+    timer_refresh_display_enable(FALSE); 
+    display_clr();
+    display_format_poweroff();
+    delay_ms(5000);
+    display_clr();
+    power_490_enable(FALSE);
+    power_50_enable(FALSE);
+    power_33_enable(FALSE);
+  } else {
+    p = sm_trans_table[sm_cur_fuction][sm_cur_state];
+    while(p != NULL && p->sm_proc) {
+      if(p->event == ev) {
+        IVDBG("[%s] [%s][%s] -> [%s][%s]",
+          task_names[ev],
+          sm_functions_names[sm_cur_fuction],
+          sm_states_names[sm_cur_fuction][sm_cur_state],
+          sm_functions_names[p->to_function],
+          sm_states_names[p->to_function][p->to_state]     
+        );
+        p->sm_proc(sm_cur_fuction, sm_cur_state, p->to_function, p->to_state, ev);
+        sm_cur_fuction = p->to_function;
+        sm_cur_state   = p->to_state;
+        break;
+      }
+      p ++;
     }
-    p ++;
   }
 }
 

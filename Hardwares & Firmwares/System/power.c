@@ -8,6 +8,8 @@
 #include "console.h"
 #include "pwr.h"
 #include "clock.h"
+#include "player.h"
+
 
 #include "display.h"
 
@@ -68,6 +70,11 @@ void power_iv18_enable(bool enable)
   BSP_GPIO_Power_IV18_Enable(enable == TRUE ? SET : RESET);
 }
 
+void power_player_enable(bool enable)
+{
+  power_50_enable(enable);
+}
+
 bool power_33_enabled(void)
 {
   return BSP_GPIO_Power_33_Enabled();
@@ -86,6 +93,11 @@ bool power_490_enabled(void)
 bool power_iv18_enabled(void)
 {
   return BSP_GPIO_Power_IV18_Enabled();
+}
+
+bool power_player_enabled(void)
+{
+  return power_50_enabled();
 }
 
 double power_get_bat_voltage(void)
@@ -125,6 +137,7 @@ void power_enter_powersave(void)
   
   clock_enter_powersave();
   display_enter_powersave();
+  player_enter_powersave();
   
   power_is_in_powersave = TRUE;
   
@@ -134,7 +147,7 @@ void power_enter_powersave(void)
  
   clock_leave_powersave();
   display_leave_powersave();
-  
+  player_leave_powersave();
   power_reset_timeo();  
 }
 
@@ -191,7 +204,7 @@ void power_test_powersave(void)
 
 void power_scan(void)
 {
-  
+  task_set(EV_POWEROFF);  
 }
 
 

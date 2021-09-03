@@ -26,6 +26,7 @@ enum task_events
   EV_VT1,
   EV_VT2,
   EV_PLAYER_STOP,
+  EV_POWEROFF,
   EV_CNT  
 };
 

@@ -17,14 +17,7 @@
 void do_clock_display_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   if(ev == EV_BUTTON_SET_LPRESS && from_state == SM_CLOCK_DISPLAY_TIME) {
-    clock_refresh_display_enable(FALSE);
-    display_clr();
-    display_format_poweroff();
-    delay_ms(5000);
-    display_clr();
-    power_490_enable(FALSE);
-    power_50_enable(FALSE);
-    power_33_enable(FALSE);
+    task_set(EV_POWEROFF);
   } else {
     display_clr();
     power_reset_timeo();

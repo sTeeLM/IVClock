@@ -6,6 +6,7 @@
 #include "debug.h"
 #include "thermometer.h"
 #include "console.h"
+#include "power.h"
 #include <string.h>
 
 #define PLAYER_DIR_MISC     1
@@ -567,4 +568,15 @@ void player_save_config(void)
   config_val_t val;
   val.val8 = player_vol;
   config_write("ply_vol", &val);
+}
+
+void player_enter_powersave(void)
+{
+  power_player_enable(FALSE);
+}
+
+void player_leave_powersave(void)
+{
+  power_player_enable(TRUE);
+  BSP_MP3_Init();
 }

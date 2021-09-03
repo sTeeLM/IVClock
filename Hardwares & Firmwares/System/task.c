@@ -50,7 +50,8 @@ const char * task_names[] =
   "EV_ALARM1", 
   "EV_VT1",
   "EV_VT2",  
-  "EV_PLAYER_STOP"
+  "EV_PLAYER_STOP",
+  "EV_POWEROFF"
 };
 
 static void null_proc(enum task_events ev)
@@ -85,6 +86,7 @@ static const TASK_PROC task_procs[EV_CNT] =
   alarm_proc,
   alarm_proc,
   null_proc,  
+  null_proc,
   null_proc,
   null_proc
 };

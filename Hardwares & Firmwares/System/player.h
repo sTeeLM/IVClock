@@ -46,4 +46,7 @@ uint8_t player_inc_vol(void);
 uint8_t player_set_vol(uint8_t vol);
 void player_save_config(void);
 
+void player_enter_powersave(void);
+void player_leave_powersave(void);
+
 #endif

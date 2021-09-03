@@ -31,4 +31,7 @@ void power_set_timeo(uint8_t timeo);
 void power_timeo_save_config(void);
 uint8_t power_get_timeo(void);
 
+void power_player_enable(bool enable);
+bool power_player_enabled(void);
+
 #endif
