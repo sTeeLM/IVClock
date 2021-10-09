@@ -136,7 +136,7 @@ BSP_Error_Type BSP_TIM1_Set_Duty_Cycle(uint32_t Channel, uint8_t DC)
   
   IVDBG("BSP_TIM1_Set_Duty_Cycle %d on channel %d", DC, Channel);
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = (htim3.Init.Period * DC / 100);
+  sConfigOC.Pulse = (htim1.Init.Period * DC / 100);
   IVDBG("BSP_TIM1_Set_Duty_Cycle Pulse = %d", sConfigOC.Pulse);
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
