@@ -3,6 +3,240 @@
 #include "debug.h"
 #include "delay.h"
 
+
+#ifdef IVCLOCK_BSP_USE_SOFT_I2C
+
+
+static void I2C_Delay()
+{
+  delay_us(10);
+}
+
+static void I2C_Init()
+{
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET); 
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET); 
+  I2C_Delay();
+}
+
+static void I2C_Start()
+{
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET); 
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET); 
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_RESET);
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET);
+  I2C_Delay();
+}
+
+static void I2C_Stop()
+{
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_RESET);
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET);
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET);
+  I2C_Delay();
+  I2C_Delay();
+  I2C_Delay();
+  I2C_Delay();
+  delay_ms(5);
+}
+
+static int I2C_GetAck()
+{
+  int ack;
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET);
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET);
+  I2C_Delay();
+  ack = (HAL_GPIO_ReadPin(I2C_GPIO_Port, I2C_SDA_Pin) == GPIO_PIN_SET);
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET);
+  I2C_Delay();
+  return ack;
+}
+
+static void I2C_PutAck(int ack)
+{
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, ack == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET);
+  I2C_Delay();
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET);
+  I2C_Delay();
+}
+
+static void I2C_Write_Byte(unsigned char dat)
+{
+
+  unsigned char t = 8;
+  do {
+    //I2C_SDA = (bit)(dat & 0x80);
+    HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, (dat & 0x80) == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    dat <<= 1;
+    HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET);
+    I2C_Delay();
+    HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Delay();
+  } while ( --t != 0 );
+}
+
+unsigned char I2C_Read_Byte()
+{
+  char dat = 0;
+  unsigned char t = 8;
+  HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET);
+  do
+  {
+     HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET);
+     I2C_Delay();
+     dat <<= 1;
+     if ( HAL_GPIO_ReadPin(I2C_GPIO_Port, I2C_SDA_Pin) == GPIO_PIN_SET ) dat |= 0x01;
+     HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET);
+     I2C_Delay();
+  } while ( --t != 0 );
+  return dat;
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+BSP_Error_Type BSP_I2C_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  /**I2C1 GPIO Configuration
+    PB6     ------> I2C1_SCL
+    PB7     ------> I2C1_SDA
+  */
+  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(I2C_GPIO_Port, &GPIO_InitStruct);
+  
+  I2C_Init();
+  
+  return BSP_ERROR_NONE;
+}
+
+/**
+  * @brief I2C1 Denitialization Function
+  * @param None
+  * @retval None
+  */
+void BSP_I2C_DeInit(void)
+{
+
+}
+
+
+BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
+{
+  if(pData == NULL || Size == 0)
+    return BSP_ERROR_NONE;
+  
+  I2C_Start();
+  
+  // send DevAddress
+  I2C_Write_Byte((unsigned char)(DevAddress & 0xFE));
+  
+  if ( I2C_GetAck() ){
+    I2C_Stop();
+    return BSP_ERROR_TIMEOUT;
+  }  
+  
+  if (MemAddSize == I2C_MEMADD_SIZE_8BIT) {
+    I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
+    if ( I2C_GetAck() ){
+      I2C_Stop();
+      return BSP_ERROR_TIMEOUT;
+    }      
+  } else {
+    I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
+    if ( I2C_GetAck() ){
+      I2C_Stop();
+      return BSP_ERROR_TIMEOUT;
+    }
+    I2C_Write_Byte((unsigned char)(((MemAddress & 0xFF00) >> 8) & 0xFF));
+    if ( I2C_GetAck() ){
+      I2C_Stop();
+      return BSP_ERROR_TIMEOUT;
+    }    
+  }
+  
+  do{
+    I2C_Write_Byte(*pData++);
+    if ( I2C_GetAck() )
+    {
+     I2C_Stop();
+     return BSP_ERROR_TIMEOUT;
+    }
+   } while ( --Size != 0 );
+  
+   return BSP_ERROR_NONE;
+}
+
+BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
+{
+  if(pData == NULL || Size == 0)
+    return BSP_ERROR_NONE;
+  I2C_Start();
+  
+  // send DevAddress
+  I2C_Write_Byte((unsigned char)(DevAddress & 0xFE));
+  
+  if ( I2C_GetAck() ){
+    I2C_Stop();
+    return BSP_ERROR_TIMEOUT;
+  }  
+  
+  if (MemAddSize == I2C_MEMADD_SIZE_8BIT) {
+    I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
+    if ( I2C_GetAck() ){
+      I2C_Stop();
+      return BSP_ERROR_TIMEOUT;
+    }      
+  } else {
+    I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
+    if ( I2C_GetAck() ){
+      I2C_Stop();
+      return BSP_ERROR_TIMEOUT;
+    }
+    I2C_Write_Byte((unsigned char)(((MemAddress & 0xFF00) >> 8) & 0xFF));
+    if ( I2C_GetAck() ){
+      I2C_Stop();
+      return BSP_ERROR_TIMEOUT;
+    }    
+  }
+
+  I2C_Start(); 
+  // send DevAddress
+  I2C_Write_Byte((unsigned char)(DevAddress | 0x1)); 
+  if ( I2C_GetAck() ){
+    I2C_Stop();
+    return BSP_ERROR_TIMEOUT;
+  }
+  
+  for (;;){
+    *pData++ = I2C_Read_Byte();
+    if ( --Size == 0 ) {
+     I2C_PutAck(1);
+     break;
+    }
+    I2C_PutAck(0);
+  }
+
+  I2C_Stop();
+  return BSP_ERROR_NONE;
+}
+
+#else
+
 static I2C_HandleTypeDef hi2c1;
 
 static void BSP_I2C_DisableIRQ(void)
@@ -259,3 +493,5 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
   }
 
 }
+
+#endif

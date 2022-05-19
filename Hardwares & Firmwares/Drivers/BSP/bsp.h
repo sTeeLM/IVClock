@@ -15,6 +15,9 @@
 #define BATTERY_MON_GPIO_Port GPIOA
 #define BEEPER_Pin GPIO_PIN_0
 #define BEEPER_GPIO_Port GPIOB
+#define I2C_GPIO_Port GPIOB
+#define I2C_SCL_Pin GPIO_PIN_7
+#define I2C_SDA_Pin GPIO_PIN_6
 #define IV18_BLANK_Pin GPIO_PIN_7
 #define IV18_BLANK_GPIO_Port GPIOA
 #define LIGHT_MON_Pin GPIO_PIN_5

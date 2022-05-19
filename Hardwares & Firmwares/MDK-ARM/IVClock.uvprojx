@@ -337,7 +337,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F103xB</Define>
+              <Define>USE_HAL_DRIVER,STM32F103xB,IVCLOCK_BSP_USE_SOFT_I2C</Define>
               <Undefine></Undefine>
               <IncludePath>../Core/Inc;../System;../System/Console;../System/State Machine;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Drivers/BSP</IncludePath>
             </VariousControls>
