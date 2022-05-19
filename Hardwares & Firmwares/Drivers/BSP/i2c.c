@@ -114,7 +114,7 @@ BSP_Error_Type BSP_I2C_Init(void)
     PB6     ------> I2C1_SCL
     PB7     ------> I2C1_SDA
   */
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Pin = I2C_SCL_Pin|I2C_SDA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(I2C_GPIO_Port, &GPIO_InitStruct);
@@ -131,7 +131,7 @@ BSP_Error_Type BSP_I2C_Init(void)
   */
 void BSP_I2C_DeInit(void)
 {
-
+  HAL_GPIO_DeInit(I2C_GPIO_Port, I2C_SCL_Pin|I2C_SDA_Pin);
 }
 
 
