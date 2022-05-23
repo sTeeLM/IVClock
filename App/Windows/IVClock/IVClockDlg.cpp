@@ -15,7 +15,7 @@
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
-class CAboutDlg : public CDialog
+class CAboutDlg : public CDialogEx
 {
 public:
 	CAboutDlg();
@@ -33,16 +33,16 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
-CAboutDlg::CAboutDlg() : CDialog(IDD_ABOUTBOX)
+CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
 {
 }
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CDialogEx::DoDataExchange(pDX);
 }
 
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
@@ -51,57 +51,24 @@ END_MESSAGE_MAP()
 
 
 CIVClockDlg::CIVClockDlg(CWnd* pParent /*=nullptr*/)
-	: CDialog(IDD_IVCLOCK_DIALOG, pParent)
-	, m_strRemoteTimeDate(_T(""))
-	, m_strLocalTimeDate(_T(""))
-	, m_bAutoSyncTimeDate(FALSE)
-	, m_bTime12(FALSE)
-	, m_bTempCen(FALSE)
-	, m_bLightMon(FALSE)
-	, m_bPowerSave(FALSE)
-	, m_strPowerSave(_T(""))
-	, m_strPlayVol(_T(""))
-	, m_bBeeper(FALSE)
-	, m_bBaoShi(FALSE)
+	: CDialogEx(IDD_IVCLOCK_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
 void CIVClockDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_STATIC_REMOTE_TIME_DATE, m_strRemoteTimeDate);
-	DDX_Text(pDX, IDC_STATIC_LOCAL_TIME_DATE, m_strLocalTimeDate);
-	DDX_Check(pDX, IDC_CHECK_AUTO_SYNC_TIME_DATE, m_bAutoSyncTimeDate);
-	DDX_Radio(pDX, IDC_RADIO_TIME12, m_bTime12);
-	DDX_Radio(pDX, IDC_RADIO_TEMP_CEN, m_bTempCen);
-	DDX_Check(pDX, IDC_CHECK_LM, m_bLightMon);
-	DDX_Check(pDX, IDC_CHECK_PS, m_bPowerSave);
-	DDX_Text(pDX, IDC_EDIT_PS, m_strPowerSave);
-	DDX_Control(pDX, IDC_SPIN_PS, m_ctlSpinPowerSave);
-	DDX_Text(pDX, IDC_EDIT_PLY_VOL, m_strPlayVol);
-	DDX_Control(pDX, IDC_SPIN_PLY_VOL, m_ctlPlayVol);
-	DDX_Check(pDX, IDC_CHECK_BEEPER, m_bBeeper);
-	DDX_Check(pDX, IDC_CHECK_BAOSHI, m_bBaoShi);
-	DDX_Control(pDX, IDC_COMBO_ALM0, m_ctlComboAlm0);
-	DDX_Control(pDX, IDC_COMBO_ALM1, m_ctlComboAlm1);
-	DDX_Control(pDX, IDC_COMBO_ALM2, m_ctlComboAlm2);
-	DDX_Control(pDX, IDC_COMBO_ALM3, m_ctlComboAlm3);
-	DDX_Control(pDX, IDC_COMBO_ALM4, m_ctlComboAlm4);
-	DDX_Control(pDX, IDC_COMBO_ALM5, m_ctlComboAlm5);
-	DDX_Control(pDX, IDC_COMBO_ALM6, m_ctlComboAlm6);
-	DDX_Control(pDX, IDC_COMBO_ALM7, m_ctlComboAlm7);
-	DDX_Control(pDX, IDC_COMBO_ALM8, m_ctlComboAlm8);
-	DDX_Control(pDX, IDC_COMBO_ALM9, m_ctlComboAlm9);
+	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_TAB_MAIN, m_ctlTab);
 }
 
-BEGIN_MESSAGE_MAP(CIVClockDlg, CDialog)
+BEGIN_MESSAGE_MAP(CIVClockDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_MAIN, &CIVClockDlg::OnTcnSelchangeTabMain)
 	ON_BN_CLICKED(IDOK, &CIVClockDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CIVClockDlg::OnBnClickedCancel)
-	ON_BN_CLICKED(IDC_BUTTON_SYNC_TIME_DATE, &CIVClockDlg::OnBnClickedButtonSyncTimeDate)
 END_MESSAGE_MAP()
 
 
@@ -109,7 +76,7 @@ END_MESSAGE_MAP()
 
 BOOL CIVClockDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CDialogEx::OnInitDialog();
 
 	// 将“关于...”菜单项添加到系统菜单中。
 
@@ -136,11 +103,31 @@ BOOL CIVClockDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	ShowWindow(SW_MINIMIZE);
+	m_ctlTab.InsertItem(0, _T("INFO"));
+	m_ctlTab.InsertItem(1, _T("PARAM"));
+	m_ctlTab.InsertItem(2, _T("DATETIME"));
+	m_ctlTab.InsertItem(3, _T("ALARM"));
 
+	m_pageInfo.Create(IDD_PROPPAGE_INFO, &m_ctlTab);
+	m_pageParam.Create(IDD_PROPPAGE_PARAM, &m_ctlTab);
+	m_pageDateTime.Create(IDD_PROPPAGE_DATETIME, &m_ctlTab);
+	m_pageAlarm.Create(IDD_PROPPAGE_ALARM, &m_ctlTab);
+
+	CRect rect;
+	m_ctlTab.GetClientRect(&rect);
+	rect.top += 20;
+	rect.bottom -= 4;
+	rect.left += 4;
+	rect.right -= 4;
+	m_pageInfo.MoveWindow(&rect);
+	m_pageParam.MoveWindow(&rect);
+	m_pageDateTime.MoveWindow(&rect);
+	m_pageAlarm.MoveWindow(&rect);
+
+	m_pageInfo.ShowWindow(SW_SHOW);
+	m_ctlTab.SetCurSel(0);
 	// TODO: 在此添加额外的初始化代码
-//  	m_ctlComboAlm0.SubclassDlgItem(IDC_COMBO_ALM0, this);
-	 
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -153,7 +140,7 @@ void CIVClockDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 	else
 	{
-		CDialog::OnSysCommand(nID, lParam);
+		CDialogEx::OnSysCommand(nID, lParam);
 	}
 }
 
@@ -182,7 +169,7 @@ void CIVClockDlg::OnPaint()
 	}
 	else
 	{
-		CDialog::OnPaint();
+		CDialogEx::OnPaint();
 	}
 }
 
@@ -195,22 +182,48 @@ HCURSOR CIVClockDlg::OnQueryDragIcon()
 
 
 
+void CIVClockDlg::OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	INT nCurSel = m_ctlTab.GetCurSel();
+	switch (nCurSel) {
+	case 0:
+		m_pageInfo.ShowWindow(SW_SHOW);
+		m_pageParam.ShowWindow(SW_HIDE);
+		m_pageDateTime.ShowWindow(SW_HIDE);
+		m_pageAlarm.ShowWindow(SW_HIDE);
+		break;
+	case 1:
+		m_pageInfo.ShowWindow(SW_HIDE);
+		m_pageParam.ShowWindow(SW_SHOW);
+		m_pageDateTime.ShowWindow(SW_HIDE);
+		m_pageAlarm.ShowWindow(SW_HIDE);
+		break;
+	case 2:
+		m_pageInfo.ShowWindow(SW_HIDE);
+		m_pageParam.ShowWindow(SW_HIDE);
+		m_pageDateTime.ShowWindow(SW_SHOW);
+		m_pageAlarm.ShowWindow(SW_HIDE);
+		break;
+	case 3:
+		m_pageInfo.ShowWindow(SW_HIDE);
+		m_pageParam.ShowWindow(SW_HIDE);
+		m_pageDateTime.ShowWindow(SW_HIDE);
+		m_pageAlarm.ShowWindow(SW_SHOW);
+		break;
+	}
+	*pResult = 0;
+}
+
+
 void CIVClockDlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CDialog::OnOK();
+	// CDialogEx::OnOK();
 }
 
 
 void CIVClockDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CDialog::OnCancel();
-}
-
-
-
-void CIVClockDlg::OnBnClickedButtonSyncTimeDate()
-{
-	// TODO: 在此添加控件通知处理程序代码
+	// CDialogEx::OnCancel();
 }
