@@ -49,23 +49,40 @@ static void I2C_Stop()
 static int I2C_GetAck()
 {
   int ack;
+  int wait_loop = 256;
+  
   HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET);
   I2C_Delay();
+  
   HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET);
   I2C_Delay();
-  ack = (HAL_GPIO_ReadPin(I2C_GPIO_Port, I2C_SDA_Pin) == GPIO_PIN_SET);
+  
+  do {
+    if(wait_loop == 0) break;
+    ack = (HAL_GPIO_ReadPin(I2C_GPIO_Port, I2C_SDA_Pin) == GPIO_PIN_SET);
+    I2C_Delay();
+    wait_loop --;
+  }while(ack);
+  
   HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET);
+  I2C_Delay();
+  I2C_Delay();
+  I2C_Delay();
   I2C_Delay();
   return ack;
 }
 
 static void I2C_PutAck(int ack)
 {
+  
   HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, ack == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
   I2C_Delay();
   HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET);
   I2C_Delay();
   HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET);
+  I2C_Delay();
+  I2C_Delay();
+  I2C_Delay();
   I2C_Delay();
 }
 
