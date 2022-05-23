@@ -4,8 +4,9 @@
 #include "delay.h"
 
 
-#ifdef IVCLOCK_BSP_USE_SOFT_I2C
+#define BSP_I2C_MAX_WAIT_CNT 5000
 
+#ifdef IVCLOCK_BSP_USE_SOFT_I2C
 
 static void I2C_Delay()
 {
@@ -49,7 +50,7 @@ static void I2C_Stop()
 static int I2C_GetAck()
 {
   int ack;
-  int wait_loop = 256;
+  int wait_loop = BSP_I2C_MAX_WAIT_CNT;
   
   HAL_GPIO_WritePin(I2C_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET);
   I2C_Delay();
@@ -381,8 +382,6 @@ static void BSP_I2C_Quit_Busy(void)
 //  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
   IVDBG("done!");
 }
-
-#define BSP_I2C_MAX_WAIT_CNT 5000
 
 BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
