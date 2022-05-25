@@ -18,6 +18,18 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
-
+	virtual BOOL OnInitDialog();
 	DECLARE_MESSAGE_MAP()
+public:
+	INT m_nPort;
+	INT m_nBaudRate;
+	INT m_nDataBits;
+	INT m_nParity;
+	INT m_nStopBits;
+	BOOL m_bDTRDSR;
+	BOOL m_bRTSCTS;
+	BOOL m_bXONXOFF;
+
+public:
+	afx_msg void OnBnClickedBtnTestConn();
 };

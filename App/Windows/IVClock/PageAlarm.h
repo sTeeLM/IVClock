@@ -20,4 +20,10 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
+public:
+	
+	INT m_nAlarmIndex;
+	afx_msg void OnBnClickedBtnAlarmSelAll();
+	afx_msg void OnBnClickedBtnAlarmSelNone();
+	COleDateTime m_oleAlarmTime;
 };

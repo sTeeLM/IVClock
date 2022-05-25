@@ -20,4 +20,10 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
+public:
+	BOOL m_bTMAutoSync;
+	INT m_nTMAutoSyncInterval;
+	COleDateTime m_oleDate;
+	COleDateTime m_oleTime;
+	afx_msg void OnBnClickedBtnDatetimeSyncNow();
 };

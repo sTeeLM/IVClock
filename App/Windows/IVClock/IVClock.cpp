@@ -36,6 +36,20 @@ CIVClockApp::CIVClockApp()
 CIVClockApp theApp;
 
 
+CString CIVClockApp::GetWorkingPath()
+{
+	TCHAR Buffer[1024];
+	CString strRet = _T("");
+	if (_tgetcwd(Buffer, _countof(Buffer))) {
+		strRet = Buffer;
+	}
+	if (strRet.Right(1).Compare(_T("\\"))) {
+		strRet += _T("\\");
+	}
+
+	return strRet;
+}
+
 // CIVClockApp 初始化
 
 BOOL CIVClockApp::InitInstance()
@@ -69,7 +83,16 @@ BOOL CIVClockApp::InitInstance()
 	// 更改用于存储设置的注册表项
 	// TODO: 应适当修改该字符串，
 	// 例如修改为公司或组织名
-	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+	SetRegistryKey(_T("IVClock"));
+
+	CString strIniFilePath = GetWorkingPath();
+	strIniFilePath += _T("IVClock.ini");
+	TRACE(_T("Use INI file %s\n"), strIniFilePath);
+	m_Config.SetConfigFile(strIniFilePath);
+	m_Config.CreateDefault();
+	m_Config.DumpConfig();
+
+	CSerialPort::EnumerateSerialPorts();
 
 	CIVClockDlg dlg;
 	m_pMainWnd = &dlg;
