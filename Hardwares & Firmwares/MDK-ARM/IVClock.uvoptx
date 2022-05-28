@@ -152,21 +152,37 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>189</LineNumber>
+          <LineNumber>203</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
+          <Address>134224464</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\startup_stm32f103xb.s</Filename>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Drivers\BSP\i2c.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\IVClock\../Drivers/BSP/i2c.c\203</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>68</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134235456</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Drivers\BSP\i2c.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\IVClock\../Drivers/BSP/i2c.c\68</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
           <Type>0</Type>
           <LineNumber>69</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -177,14 +193,30 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\startup_stm32f103xb.s</Filename>
+          <Filename>..\Drivers\BSP\i2c.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>3</Number>
           <Type>0</Type>
           <LineNumber>204</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\Drivers\BSP\i2c.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>189</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -350,7 +382,7 @@
 
   <Group>
     <GroupName>Drivers/STM32F1xx_HAL_Driver</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
