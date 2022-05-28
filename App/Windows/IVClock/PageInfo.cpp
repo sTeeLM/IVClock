@@ -47,40 +47,37 @@ BOOL CPageInfo::OnInitDialog()
 	// load port combo list
 	CComboBox* pBox = (CComboBox*)GetDlgItem(IDC_COMBO_PORT);
 	CConfigManager::CONFIG_VALUE_T val;
-	CString strLabel = _T("");
 
 	for (INT i = 0; i < theApp.m_Serial.GetPortCount(); i++) {
 		pBox->AddString(theApp.m_Serial.GetPortFriendlyName(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("port"), val);
-	m_nPort = val.n8 < theApp.m_Serial.GetPortCount() ? val.u8 : 0;
+	m_nPort = theApp.m_Serial.PortNumberToIndex(val.u8);
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_BAUDRATE);
 	for (INT i = 0; i < theApp.m_Serial.GetBaudRateCount(); i++) {
-		strLabel.Format(_T("%d"), theApp.m_Serial.GetBaudRate(i));
-		pBox->AddString(strLabel);
+		pBox->AddString(theApp.m_Serial.GetBaudRateDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("baudrate"), val);
 	m_nBaudRate = val.n8 < theApp.m_Serial.GetBaudRateCount() ? val.u8 : 0;
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_DATA_BITS);
 	for (INT i = 0; i < theApp.m_Serial.GetDataBitsCount(); i++) {
-		strLabel.Format(_T("%d"), theApp.m_Serial.GetDataBits(i));
-		pBox->AddString(strLabel);
+		pBox->AddString(theApp.m_Serial.GetDataBitsDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("databits"), val);
 	m_nDataBits = val.n8 < theApp.m_Serial.GetDataBitsCount() ? val.u8 : 0;
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_PARITY);
 	for (INT i = 0; i < theApp.m_Serial.GetParityCount(); i++) {
-		pBox->AddString(theApp.m_Serial.GetParity(i));
+		pBox->AddString(theApp.m_Serial.GetParityDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("parity"), val);
 	m_nParity = val.n8 < theApp.m_Serial.GetParityCount() ? val.u8 : 0;
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_STOP_BITS);
 	for (INT i = 0; i < theApp.m_Serial.GetStopBitsCount(); i++) {
-		pBox->AddString(theApp.m_Serial.GetStopBits(i));
+		pBox->AddString(theApp.m_Serial.GetStopBitsDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("stopbits"), val);
 	m_nStopBits = val.n8 < theApp.m_Serial.GetStopBitsCount() ? val.u8 : 0;

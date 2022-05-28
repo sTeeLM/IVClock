@@ -30,9 +30,15 @@ void CSerialPort::EnumerateSerialPorts()
 
 INT CSerialPort::GetPortCount()
 {
-	return m_aryPorts.GetCount();
+	return (INT)m_aryPorts.GetCount();
 }
 
+INT CSerialPort::GetPortNbr(INT nIndex)
+{
+	if (nIndex < GetPortCount())
+		return m_aryPorts[nIndex].nPortNbr;
+	return 0;
+}
 
 INT CSerialPort::m_aryBaudRates[] = {
 	110,
@@ -58,6 +64,15 @@ INT CSerialPort::GetBaudRateCount()
 	return _countof(m_aryBaudRates);
 }
 
+CString CSerialPort::GetBaudRateDesc(INT nIndex)
+{
+	CString strRet = _T("");
+	INT nBaudRate = GetBaudRate(nIndex);
+	if(nBaudRate > 0)
+		strRet.Format(_T("%d"), nBaudRate);
+	return strRet;
+}
+
 INT CSerialPort::GetBaudRate(INT nIndex)
 {
 	if(nIndex >= 0 && nIndex < _countof(m_aryBaudRates))
@@ -78,6 +93,14 @@ INT CSerialPort::GetDataBitsCount()
 	return _countof(m_aryDataBits);
 }
 
+CString CSerialPort::GetDataBitsDesc(INT nIndex)
+{
+	CString strRet = _T("");
+	INT nDataBits = GetDataBits(nIndex);
+	if (nDataBits > 0)
+		strRet.Format(_T("%d"), nDataBits);
+	return strRet;
+}
 
 INT CSerialPort::GetDataBits(INT nIndex)
 {
@@ -86,12 +109,12 @@ INT CSerialPort::GetDataBits(INT nIndex)
 	return 0;
 }
 
-LPCTSTR CSerialPort::m_aryParitys[] = {
-	_T("None"),
-	_T("Odd"),
-	_T("Even"),
-	_T("Mark"),
-	_T("Space")
+CHAR CSerialPort::m_aryParitys[] = {
+	'n',
+	'o',
+	'e',
+	'm',
+	's'
 };
 
 INT CSerialPort::GetParityCount()
@@ -99,11 +122,31 @@ INT CSerialPort::GetParityCount()
 	return _countof(m_aryParitys);
 }
 
-CString CSerialPort::GetParity(INT nIndex)
+CString CSerialPort::GetParityDesc(INT nIndex)
+{
+	CString strRet = _T("");
+	CHAR cPartiy = GetParity(nIndex);
+	switch (cPartiy) {
+	case 'n':
+		strRet = _T("None"); break;
+	case 'o':
+		strRet = _T("Odd"); break;
+	case 'e':
+		strRet = _T("Even"); break;
+	case 'm':
+		strRet = _T("Mark"); break;
+	case 's':
+		strRet = _T("Space"); break;
+	}
+		
+	return strRet;
+}
+
+CHAR CSerialPort::GetParity(INT nIndex)
 {
 	if (nIndex >= 0 && nIndex < _countof(m_aryParitys))
 		return m_aryParitys[nIndex];
-	return _T("");
+	return 0;
 }
 
 LPCTSTR CSerialPort::m_aryStopBits[] = {
@@ -117,11 +160,29 @@ INT CSerialPort::GetStopBitsCount()
 	return _countof(m_aryStopBits);
 }
 
-CString CSerialPort::GetStopBits(INT nIndex)
+CString CSerialPort::GetStopBitsDesc(INT nIndex)
 {
 	if (nIndex >= 0 && nIndex < _countof(m_aryStopBits))
-		return m_aryStopBits[nIndex];
-	return 0;
+		return CString(m_aryStopBits[nIndex]);
+	return CString(_T(""));
+}
+
+CSerialPort::STOP_BITS_TYPE_T CSerialPort::GetStopBits(INT nIndex)
+{
+	if (nIndex >= 0 && nIndex < _countof(m_aryStopBits))
+		return (CSerialPort::STOP_BITS_TYPE_T)nIndex;
+	return CSerialPort::STOP_BITS_1;
+}
+
+INT CSerialPort::PortNumberToIndex(INT nPortNumber)
+{
+	CString strPortName;
+	strPortName.Format(_T("COM%d"), nPortNumber);
+	for (INT i = 0; i < m_aryPorts.GetCount(); i++) {
+		if (strPortName.CompareNoCase(m_aryPorts[i].strPortName) == 0)
+			return i;
+	}
+	return -1;
 }
 
 CString CSerialPort::GetPortFriendlyName(INT nIndex)
@@ -168,7 +229,6 @@ void CSerialPort::EnumSerialPorts(CArray<CSerialPort::SSerInfo, CSerialPort::SSe
 				ii--;
 				continue;
 			}
-
 			CString fName = rsi.strFriendlyName;
 			TCHAR* pt, * pt1;
 			pt = fName.GetBuffer() + fName.GetLength() - 1;
@@ -182,14 +242,18 @@ void CSerialPort::EnumSerialPorts(CArray<CSerialPort::SSerInfo, CSerialPort::SSe
 				ii--;
 				continue;
 			}
+
 			rsi.strPortName.Empty();
 			rsi.strPortName = _T("COM");
 			pt1 = pt + 4;
+			rsi.nPortNbr = 0;
 			while ((*pt1 >= _T('0')) && (*pt1 <= _T('9')))
 			{
+				rsi.nPortNbr *= 10;
+				rsi.nPortNbr += (*pt1 - 48);
 				rsi.strPortName += *pt1++;
 			}
-
+			
 			pt -= 2;
 			pt1 = fName.GetBuffer();
 			rsi.strPortDesc.Empty();
@@ -292,9 +356,174 @@ BOOL CSerialPort::EnumPortsWdm(CArray<CSerialPort::SSerInfo, CSerialPort::SSerIn
 	return TRUE;
 }
 
-CSerialPortConnection* CSerialPort::OpenSerial(INT nPort, INT nBaudRate, INT nDataBits, INT nParity, INT nStopBits,
-	BOOL bDTRDSR, BOOL bRTSCTS, BOOL bXONXOFF
-)
+CSerialPortConnection* CSerialPort::OpenSerial(INT nPortIndex, INT nBaudRateIndex, INT nDataBitsIndex, INT nParityIndex, INT nStopBitsIndex,
+	BOOL bDTRDSR, BOOL bRTSCTS, BOOL bXONXOFF)
 {
-	return new CSerialPortConnection();
+	INT nPortNbr  = GetPortNbr(nPortIndex);
+	INT nBaudRate = GetBaudRate(nBaudRateIndex);
+	INT nDataBits  = GetDataBits(nDataBitsIndex);
+	CHAR cParity   = GetParity(nParityIndex);
+	STOP_BITS_TYPE_T eStopBits = GetStopBits(nStopBitsIndex);
+
+	
+	CSerialPortConnection* pSerialPortConnection = new CSerialPortConnection(nPortNbr,
+		nBaudRate, nDataBits, cParity, eStopBits, bDTRDSR, bRTSCTS, bXONXOFF);
+
+	if (pSerialPortConnection == NULL)
+		return NULL;
+
+	if (!pSerialPortConnection->Open()) {
+		pSerialPortConnection->Close();
+		delete pSerialPortConnection;
+		pSerialPortConnection = NULL;
+	}
+
+	return pSerialPortConnection;
+}
+
+void CSerialPortConnection::ProcessError(LPCTSTR szWhere)
+{
+
+}
+
+BOOL CSerialPortConnection::Open()
+{
+	CHAR szPort[50];
+	CHAR szConfig[256];
+
+	snprintf(szPort, sizeof(szPort), "COM%d", m_nPortNbr);
+	szPort[sizeof(szPort) - 1] = 0;
+
+	//COMx[:][baud=b][parity=p][data=d][stop=s][to={on|off}][xon={on|off}][odsr={on|off}][octs={on|off}][dtr={on|off|hs}][rts={on|off|hs|tg}][idsr={on|off}]
+	snprintf(szConfig, sizeof(szConfig), "baud=%d parity=%c data=%d stop=%s xon=%s dtr=%s rts=%s",
+		m_nBaudRate,
+		m_cParity,
+		m_nDataBits,
+		m_eStopBits == CSerialPort::STOP_BITS_1 ? "1" : (m_eStopBits == CSerialPort::STOP_BITS_1_5 ? "1.5" : "2"),
+		m_bXONXOFF ? "on" : "off",
+		m_bDTRDSR ? "on" : "off",
+		m_bRTSCTS ? "on" : "off");
+	szConfig[sizeof(szConfig) - 1] = 0;
+
+	if ((m_hComm = CreateFileA(szPort,      // communication port string (COMX)
+		GENERIC_READ | GENERIC_WRITE, // read/write types
+		0,        // comm devices must be opened with exclusive access
+		NULL,       // no security attributes
+		OPEN_EXISTING,     // comm devices must use OPEN_EXISTING
+		NULL,   // Async I/O
+		0))       // template must be 0 for comm devices
+		== INVALID_HANDLE_VALUE) {
+		ProcessError(_T("CreateFileA"));
+		goto err;
+	}
+
+	m_CommTimeouts.ReadIntervalTimeout = m_dwReadIntervalTimeout;
+	m_CommTimeouts.ReadTotalTimeoutMultiplier = m_dwReadTotalTimeoutMultiplier;
+	m_CommTimeouts.ReadTotalTimeoutConstant = m_dwReadTotalTimeoutConstant;
+	m_CommTimeouts.WriteTotalTimeoutMultiplier = m_dwWriteTotalTimeoutMultiplier;
+	m_CommTimeouts.WriteTotalTimeoutConstant = m_dwWriteTotalTimeoutConstant;
+
+	if (!SetCommTimeouts(m_hComm, &m_CommTimeouts)) {
+		ProcessError(_T("SetCommTimeouts"));
+		goto err;
+	}
+
+	if (!GetCommState(m_hComm, &m_dcb)) {
+		ProcessError(_T("GetCommState"));
+		goto err;
+	}
+
+	if (!BuildCommDCBA(szConfig, &m_dcb)) {
+		ProcessError(_T("BuildCommDCBA"));
+		goto err;
+	}
+
+	if (!SetCommState(m_hComm, &m_dcb)) {
+		ProcessError(_T("SetCommState"));
+		goto err;
+	}
+
+	if (!PurgeComm(m_hComm, PURGE_RXCLEAR | PURGE_TXCLEAR | PURGE_RXABORT | PURGE_TXABORT)) {
+		ProcessError(_T("PurgeComm"));
+		goto err;
+	}
+
+	return TRUE;
+err:
+	if (m_hComm != INVALID_HANDLE_VALUE) {
+		CloseHandle(m_hComm);
+		m_hComm = INVALID_HANDLE_VALUE;
+	}
+	return FALSE;
+}
+
+
+void ProcessError(LPCTSTR szWhere)
+{
+
+
+}
+
+void CSerialPortConnection::Close()
+{
+	if (m_hComm != INVALID_HANDLE_VALUE) {
+		CloseHandle(m_hComm);
+		m_hComm = INVALID_HANDLE_VALUE;
+	}
+	delete this;
+}
+
+BOOL CSerialPortConnection::TestError()
+{
+	DWORD dwEvtMask;
+	if (GetCommMask(m_hComm, &dwEvtMask)) {
+		TRACE(_T("GetCommMask return 0x%x on port %d\n"), dwEvtMask, m_nPortNbr);
+		if (dwEvtMask & EV_BREAK) {
+			TRACE(_T("TestError EV_BREAK"));
+			return FALSE;
+		}
+		if (dwEvtMask & EV_ERR) {
+			TRACE(_T("TestError EV_ERR"));
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+BOOL CSerialPortConnection::WriteData(const LPBYTE pBuffer, SIZE_T nSize)
+{
+	DWORD dwWritten;
+	if (TestError()) {
+		return FALSE;
+	}
+	if (nSize == 0) return TRUE;
+	if (WriteFile(m_hComm, pBuffer, (DWORD)nSize, &dwWritten, NULL)) {
+		if (nSize == dwWritten) {
+			return TRUE;
+		}
+		else {
+			ProcessError(_T("WriteFile"));
+		}
+	}
+	return FALSE;
+}
+
+BOOL CSerialPortConnection::ReadData(LPBYTE pBuffer, SIZE_T nSize)
+{
+	DWORD dwReaded;
+	
+	if (TestError()) {
+		return FALSE;
+	}
+
+	if (nSize == 0) return TRUE;
+	if (ReadFile(m_hComm, pBuffer, (DWORD)nSize, &dwReaded, NULL)) {
+		if (nSize == dwReaded) {
+			return TRUE;
+		}
+		else {
+			ProcessError(_T("WriteFile"));
+		}
+	}
+	return FALSE;
 }
