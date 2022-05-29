@@ -538,6 +538,16 @@ uint8_t player_get_vol(void)
   return player_vol;
 }
 
+uint8_t player_get_min_vol(void)
+{
+  return BSP_MP3_Get_Min_Volume();
+}
+
+uint8_t player_get_max_vol(void)
+{
+  return BSP_MP3_Get_Max_Volume();
+}
+
 uint8_t player_inc_vol(void)
 {
   player_vol ++;

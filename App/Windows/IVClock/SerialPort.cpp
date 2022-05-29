@@ -374,7 +374,6 @@ CSerialPortConnection* CSerialPort::OpenSerial(INT nPortIndex, INT nBaudRateInde
 
 	if (!pSerialPortConnection->Open()) {
 		pSerialPortConnection->Close();
-		delete pSerialPortConnection;
 		pSerialPortConnection = NULL;
 	}
 
@@ -383,7 +382,7 @@ CSerialPortConnection* CSerialPort::OpenSerial(INT nPortIndex, INT nBaudRateInde
 
 void CSerialPortConnection::ProcessError(LPCTSTR szWhere)
 {
-
+	TRACE(_T("%s: %d\n"), szWhere,  GetLastError());
 }
 
 BOOL CSerialPortConnection::Open()
@@ -480,14 +479,14 @@ BOOL CSerialPortConnection::TestError()
 		TRACE(_T("GetCommMask return 0x%x on port %d\n"), dwEvtMask, m_nPortNbr);
 		if (dwEvtMask & EV_BREAK) {
 			TRACE(_T("TestError EV_BREAK"));
-			return FALSE;
+			return TRUE;
 		}
 		if (dwEvtMask & EV_ERR) {
 			TRACE(_T("TestError EV_ERR"));
-			return FALSE;
+			return TRUE;
 		}
 	}
-	return TRUE;
+	return FALSE;
 }
 
 BOOL CSerialPortConnection::WriteData(const LPBYTE pBuffer, SIZE_T nSize)
@@ -502,8 +501,11 @@ BOOL CSerialPortConnection::WriteData(const LPBYTE pBuffer, SIZE_T nSize)
 			return TRUE;
 		}
 		else {
-			ProcessError(_T("WriteFile"));
+			ProcessError(_T("WriteFile: size mismatch"));
 		}
+	}
+	else {
+		ProcessError(_T("WriteFile"));
 	}
 	return FALSE;
 }
@@ -522,8 +524,11 @@ BOOL CSerialPortConnection::ReadData(LPBYTE pBuffer, SIZE_T nSize)
 			return TRUE;
 		}
 		else {
-			ProcessError(_T("WriteFile"));
+			ProcessError(_T("ReadFile: size mismatch"));
 		}
+	}
+	else {
+		ProcessError(_T("ReadFile"));
 	}
 	return FALSE;
 }

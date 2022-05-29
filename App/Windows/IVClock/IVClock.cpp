@@ -94,6 +94,11 @@ BOOL CIVClockApp::InitInstance()
 
 	CSerialPort::EnumerateSerialPorts();
 
+	CIVError Error;
+	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
+		AfxMessageBox(Error.GetErrorStr());
+	}
+
 	CIVClockDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();

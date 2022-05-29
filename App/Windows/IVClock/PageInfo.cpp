@@ -48,39 +48,39 @@ BOOL CPageInfo::OnInitDialog()
 	CComboBox* pBox = (CComboBox*)GetDlgItem(IDC_COMBO_PORT);
 	CConfigManager::CONFIG_VALUE_T val;
 
-	for (INT i = 0; i < theApp.m_Serial.GetPortCount(); i++) {
-		pBox->AddString(theApp.m_Serial.GetPortFriendlyName(i));
+	for (INT i = 0; i < CSerialPort::GetPortCount(); i++) {
+		pBox->AddString(CSerialPort::GetPortFriendlyName(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("port"), val);
-	m_nPort = theApp.m_Serial.PortNumberToIndex(val.u8);
+	m_nPort = CSerialPort::PortNumberToIndex(val.u8);
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_BAUDRATE);
-	for (INT i = 0; i < theApp.m_Serial.GetBaudRateCount(); i++) {
-		pBox->AddString(theApp.m_Serial.GetBaudRateDesc(i));
+	for (INT i = 0; i < CSerialPort::GetBaudRateCount(); i++) {
+		pBox->AddString(CSerialPort::GetBaudRateDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("baudrate"), val);
-	m_nBaudRate = val.n8 < theApp.m_Serial.GetBaudRateCount() ? val.u8 : 0;
+	m_nBaudRate = val.n8 < CSerialPort::GetBaudRateCount() ? val.u8 : 0;
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_DATA_BITS);
-	for (INT i = 0; i < theApp.m_Serial.GetDataBitsCount(); i++) {
-		pBox->AddString(theApp.m_Serial.GetDataBitsDesc(i));
+	for (INT i = 0; i < CSerialPort::GetDataBitsCount(); i++) {
+		pBox->AddString(CSerialPort::GetDataBitsDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("databits"), val);
-	m_nDataBits = val.n8 < theApp.m_Serial.GetDataBitsCount() ? val.u8 : 0;
+	m_nDataBits = val.n8 < CSerialPort::GetDataBitsCount() ? val.u8 : 0;
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_PARITY);
-	for (INT i = 0; i < theApp.m_Serial.GetParityCount(); i++) {
-		pBox->AddString(theApp.m_Serial.GetParityDesc(i));
+	for (INT i = 0; i < CSerialPort::GetParityCount(); i++) {
+		pBox->AddString(CSerialPort::GetParityDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("parity"), val);
-	m_nParity = val.n8 < theApp.m_Serial.GetParityCount() ? val.u8 : 0;
+	m_nParity = val.n8 < CSerialPort::GetParityCount() ? val.u8 : 0;
 
 	pBox = (CComboBox*)GetDlgItem(IDC_COMBO_STOP_BITS);
-	for (INT i = 0; i < theApp.m_Serial.GetStopBitsCount(); i++) {
-		pBox->AddString(theApp.m_Serial.GetStopBitsDesc(i));
+	for (INT i = 0; i < CSerialPort::GetStopBitsCount(); i++) {
+		pBox->AddString(CSerialPort::GetStopBitsDesc(i));
 	}
 	theApp.m_Config.GetConfig(_T("connect"), _T("stopbits"), val);
-	m_nStopBits = val.n8 < theApp.m_Serial.GetStopBitsCount() ? val.u8 : 0;
+	m_nStopBits = val.n8 < CSerialPort::GetStopBitsCount() ? val.u8 : 0;
 
 	theApp.m_Config.GetConfig(_T("connect"), _T("dtr_dsr"), val);
 	m_bRTSCTS = val.u8;
@@ -104,16 +104,49 @@ END_MESSAGE_MAP()
 
 void CPageInfo::OnBnClickedBtnTestConn()
 {
-	UpdateData(TRUE);
-	CSerialPortConnection * pConn = theApp.m_Serial.OpenSerial(
-		m_nPort,
-		m_nBaudRate,
-		m_nDataBits,
-		m_nParity,
-		m_nStopBits,
-		m_bRTSCTS,
-		m_bDTRDSR,
-		m_bXONXOFF
-	);
+	CIVError Error;
 
+	UpdateData(TRUE);
+
+	GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("TESTING"));
+
+	if (theApp.m_RemoteConfig.Ping(Error)) {
+		GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("PASSED!"));
+		UpdateData(FALSE);
+	}
+	else {
+		GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("FAILED!"));
+	}
+}
+
+void CPageInfo::Save()
+{
+	CConfigManager::CONFIG_VALUE_T val;
+	UpdateData(TRUE);
+
+	val.u8 = CSerialPort::GetPortNbr(m_nPort);
+	theApp.m_Config.SetConfig(_T("connect"), _T("port"), val);
+
+	val.u8 = m_nBaudRate;
+	theApp.m_Config.SetConfig(_T("connect"), _T("baudrate"), val);
+
+	val.u8 = m_nDataBits;
+	theApp.m_Config.SetConfig(_T("connect"), _T("databits"), val);
+
+	val.u8 = m_nParity;
+	theApp.m_Config.SetConfig(_T("connect"), _T("parity"), val);
+
+	val.u8 = m_nStopBits;
+	theApp.m_Config.SetConfig(_T("connect"), _T("stopbits"), val);
+
+	val.u8 = m_bRTSCTS;
+	theApp.m_Config.SetConfig(_T("connect"), _T("dtr_dsr"), val);
+
+	val.u8 = m_bDTRDSR;
+	theApp.m_Config.SetConfig(_T("connect"), _T("dts_cts"), val);
+
+	val.u8 = m_bXONXOFF;
+	theApp.m_Config.SetConfig(_T("connect"), _T("xon_xoff"), val);
+
+	AfxMessageBox(_T("config saved!"));
 }

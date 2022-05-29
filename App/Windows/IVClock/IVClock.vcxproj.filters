@@ -51,6 +51,12 @@
     <ClInclude Include="SerialPort.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="RemoteConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IVError.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IVClock.cpp">
@@ -78,6 +84,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SerialPort.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteConfig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="IVError.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

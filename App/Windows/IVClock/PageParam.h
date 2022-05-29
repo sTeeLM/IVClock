@@ -10,7 +10,7 @@ class CPageParam : public CDialog
 public:
 	CPageParam(CWnd* pParent = nullptr);   // 标准构造函数
 	virtual ~CPageParam();
-
+	virtual BOOL OnInitDialog();
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PROPPAGE_PARAM };

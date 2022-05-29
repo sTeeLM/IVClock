@@ -10,9 +10,8 @@
 
 #include "resource.h"		// 主符号
 
-
 #include "ConfigManager.h"
-#include "SerialPort.h"
+#include "RemoteConfig.h"
 
 // CIVClockApp:
 // 有关此类的实现，请参阅 IVClock.cpp
@@ -31,8 +30,8 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 public:
+	CRemoteConfig m_RemoteConfig;
 	CConfigManager m_Config;
-	CSerialPort    m_Serial;
 protected:
 	CString GetWorkingPath();
 };

@@ -32,4 +32,5 @@ public:
 
 public:
 	afx_msg void OnBnClickedBtnTestConn();
+	void Save();
 };

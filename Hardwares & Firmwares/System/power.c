@@ -13,8 +13,6 @@
 
 #include "display.h"
 
-#define POWER_MAX_TIMEO 60
-
 static bool power_is_in_powersave;
 static uint8_t curr_power_save_dur;
 static uint8_t power_save_timeo;
@@ -163,11 +161,10 @@ void power_reset_timeo(void)
 
 void power_set_timeo(uint8_t timeo)
 {
-  uint8_t r = power_save_timeo / 15;
-  power_save_timeo = r * 15;
+  uint8_t r = power_save_timeo / POWER_STEP_TIMEO;
+  power_save_timeo = r * POWER_STEP_TIMEO;
   if(power_save_timeo > POWER_MAX_TIMEO)
     power_save_timeo = 0;
-  power_save_timeo = timeo;
 }
 
 uint8_t power_get_timeo(void)
@@ -185,7 +182,7 @@ void power_timeo_save_config(void)
 void power_inc_timeo(void)
 {
   config_val_t val;
-  power_save_timeo += 15;
+  power_save_timeo += POWER_STEP_TIMEO;
   if(power_save_timeo > POWER_MAX_TIMEO)
     power_save_timeo = 0;
 }

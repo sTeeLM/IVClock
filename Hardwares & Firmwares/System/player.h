@@ -27,7 +27,8 @@ enum player_snd_index
   PLAYER_SND_7,
   PLAYER_SND_8,
   PLAYER_SND_9,
-  PLAYER_SND_10,  
+  PLAYER_SND_10,
+  PLAYER_SND_CNT
 };
 
 void player_init(void);
@@ -42,6 +43,8 @@ void player_stop_play(void);
 bool player_is_playing(void);
 void player_show(void);
 uint8_t player_get_vol(void);
+uint8_t player_get_min_vol(void);
+uint8_t player_get_max_vol(void);
 uint8_t player_inc_vol(void);
 uint8_t player_set_vol(uint8_t vol);
 void player_save_config(void);

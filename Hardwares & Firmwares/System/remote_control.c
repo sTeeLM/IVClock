@@ -49,6 +49,7 @@ typedef struct remote_control_proc_type
   remote_control_cmd_proc_t  proc;
 }remote_control_proc_type_t;
 
+static void do_ping(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_get_time(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_set_time(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_get_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res);
@@ -60,23 +61,27 @@ static void do_stop_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res
 
 remote_control_proc_type_t remote_control_proc[] = 
 {
+  {REMOTE_CONTROL_CMD_PING, do_ping},  
   {REMOTE_CONTROL_CMD_GET_TIME, do_get_time},
-  {REMOTE_CONTROL_CMD_GET_TIME, do_set_time}, 
+  {REMOTE_CONTROL_CMD_SET_TIME, do_set_time}, 
   {REMOTE_CONTROL_CMD_GET_ALARM, do_get_alarm}, 
   {REMOTE_CONTROL_CMD_SET_ALARM, do_set_alarm}, 
   {REMOTE_CONTROL_CMD_GET_PARAM, do_get_param}, 
   {REMOTE_CONTROL_CMD_SET_PARAM, do_set_param},
-  {REMOTE_CONTROL_CMD_GET_BAT, do_get_bat},
-  {REMOTE_CONTROL_CMD_STOP_ALARM, do_stop_alarm},  
+  {REMOTE_CONTROL_CMD_STOP_ALARM, do_stop_alarm},   
+  {REMOTE_CONTROL_CMD_GET_BAT, do_get_bat}, 
 };
 
 static bool remote_control_check_header(remote_control_msg_header_t * header)
 {
-  if(header->magic != REMOTE_CONTROL_MSG_HEADER_MAGIC) 
+  if(header->magic != REMOTE_CONTROL_MSG_HEADER_MAGIC) {
+    IVERR("remote_control_check_header: magic %d mismatch!", header->magic);
     return FALSE;
+  }
   if(header->length > sizeof(remote_control_msg_t) 
     - sizeof(remote_control_msg_header_t)) {
-          return FALSE;
+      IVERR("remote_control_check_header: length too long!", header->length);
+      return FALSE;
       }
   return TRUE;
 }
@@ -111,9 +116,17 @@ static bool remote_control_read_cmd(remote_control_msg_t * cmd)
   BSP_Error_Type ret = BSP_ERROR_INTERNAL;
   if(BSP_USART3_Receive((uint8_t *)p, sizeof(cmd->header)) == BSP_ERROR_NONE) {
     IVDBG("receive cmd: magic = %x, len = %d", cmd->header.magic, cmd->header.length);
-    if(remote_control_check_header(&cmd->header) && cmd->header.length) {
-      ret = BSP_USART3_Receive((uint8_t *)(p + sizeof(cmd->header)), cmd->header.length);
-      if(ret == BSP_ERROR_NONE) {
+    if(remote_control_check_header(&cmd->header)) {
+      if(cmd->header.length) {
+        ret = BSP_USART3_Receive((uint8_t *)(p + sizeof(cmd->header)), cmd->header.length);
+        if(ret == BSP_ERROR_NONE) {
+          remote_control_dump_msg(cmd);
+          ret = BSP_ERROR_NONE;
+        } else {
+          IVERR("remote_control_read_cmd: body read error %d", ret);
+        }
+      } else {
+        ret = BSP_ERROR_NONE;
         remote_control_dump_msg(cmd);
       }
     }
@@ -132,7 +145,7 @@ static void remote_control_send_res(remote_control_msg_t * res)
 static void remote_control_deal_cmd(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   uint8_t i;
-  if(cmd->header.cmd > REMOTE_CONTROL_CMD_BASE && cmd->header.cmd <= REMOTE_CONTROL_CMD_SET_PARAM) {
+  if(cmd->header.cmd > REMOTE_CONTROL_CMD_BASE && cmd->header.cmd < REMOTE_CONTROL_CMD_CNT) {
     for(i = 0 ; i < sizeof(remote_control_proc) / sizeof(remote_control_proc_type_t) ; i ++) {
       if(remote_control_proc[i].cmd == cmd->header.cmd) {
         remote_control_proc[i].proc(cmd, res);
@@ -150,12 +163,19 @@ static void remote_control_deal_cmd(remote_control_msg_t * cmd, remote_control_m
 void remote_control_run(void)
 {
   while(remote_control_connected()) {
-    IVDBG("into remote_control_run");
+    IVDBG("into remote_control_run, sizeof msg header is %d", sizeof(remote_control_msg_header_t));
     if(remote_control_read_cmd(&remote_control_cmd)) {
       remote_control_deal_cmd(&remote_control_cmd, &remote_control_res);
       remote_control_send_res(&remote_control_res);
     }
   }
+}
+
+static void do_ping(remote_control_msg_t * cmd, remote_control_msg_t * res)
+{
+  res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
+  res->header.code = REMOTE_CONTROL_CODE_OK;
+  res->header.length = 0;
 }
 
 static void do_get_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
@@ -231,6 +251,7 @@ static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 
 static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
+  // config
   res->body.param.acc_en = motion_sensor_test_enable();
   res->body.param.alm1_en = alarm1_test_enable();
   res->body.param.alm1_begin = alarm1_get_begin();
@@ -242,6 +263,15 @@ static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   res->body.param.time_12 = clock_test_hour12(); 
   res->body.param.tmr_snd = timer_get_snd(); 
   res->body.param.ply_vol = player_get_vol();
+  
+  // other const can not set
+  res->body.param.alarm_cnt = ALARM0_CNT;
+  res->body.param.min_ply_vol = player_get_min_vol();  
+  res->body.param.max_ply_vol = player_get_max_vol();  
+  res->body.param.min_power_timeo = POWER_MIN_TIMEO;  
+  res->body.param.max_power_timeo = POWER_MAX_TIMEO; 
+  res->body.param.step_power_timeo = POWER_STEP_TIMEO;
+  res->body.param.tmr_snd_cnt = PLAYER_SND_CNT;
   
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;

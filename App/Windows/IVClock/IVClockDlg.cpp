@@ -219,11 +219,19 @@ void CIVClockDlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	// CDialogEx::OnOK();
+	switch (m_ctlTab.GetCurSel()) {
+		case 0:
+			m_pageInfo.Save();
+			break;
+		case 1:break;
+		case 2:break;
+		case 3:break;
+	}
 }
 
 
 void CIVClockDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	// CDialogEx::OnCancel();
+	CDialogEx::OnCancel();
 }

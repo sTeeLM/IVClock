@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include "cext.h"
 
+#define POWER_MAX_TIMEO 60
+#define POWER_STEP_TIMEO 15
+#define POWER_MIN_TIMEO POWER_STEP_TIMEO
+
+
 void power_init(void);
 void power_33_enable(bool enable);
 void power_50_enable(bool enable);

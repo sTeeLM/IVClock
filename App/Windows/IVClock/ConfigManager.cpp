@@ -22,7 +22,7 @@ const CConfigManager::CONFIG_ENTRY_T CConfigManager::m_ConfigEntry[] = {
 	{_T("main"), _T("double"), CONFIG_VALUE_TYPE_DOUBLE, {.d = 300.123}},
 	{_T("main"), _T("float"), CONFIG_VALUE_TYPE_FLOAT, {.f = 400.456f}},
 	*/
-	{_T("connect"), _T("port"), CONFIG_VALUE_TYPE_UINT8,  {.u8 = 1} }, // COM1 
+	{_T("connect"), _T("port"), CONFIG_VALUE_TYPE_UINT8,  {.u8 = 5} }, // COM5 
 	{_T("connect"), _T("baudrate"), CONFIG_VALUE_TYPE_UINT32,   {.u8 = 6}}, // 9600
 	{_T("connect"), _T("databits"), CONFIG_VALUE_TYPE_UINT8,   {.u8 = 3}},  // 8
 	{_T("connect"), _T("parity"), CONFIG_VALUE_TYPE_UINT8,   {.u8 = 0}},  // None

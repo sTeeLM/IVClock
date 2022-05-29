@@ -103,6 +103,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>"../../../Hardwares &amp; Firmwares/System/"</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,6 +128,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>"../../../Hardwares &amp; Firmwares/System/"</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -153,6 +155,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>"../../../Hardwares &amp; Firmwares/System/"</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -181,6 +184,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>"../../../Hardwares &amp; Firmwares/System/"</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -203,11 +207,13 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="IVClock.h" />
     <ClInclude Include="IVClockDlg.h" />
+    <ClInclude Include="IVError.h" />
     <ClInclude Include="PageAlarm.h" />
     <ClInclude Include="PageDateTime.h" />
     <ClInclude Include="PageInfo.h" />
     <ClInclude Include="PageParam.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="RemoteConfig.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SerialPort.h" />
     <ClInclude Include="targetver.h" />
@@ -216,6 +222,7 @@
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="IVClock.cpp" />
     <ClCompile Include="IVClockDlg.cpp" />
+    <ClCompile Include="IVError.cpp" />
     <ClCompile Include="PageAlarm.cpp" />
     <ClCompile Include="PageDateTime.cpp" />
     <ClCompile Include="PageInfo.cpp" />
@@ -226,6 +233,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RemoteConfig.cpp" />
     <ClCompile Include="SerialPort.cpp" />
   </ItemGroup>
   <ItemGroup>
