@@ -70,7 +70,6 @@ BOOL CIVClockApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-
 	AfxEnableControlContainer();
 
 	// 创建 shell 管理器，以防对话框包含
@@ -101,10 +100,10 @@ BOOL CIVClockApp::InitInstance()
 		goto err;
 	}
 
-	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
-		AfxMessageBox(Error.GetErrorStr());
-		goto err;
-	}
+//	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
+//		AfxMessageBox(Error.GetErrorStr());
+//		goto err;
+//	}
 
 	m_pMainWnd = &dlg;
 	nResponse = dlg.DoModal();

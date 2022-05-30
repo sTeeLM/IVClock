@@ -193,13 +193,12 @@ err:
 
 BOOL CRemoteConfig::SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error)
 {
-
-
+	return TRUE;
 }
 
 BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error)
 {
-
+	return TRUE;
 }
 
 BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t &msg, CIVError& Error)

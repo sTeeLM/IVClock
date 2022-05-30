@@ -31,6 +31,7 @@ BOOL CPageDateTime::OnInitDialog()
 	if (!CDialog::OnInitDialog()) {
 		return FALSE;
 	}
+	return TRUE;
 }
 
 void CPageDateTime::OnOK()

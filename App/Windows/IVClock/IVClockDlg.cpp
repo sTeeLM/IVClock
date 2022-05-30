@@ -66,6 +66,8 @@ BEGIN_MESSAGE_MAP(CIVClockDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_SIZE()
+	ON_MESSAGE(WM_SHOWTASK, OnShowTask)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_MAIN, &CIVClockDlg::OnTcnSelchangeTabMain)
 	ON_BN_CLICKED(IDOK, &CIVClockDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CIVClockDlg::OnBnClickedCancel)
@@ -237,3 +239,72 @@ void CIVClockDlg::OnBnClickedCancel()
 	// TODO: 在此添加控件通知处理程序代码
 	CDialogEx::OnCancel();
 }
+
+#define TOOLTIPS_NAME_	"XXXX"
+
+//最小化到托盘函数
+void CIVClockDlg::ToTray()
+{
+	NOTIFYICONDATA nid;
+	nid.cbSize = (DWORD)sizeof(NOTIFYICONDATA);
+	nid.hWnd = this->m_hWnd;
+	nid.uID = IDR_MAINFRAME;
+	nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+	nid.uCallbackMessage = WM_SHOWTASK;//自定义的消息名称
+	nid.hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
+	wcscpy_s(nid.szTip, _T(TOOLTIPS_NAME_)); //信息提示条
+	Shell_NotifyIcon(NIM_ADD, &nid); //在托盘区添加图标
+	ShowWindow(SW_HIDE); //隐藏主窗口
+}
+
+//删除托盘图标函数
+void CIVClockDlg::DeleteTray()
+{
+	NOTIFYICONDATA nid;
+	nid.cbSize = (DWORD)sizeof(NOTIFYICONDATA);
+	nid.hWnd = this->m_hWnd;
+	nid.uID = IDR_MAINFRAME;
+	nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+	nid.uCallbackMessage = WM_SHOWTASK; //自定义的消息名称
+	nid.hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
+	wcscpy_s(nid.szTip, _T(TOOLTIPS_NAME_)); //信息提示条为“计划任务提醒”
+	Shell_NotifyIcon(NIM_DELETE, &nid); //在托盘区删除图标
+}
+
+LRESULT CIVClockDlg::OnShowTask(WPARAM wParam, LPARAM lParam)
+{
+	if (wParam != IDR_MAINFRAME)
+		return 1;
+	switch (lParam)
+	{
+	case WM_RBUTTONUP://右键起来时弹出快捷菜单，这里只有一个“关闭”
+	{
+		LPPOINT lpoint = new tagPOINT;
+		::GetCursorPos(lpoint);//得到鼠标位置
+		CMenu menu;
+		menu.CreatePopupMenu();//声明一个弹出式菜单
+
+
+		menu.AppendMenu(MF_STRING, WM_DESTROY, _T("关闭")); //增加菜单项“关闭”，点击则发送消息WM_DESTROY给主窗口（已隐藏），将程序结束。
+		menu.TrackPopupMenu(TPM_LEFTALIGN, lpoint->x, lpoint->y, this); //确定弹出式菜单的位置
+		HMENU hmenu = menu.Detach();
+		menu.DestroyMenu(); //资源回收
+		delete lpoint;
+	} break;
+	case WM_LBUTTONDBLCLK: //双击左键的处理
+	{
+		this->ShowWindow(SW_NORMAL);//简单的显示主窗口完事儿
+		DeleteTray();
+	} break;
+	default: break;
+	}
+	return 0;
+}
+
+void CIVClockDlg::OnSize(UINT nType, INT cx, INT cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+	if (nType == SIZE_MINIMIZED)   //判断是最小化按钮时，执行最小化到托盘函数
+		ToTray();
+}
+

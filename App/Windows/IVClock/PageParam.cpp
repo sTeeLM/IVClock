@@ -60,6 +60,7 @@ void CPageParam::UpdateUI()
 
 void CPageParam::LoadRemoteConfig()
 {
+
 	m_bTM12 = !theApp.m_RemoteConfig.GetParam().time_12;
 	m_bTmpCent = !theApp.m_RemoteConfig.GetParam().temp_cen;
 
@@ -133,7 +134,7 @@ void CPageParam::SaveRemoteConfig()
 
 BOOL CPageParam::OnInitDialog()
 {	
-	LoadRemoteConfig();
+	//LoadRemoteConfig();
 
 	if (!CDialog::OnInitDialog()) {
 		return FALSE;
