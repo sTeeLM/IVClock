@@ -54,6 +54,10 @@ CString CIVClockApp::GetWorkingPath()
 
 BOOL CIVClockApp::InitInstance()
 {
+	CString strIniFilePath;
+	CIVError Error;
+	CIVClockDlg dlg;
+	INT_PTR nResponse;
 	// 如果一个运行在 Windows XP 上的应用程序清单指定要
 	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
 	//则需要 InitCommonControlsEx()。  否则，将无法创建窗口。
@@ -85,23 +89,25 @@ BOOL CIVClockApp::InitInstance()
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("IVClock"));
 
-	CString strIniFilePath = GetWorkingPath();
+	strIniFilePath = GetWorkingPath();
 	strIniFilePath += _T("IVClock.ini");
 	TRACE(_T("Use INI file %s\n"), strIniFilePath);
 	m_Config.SetConfigFile(strIniFilePath);
 	m_Config.CreateDefault();
 	m_Config.DumpConfig();
 
-	CSerialPort::EnumerateSerialPorts();
-
-	CIVError Error;
-	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
+	if (!m_RemoteConfig.Initialize(Error)) {
 		AfxMessageBox(Error.GetErrorStr());
+		goto err;
 	}
 
-	CIVClockDlg dlg;
+	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
+		AfxMessageBox(Error.GetErrorStr());
+		goto err;
+	}
+
 	m_pMainWnd = &dlg;
-	INT_PTR nResponse = dlg.DoModal();
+	nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{
 		// TODO: 在此放置处理何时用
@@ -117,6 +123,9 @@ BOOL CIVClockApp::InitInstance()
 		TRACE(traceAppMsg, 0, "警告: 对话框创建失败，应用程序将意外终止。\n");
 		TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
 	}
+err:
+
+	m_RemoteConfig.DeInitialize();
 
 	// 删除上面创建的 shell 管理器。
 	if (pShellManager != nullptr)

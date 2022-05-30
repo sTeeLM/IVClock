@@ -39,7 +39,7 @@
     <ClInclude Include="PageDateTime.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="PageInfo.h">
+    <ClInclude Include="PageSerial.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="PageParam.h">
@@ -74,9 +74,6 @@
     <ClCompile Include="PageDateTime.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="PageInfo.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="PageParam.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -90,6 +87,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="IVError.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PageSerial.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

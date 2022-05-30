@@ -54,34 +54,44 @@ void CPageParam::DoDataExchange(CDataExchange* pDX)
 void CPageParam::UpdateUI()
 {
 	GetDlgItem(IDC_COMBO_PS_TIMEO)->EnableWindow(((CButton*)GetDlgItem(IDC_CHK_PS_EN))->GetCheck() == BST_CHECKED);
+	GetDlgItem(IDC_COMBO_BS_FROM)->EnableWindow(((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
+	GetDlgItem(IDC_COMBO_BS_TO)->EnableWindow(((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
 }
 
-BOOL CPageParam::OnInitDialog()
+void CPageParam::LoadRemoteConfig()
 {
-	m_bTM12    = !theApp.m_RemoteConfig.GetParam().time_12;
+	m_bTM12 = !theApp.m_RemoteConfig.GetParam().time_12;
 	m_bTmpCent = !theApp.m_RemoteConfig.GetParam().temp_cen;
 
 	// load IDC_COMBO_TMR_SND
 	CComboBox* pTmrSndBox = (CComboBox*)GetDlgItem(IDC_COMBO_TMR_SND);
+	for (INT i = pTmrSndBox->GetCount() - 1; i >= 0; i--)
+	{
+		pTmrSndBox->DeleteString(i);
+	}
 	CString strLabel;
 	for (INT i = 0; i < theApp.m_RemoteConfig.GetParam().tmr_snd_cnt; i++) {
-		strLabel.Format(_T("sound %02d"),i);
+		strLabel.Format(_T("sound %02d"), i);
 		pTmrSndBox->AddString(strLabel);
 	}
 
-	m_nTmrSND  = theApp.m_RemoteConfig.GetParam().tmr_snd;
+	m_nTmrSND = theApp.m_RemoteConfig.GetParam().tmr_snd;
 
 	// load IDC_SLIDER_PLY_VOL
-	CSliderCtrl *pSlide = (CSliderCtrl*)GetDlgItem(IDC_SLIDER_PLY_VOL);
+	CSliderCtrl* pSlide = (CSliderCtrl*)GetDlgItem(IDC_SLIDER_PLY_VOL);
 	pSlide->SetRangeMin(theApp.m_RemoteConfig.GetParam().min_ply_vol, TRUE);
 	pSlide->SetRangeMax(theApp.m_RemoteConfig.GetParam().max_ply_vol, TRUE);
 
-	m_nPlyVol  = theApp.m_RemoteConfig.GetParam().ply_vol;
+	m_nPlyVol = theApp.m_RemoteConfig.GetParam().ply_vol;
 
 	// load IDC_COMBO_PS_TIMEO
 	CComboBox* pTmrPSTimeo = (CComboBox*)GetDlgItem(IDC_COMBO_PS_TIMEO);
-	for (INT i = theApp.m_RemoteConfig.GetParam().min_power_timeo; 
-		i < theApp.m_RemoteConfig.GetParam().max_power_timeo; i+= theApp.m_RemoteConfig.GetParam().step_power_timeo) {
+	for (INT i = pTmrPSTimeo->GetCount() - 1; i >= 0; i--)
+	{
+		pTmrPSTimeo->DeleteString(i);
+	}
+	for (INT i = theApp.m_RemoteConfig.GetParam().min_power_timeo;
+		i <= theApp.m_RemoteConfig.GetParam().max_power_timeo; i += theApp.m_RemoteConfig.GetParam().step_power_timeo) {
 		strLabel.Format(_T("%02d"), i);
 		pTmrPSTimeo->AddString(strLabel);
 	}
@@ -97,13 +107,47 @@ BOOL CPageParam::OnInitDialog()
 	m_bBP = theApp.m_RemoteConfig.GetParam().bp_en;
 	m_bMonLT = theApp.m_RemoteConfig.GetParam().mon_lt_en;
 	m_bAcc = theApp.m_RemoteConfig.GetParam().acc_en;
+}
 
+void CPageParam::SaveRemoteConfig()
+{
+	theApp.m_RemoteConfig.GetParam().time_12 = !m_bTM12;
+	theApp.m_RemoteConfig.GetParam().temp_cen = !m_bTmpCent;
+
+	theApp.m_RemoteConfig.GetParam().tmr_snd = m_nTmrSND;
+	theApp.m_RemoteConfig.GetParam().ply_vol = m_nPlyVol;
+
+	if (m_bPS) {
+		theApp.m_RemoteConfig.GetParam().power_timeo = (m_nPSTimeo + 1) * theApp.m_RemoteConfig.GetParam().step_power_timeo;
+	}
+	else {
+		theApp.m_RemoteConfig.GetParam().power_timeo = 0;
+	}
+	theApp.m_RemoteConfig.GetParam().alm1_en = m_bBS;
+	theApp.m_RemoteConfig.GetParam().alm1_begin = m_nBSFrom;
+	theApp.m_RemoteConfig.GetParam().alm1_end = m_nBSTo;
+	theApp.m_RemoteConfig.GetParam().bp_en = m_bBP;
+	theApp.m_RemoteConfig.GetParam().mon_lt_en = m_bMonLT;
+	theApp.m_RemoteConfig.GetParam().acc_en = m_bAcc;
+}
+
+BOOL CPageParam::OnInitDialog()
+{	
+	LoadRemoteConfig();
+
+	if (!CDialog::OnInitDialog()) {
+		return FALSE;
+	}
+	
 	UpdateUI();
-	return CDialog::OnInitDialog();
+
+	return TRUE;
+
 }
 
 BEGIN_MESSAGE_MAP(CPageParam, CDialog)
 	ON_BN_CLICKED(IDC_CHK_PS_EN, &CPageParam::OnBnClickedChkPsEn)
+	ON_BN_CLICKED(IDC_CHK_BS_EN, &CPageParam::OnBnClickedChkBsEn)
 END_MESSAGE_MAP()
 
 
@@ -112,6 +156,25 @@ END_MESSAGE_MAP()
 
 void CPageParam::OnBnClickedChkPsEn()
 {
-	TRACE(_T("OnBnClickedChkPsEn\n"));
 	UpdateUI();
+}
+
+
+void CPageParam::OnBnClickedChkBsEn()
+{
+	UpdateUI();
+}
+
+
+void CPageParam::Save()
+{
+	CIVError Error;
+
+	UpdateData(TRUE);
+
+	SaveRemoteConfig();
+
+	if (!theApp.m_RemoteConfig.SetRemoteConfigParam(Error)) {
+		AfxMessageBox(Error.GetErrorStr());
+	}
 }

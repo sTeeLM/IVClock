@@ -210,7 +210,7 @@
     <ClInclude Include="IVError.h" />
     <ClInclude Include="PageAlarm.h" />
     <ClInclude Include="PageDateTime.h" />
-    <ClInclude Include="PageInfo.h" />
+    <ClInclude Include="PageSerial.h" />
     <ClInclude Include="PageParam.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RemoteConfig.h" />
@@ -225,7 +225,7 @@
     <ClCompile Include="IVError.cpp" />
     <ClCompile Include="PageAlarm.cpp" />
     <ClCompile Include="PageDateTime.cpp" />
-    <ClCompile Include="PageInfo.cpp" />
+    <ClCompile Include="PageSerial.cpp" />
     <ClCompile Include="PageParam.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

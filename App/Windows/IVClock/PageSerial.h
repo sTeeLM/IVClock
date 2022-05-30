@@ -1,15 +1,15 @@
 ﻿#pragma once
 
 
-// CPageInfo 对话框
+// CPageSerial 对话框
 
-class CPageInfo : public CDialog
+class CPageSerial : public CDialog
 {
-	DECLARE_DYNAMIC(CPageInfo)
+	DECLARE_DYNAMIC(CPageSerial)
 
 public:
-	CPageInfo(CWnd* pParent = nullptr);   // 标准构造函数
-	virtual ~CPageInfo();
+	CPageSerial(CWnd* pParent = nullptr);   // 标准构造函数
+	virtual ~CPageSerial();
 
 // 对话框数据
 #ifdef AFX_DESIGN_TIME

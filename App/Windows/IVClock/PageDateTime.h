@@ -10,7 +10,9 @@ class CPageDateTime : public CDialog
 public:
 	CPageDateTime(CWnd* pParent = nullptr);   // 标准构造函数
 	virtual ~CPageDateTime();
-
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
+	virtual void OnCancel();
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PROPPAGE_DATETIME };

@@ -3,15 +3,15 @@
 
 #include "pch.h"
 #include "IVClock.h"
-#include "PageInfo.h"
+#include "PageSerial.h"
 #include "afxdialogex.h"
 #include "SerialPort.h"
 
-// CPageInfo 对话框
+// CPageSerial 对话框
 
-IMPLEMENT_DYNAMIC(CPageInfo, CDialog)
+IMPLEMENT_DYNAMIC(CPageSerial, CDialog)
 
-CPageInfo::CPageInfo(CWnd* pParent /*=nullptr*/)
+CPageSerial::CPageSerial(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_PROPPAGE_INFO, pParent)
 	, m_nPort(0)
 	, m_nBaudRate(0)
@@ -25,11 +25,11 @@ CPageInfo::CPageInfo(CWnd* pParent /*=nullptr*/)
 
 }
 
-CPageInfo::~CPageInfo()
+CPageSerial::~CPageSerial()
 {
 }
 
-void CPageInfo::DoDataExchange(CDataExchange* pDX)
+void CPageSerial::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_CBIndex(pDX, IDC_COMBO_PORT, m_nPort);
@@ -42,7 +42,7 @@ void CPageInfo::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHK_XON_XOFF, m_bXONXOFF);
 }
 
-BOOL CPageInfo::OnInitDialog()
+BOOL CPageSerial::OnInitDialog()
 {
 	// load port combo list
 	CComboBox* pBox = (CComboBox*)GetDlgItem(IDC_COMBO_PORT);
@@ -94,15 +94,15 @@ BOOL CPageInfo::OnInitDialog()
 	return CDialog::OnInitDialog();
 }
 
-BEGIN_MESSAGE_MAP(CPageInfo, CDialog)
-	ON_BN_CLICKED(IDC_BTN_TEST_CONN, &CPageInfo::OnBnClickedBtnTestConn)
+BEGIN_MESSAGE_MAP(CPageSerial, CDialog)
+	ON_BN_CLICKED(IDC_BTN_TEST_CONN, &CPageSerial::OnBnClickedBtnTestConn)
 END_MESSAGE_MAP()
 
 
-// CPageInfo 消息处理程序
+// CPageSerial 消息处理程序
 
 
-void CPageInfo::OnBnClickedBtnTestConn()
+void CPageSerial::OnBnClickedBtnTestConn()
 {
 	CIVError Error;
 
@@ -119,7 +119,7 @@ void CPageInfo::OnBnClickedBtnTestConn()
 	}
 }
 
-void CPageInfo::Save()
+void CPageSerial::Save()
 {
 	CConfigManager::CONFIG_VALUE_T val;
 	UpdateData(TRUE);

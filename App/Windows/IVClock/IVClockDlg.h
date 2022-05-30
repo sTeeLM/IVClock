@@ -37,7 +37,7 @@ protected:
 public:
 	CTabCtrl m_ctlTab;
 	CPageParam m_pageParam;
-	CPageInfo  m_pageInfo;
+	CPageSerial  m_pageSerial;
 	CPageAlarm m_pageAlarm;
 	CPageDateTime m_pageDateTime;
 	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);

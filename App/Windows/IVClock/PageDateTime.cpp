@@ -23,6 +23,23 @@ CPageDateTime::CPageDateTime(CWnd* pParent /*=nullptr*/)
 
 CPageDateTime::~CPageDateTime()
 {
+
+}
+
+BOOL CPageDateTime::OnInitDialog()
+{
+	if (!CDialog::OnInitDialog()) {
+		return FALSE;
+	}
+}
+
+void CPageDateTime::OnOK()
+{
+	CDialog::OnOK();
+}
+void CPageDateTime::OnCancel()
+{
+	CDialog::OnCancel();
 }
 
 void CPageDateTime::DoDataExchange(CDataExchange* pDX)

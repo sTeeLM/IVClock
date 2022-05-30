@@ -15,10 +15,12 @@ public:
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PROPPAGE_PARAM };
 #endif
-	
+	void Save();
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	void UpdateUI();
+	void LoadRemoteConfig();
+	void SaveRemoteConfig();
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedChkPsEn();
@@ -34,4 +36,5 @@ public:
 	BOOL m_bBP;
 	BOOL m_bMonLT;
 	BOOL m_bAcc;
+	afx_msg void OnBnClickedChkBsEn();
 };

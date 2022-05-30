@@ -18,7 +18,11 @@ public:
 		m_bDTRDSR(FALSE),
 		m_bXONXOFF(FALSE),
 		m_AlarmArray(NULL),
-		m_nAlarmCnt(0)
+		m_nAlarmCnt(0),
+		m_pRemoteConfigMon(NULL),
+		m_bQuitRemoteConfigMon(FALSE),
+		m_hQuitRemoteConfigMon(NULL),
+		m_hSerialMutex(NULL)
 	{
 		ZeroMemory(&m_Param, sizeof(m_Param));
 		ZeroMemory(&m_DateTime, sizeof(m_DateTime));
@@ -34,15 +38,20 @@ public:
 
 	BOOL Ping(CIVError & Error);
 
-	typedef enum {
-		REMOTE_CONFIG_TYPE_ALL,
-		REMOTE_CONFIG_TYPE_PARAM,
-		REMOTE_CONFIG_TYPE_ALARM,
-		REMOTE_CONFIG_TYPE_DATETIME,
-	}REMOTE_CONFIG_TYPE_T;
+	BOOL StartRemoteConfigMon(CIVError& Error);
 
-	BOOL SetRemoteConfig(REMOTE_CONFIG_TYPE_T eType, CIVError& Error);
+	void StopRemoteConfigMon();
+
+	BOOL Initialize(CIVError& Error);
+	void DeInitialize();
+
+	BOOL SetRemoteConfigParam(CIVError& Error);
+	BOOL SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error);
+	BOOL SetRemoteConfigDateTime(CIVError& Error);
+
 	BOOL LoadRemoteConfig(CIVError& Error);
+	BOOL LoadRemoteDateTime(CIVError& Error);
+
 	remote_control_body_param_t& GetParam()
 	{
 		return m_Param;
@@ -64,6 +73,15 @@ protected:
 	remote_control_body_alarm_t* m_AlarmArray;
 	INT m_nAlarmCnt;
 
+	// thread
+	CWinThread* m_pRemoteConfigMon;
+	BOOL        m_bQuitRemoteConfigMon;
+	HANDLE      m_hQuitRemoteConfigMon;
+
+	// mutex
+	HANDLE      m_hSerialMutex;
+protected:
+	static UINT fnDateTimeMon(LPVOID pParam);
 	BOOL ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t& msg, CIVError& Error);
 };
 

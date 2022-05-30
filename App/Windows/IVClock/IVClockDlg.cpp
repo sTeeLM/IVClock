@@ -103,12 +103,12 @@ BOOL CIVClockDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	m_ctlTab.InsertItem(0, _T("INFO"));
+	m_ctlTab.InsertItem(0, _T("SERIAL"));
 	m_ctlTab.InsertItem(1, _T("PARAM"));
 	m_ctlTab.InsertItem(2, _T("DATETIME"));
 	m_ctlTab.InsertItem(3, _T("ALARM"));
 
-	m_pageInfo.Create(IDD_PROPPAGE_INFO, &m_ctlTab);
+	m_pageSerial.Create(IDD_PROPPAGE_INFO, &m_ctlTab);
 	m_pageParam.Create(IDD_PROPPAGE_PARAM, &m_ctlTab);
 	m_pageDateTime.Create(IDD_PROPPAGE_DATETIME, &m_ctlTab);
 	m_pageAlarm.Create(IDD_PROPPAGE_ALARM, &m_ctlTab);
@@ -119,12 +119,12 @@ BOOL CIVClockDlg::OnInitDialog()
 	rect.bottom -= 4;
 	rect.left += 4;
 	rect.right -= 4;
-	m_pageInfo.MoveWindow(&rect);
+	m_pageSerial.MoveWindow(&rect);
 	m_pageParam.MoveWindow(&rect);
 	m_pageDateTime.MoveWindow(&rect);
 	m_pageAlarm.MoveWindow(&rect);
 
-	m_pageInfo.ShowWindow(SW_SHOW);
+	m_pageSerial.ShowWindow(SW_SHOW);
 	m_ctlTab.SetCurSel(0);
 	// TODO: 在此添加额外的初始化代码
 
@@ -187,25 +187,25 @@ void CIVClockDlg::OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult)
 	INT nCurSel = m_ctlTab.GetCurSel();
 	switch (nCurSel) {
 	case 0:
-		m_pageInfo.ShowWindow(SW_SHOW);
+		m_pageSerial.ShowWindow(SW_SHOW);
 		m_pageParam.ShowWindow(SW_HIDE);
 		m_pageDateTime.ShowWindow(SW_HIDE);
 		m_pageAlarm.ShowWindow(SW_HIDE);
 		break;
 	case 1:
-		m_pageInfo.ShowWindow(SW_HIDE);
+		m_pageSerial.ShowWindow(SW_HIDE);
 		m_pageParam.ShowWindow(SW_SHOW);
 		m_pageDateTime.ShowWindow(SW_HIDE);
 		m_pageAlarm.ShowWindow(SW_HIDE);
 		break;
 	case 2:
-		m_pageInfo.ShowWindow(SW_HIDE);
+		m_pageSerial.ShowWindow(SW_HIDE);
 		m_pageParam.ShowWindow(SW_HIDE);
 		m_pageDateTime.ShowWindow(SW_SHOW);
 		m_pageAlarm.ShowWindow(SW_HIDE);
 		break;
 	case 3:
-		m_pageInfo.ShowWindow(SW_HIDE);
+		m_pageSerial.ShowWindow(SW_HIDE);
 		m_pageParam.ShowWindow(SW_HIDE);
 		m_pageDateTime.ShowWindow(SW_HIDE);
 		m_pageAlarm.ShowWindow(SW_SHOW);
@@ -221,9 +221,11 @@ void CIVClockDlg::OnBnClickedOk()
 	// CDialogEx::OnOK();
 	switch (m_ctlTab.GetCurSel()) {
 		case 0:
-			m_pageInfo.Save();
+			m_pageSerial.Save();
 			break;
 		case 1:break;
+			m_pageParam.Save();
+			break;
 		case 2:break;
 		case 3:break;
 	}

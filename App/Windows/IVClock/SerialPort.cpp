@@ -35,7 +35,7 @@ INT CSerialPort::GetPortCount()
 
 INT CSerialPort::GetPortNbr(INT nIndex)
 {
-	if (nIndex < GetPortCount())
+	if (nIndex < GetPortCount() && nIndex >= 0)
 		return m_aryPorts[nIndex].nPortNbr;
 	return 0;
 }
