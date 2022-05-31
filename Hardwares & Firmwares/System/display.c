@@ -56,8 +56,9 @@ void display_format_clock(struct clock_struct * clk)
   if(_display_mode == DISPLAY_MODE_CLOCK_HHMMSS) {
     ispm = cext_cal_hour12(clk->hour, &hour12);
     BSP_IV18_Set_Dig(1, '=');
+    BSP_IV18_Clr_DP(0);
     if(clock_test_hour12()) {
-      ispm ? BSP_IV18_Set_DP(0) : BSP_IV18_Clr_DP(0);
+      if(ispm) BSP_IV18_Set_DP(0);
       BSP_IV18_Set_Dig(2, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(3, (hour12 % 10 + 0x30));      
     } else {

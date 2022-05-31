@@ -26,6 +26,9 @@ CArray<CSerialPort::SSerInfo, CSerialPort::SSerInfo&> CSerialPort::m_aryPorts;
 void CSerialPort::EnumerateSerialPorts()
 {
 	EnumSerialPorts(m_aryPorts, FALSE);
+	for (INT i = 0; i < m_aryPorts.GetCount(); i++) {
+		TRACE(_T("%s: %s %d\n"), m_aryPorts[i].strFriendlyName, m_aryPorts[i].strDevPath, m_aryPorts[i].nPortNbr);
+	}
 }
 
 INT CSerialPort::GetPortCount()
@@ -189,6 +192,13 @@ CString CSerialPort::GetPortFriendlyName(INT nIndex)
 {
 	if(nIndex >= 0 && nIndex <= GetPortCount())
 		return m_aryPorts[nIndex].strFriendlyName;
+	return _T("");
+}
+
+CString CSerialPort::GetPortDev(INT nIndex)
+{
+	if (nIndex >= 0 && nIndex <= GetPortCount())
+		return m_aryPorts[nIndex].strDevPath;
 	return _T("");
 }
 
@@ -356,10 +366,9 @@ BOOL CSerialPort::EnumPortsWdm(CArray<CSerialPort::SSerInfo, CSerialPort::SSerIn
 	return TRUE;
 }
 
-CSerialPortConnection* CSerialPort::OpenSerial(INT nPortIndex, INT nBaudRateIndex, INT nDataBitsIndex, INT nParityIndex, INT nStopBitsIndex,
+CSerialPortConnection* CSerialPort::OpenSerial(INT nPortNbr, INT nBaudRateIndex, INT nDataBitsIndex, INT nParityIndex, INT nStopBitsIndex,
 	BOOL bDTRDSR, BOOL bRTSCTS, BOOL bXONXOFF)
 {
-	INT nPortNbr  = GetPortNbr(nPortIndex);
 	INT nBaudRate = GetBaudRate(nBaudRateIndex);
 	INT nDataBits  = GetDataBits(nDataBitsIndex);
 	CHAR cParity   = GetParity(nParityIndex);
@@ -387,11 +396,17 @@ void CSerialPortConnection::ProcessError(LPCTSTR szWhere)
 
 BOOL CSerialPortConnection::Open()
 {
-	CHAR szPort[50];
+	CString strPortDev;
+	INT nPortIndex;
 	CHAR szConfig[256];
 
-	snprintf(szPort, sizeof(szPort), "COM%d", m_nPortNbr);
-	szPort[sizeof(szPort) - 1] = 0;
+	nPortIndex = CSerialPort::PortNumberToIndex(m_nPortNbr);
+
+	if (nPortIndex < 0) {
+		return FALSE;
+	}
+
+	strPortDev = CSerialPort::GetPortDev(nPortIndex);
 
 	//COMx[:][baud=b][parity=p][data=d][stop=s][to={on|off}][xon={on|off}][odsr={on|off}][octs={on|off}][dtr={on|off|hs}][rts={on|off|hs|tg}][idsr={on|off}]
 	snprintf(szConfig, sizeof(szConfig), "baud=%d parity=%c data=%d stop=%s xon=%s dtr=%s rts=%s",
@@ -404,7 +419,7 @@ BOOL CSerialPortConnection::Open()
 		m_bRTSCTS ? "on" : "off");
 	szConfig[sizeof(szConfig) - 1] = 0;
 
-	if ((m_hComm = CreateFileA(szPort,      // communication port string (COMX)
+	if ((m_hComm = CreateFile((LPCTSTR)strPortDev,      // communication port string (COMX)
 		GENERIC_READ | GENERIC_WRITE, // read/write types
 		0,        // comm devices must be opened with exclusive access
 		NULL,       // no security attributes
@@ -412,7 +427,7 @@ BOOL CSerialPortConnection::Open()
 		NULL,   // Async I/O
 		0))       // template must be 0 for comm devices
 		== INVALID_HANDLE_VALUE) {
-		ProcessError(_T("CreateFileA"));
+		ProcessError(_T("CreateFile"));
 		goto err;
 	}
 

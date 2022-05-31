@@ -221,11 +221,12 @@ void CIVClockDlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	// CDialogEx::OnOK();
-	switch (m_ctlTab.GetCurSel()) {
+	INT n = m_ctlTab.GetCurSel();
+	switch (n) {
 		case 0:
 			m_pageSerial.Save();
 			break;
-		case 1:break;
+		case 1:
 			m_pageParam.Save();
 			break;
 		case 2:break;

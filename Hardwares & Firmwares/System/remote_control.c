@@ -163,7 +163,7 @@ static void remote_control_deal_cmd(remote_control_msg_t * cmd, remote_control_m
 void remote_control_run(void)
 {
   while(remote_control_connected()) {
-    IVDBG("into remote_control_run, sizeof msg header is %d", sizeof(remote_control_msg_header_t));
+    IVDBG("into remote_control_run");
     if(remote_control_read_cmd(&remote_control_cmd)) {
       remote_control_deal_cmd(&remote_control_cmd, &remote_control_res);
       remote_control_send_res(&remote_control_res);
@@ -214,7 +214,13 @@ static void do_set_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 
 static void do_get_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
-  if(cmd->body.alarm.alarm_index < ALARM0_CNT) {
+  if(cmd->body.alarm.alarm_index == (uint8_t)(-1)) {
+    res->body.alarm.alarm_index = ALARM0_CNT;
+    res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
+    res->header.code = REMOTE_CONTROL_CODE_OK;
+    res->header.length = sizeof(res->body.alarm);
+    
+  } else if(cmd->body.alarm.alarm_index < ALARM0_CNT) {
     res->body.alarm.alarm_index = cmd->body.alarm.alarm_index;
     res->body.alarm.day_mask = alarm0_get_day_mask(cmd->body.alarm.alarm_index);
     res->body.alarm.hour = alarm0_get_hour(cmd->body.alarm.alarm_index);   
@@ -265,7 +271,6 @@ static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   res->body.param.ply_vol = player_get_vol();
   
   // other const can not set
-  res->body.param.alarm_cnt = ALARM0_CNT;
   res->body.param.min_ply_vol = player_get_min_vol();  
   res->body.param.max_ply_vol = player_get_max_vol();  
   res->body.param.min_power_timeo = POWER_MIN_TIMEO;  

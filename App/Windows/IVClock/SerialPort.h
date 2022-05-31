@@ -39,9 +39,10 @@ public:
     static CString GetStopBitsDesc(INT nIndex);
     static STOP_BITS_TYPE_T GetStopBits(INT nIndex);
     static CString GetPortFriendlyName(INT nIndex);
+    static CString GetPortDev(INT nIndex);
     static INT PortNumberToIndex(INT nPortNumber);
-
-    static CSerialPortConnection* OpenSerial(INT nPortNumber, INT nBaudRate, INT nDataBits, INT nParity, INT nStopBits,
+  
+    static CSerialPortConnection* OpenSerial(INT nPortNbr, INT nBaudRate, INT nDataBits, INT nParity, INT nStopBits,
         BOOL bDTRDSR, BOOL bRTSCTS, BOOL bXONXOFF
     );
 

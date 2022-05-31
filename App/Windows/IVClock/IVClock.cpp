@@ -100,10 +100,10 @@ BOOL CIVClockApp::InitInstance()
 		goto err;
 	}
 
-//	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
-//		AfxMessageBox(Error.GetErrorStr());
-//		goto err;
-//	}
+	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
+		AfxMessageBox(Error.GetErrorStr());
+		goto err;
+	}
 
 	m_pMainWnd = &dlg;
 	nResponse = dlg.DoModal();

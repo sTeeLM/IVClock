@@ -9,7 +9,7 @@ BOOL CRemoteConfig::LoadSerialConfig(CIVError& Error)
 	Error.SetError(CIVError::IVE_NONE);
 
 	theApp.m_Config.GetConfig(_T("connect"), _T("port"), val);
-	m_nPort = CSerialPort::PortNumberToIndex(val.u8);
+	m_nPort = val.u8;
 
 	theApp.m_Config.GetConfig(_T("connect"), _T("baudrate"), val);
 	m_nBaudRate = val.n8 < CSerialPort::GetBaudRateCount() ? val.u8 : 0;
@@ -173,6 +173,8 @@ BOOL CRemoteConfig::SetRemoteConfigParam(CIVError& Error)
 		goto err;
 	}
 
+	Sleep(1000);
+
 	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
 	msg.header.cmd = REMOTE_CONTROL_CMD_SET_PARAM;
 	msg.header.length = sizeof(remote_control_body_param_t);
@@ -259,7 +261,131 @@ err:
 	return FALSE;
 }
 
-BOOL CRemoteConfig::LoadRemoteDateTime(CIVError& Error)
+BOOL CRemoteConfig::LoadRemoteConfigParam(CIVError& Error)
+{
+	remote_control_msg_t msg;
+	CSerialPortConnection* pConn = NULL;
+	BOOL bRet = FALSE;
+
+	WaitForSingleObject(m_hSerialMutex, INFINITE);
+
+	if (!LoadSerialConfig(Error)) {
+		Error.SetError(CIVError::IVE_CONFIG);
+		goto err;
+	}
+	if ((pConn = CSerialPort::OpenSerial(
+		m_nPort,
+		m_nBaudRate,
+		m_nDataBits,
+		m_nParity,
+		m_nStopBits,
+		m_bRTSCTS,
+		m_bDTRDSR,
+		m_bXONXOFF
+	)) == NULL) {
+		Error.SetError(CIVError::IVE_SERIAL_DEVICE);
+		goto err;
+	}
+
+	Sleep(1000);
+
+	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
+	msg.header.cmd = REMOTE_CONTROL_CMD_GET_PARAM;
+	msg.header.length = sizeof(remote_control_body_param_t);
+	if (!ProcessSerialMsg(pConn, msg, Error)) {
+		goto err;
+	}
+	CopyMemory(&m_Param, &msg.body.param, sizeof(remote_control_body_param_t));
+
+	bRet = TRUE;
+err:
+	ReleaseMutex(m_hSerialMutex);
+	if (pConn)
+		pConn->Close();
+	return bRet;
+}
+
+
+BOOL CRemoteConfig::LoadRemoteConfigAlarm(CIVError& Error)
+{
+	remote_control_msg_t msg;
+	CSerialPortConnection* pConn = NULL;
+	BOOL bRet = FALSE;
+	
+	WaitForSingleObject(m_hSerialMutex, INFINITE);
+
+	if (!LoadSerialConfig(Error)) {
+		Error.SetError(CIVError::IVE_CONFIG);
+		goto err;
+	}
+
+	
+	if ((pConn = CSerialPort::OpenSerial(
+		m_nPort,
+		m_nBaudRate,
+		m_nDataBits,
+		m_nParity,
+		m_nStopBits,
+		m_bRTSCTS,
+		m_bDTRDSR,
+		m_bXONXOFF
+	)) == NULL) {
+		Error.SetError(CIVError::IVE_SERIAL_DEVICE);
+		goto err;
+	}
+
+	Sleep(1000);
+
+	// get alarm count
+	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
+	msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
+	msg.header.length = sizeof(remote_control_body_alarm_t);
+	msg.body.alarm.alarm_index = (uint8_t)(-1);
+	if (!ProcessSerialMsg(pConn, msg, Error)) {
+		goto err;
+	}
+	TRACE(_T("LoadRemoteConfigAlarm alarm cnt is %d\n"), msg.body.alarm.alarm_index);
+	// alloc alarm memory ??
+	if (m_AlarmArray != NULL && m_nAlarmCnt != msg.body.alarm.alarm_index
+		|| m_AlarmArray == NULL) {
+		if (m_AlarmArray) {
+			free(m_AlarmArray);
+			m_AlarmArray = NULL;
+			m_nAlarmCnt = 0;
+		}
+		m_AlarmArray = (remote_control_body_alarm_t*)
+			malloc(sizeof(remote_control_body_alarm_t) * msg.body.alarm.alarm_index);
+
+		if (!m_AlarmArray) {
+			Error.SetError(CIVError::IVE_NOMEM);
+			goto err;
+		}
+		m_nAlarmCnt = msg.body.alarm.alarm_index;
+		ZeroMemory(m_AlarmArray, sizeof(remote_control_body_alarm_t) * m_nAlarmCnt);
+	}
+
+	// read alarm
+	for (INT i = 0; i < m_nAlarmCnt; i++) {
+		msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
+		msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
+		msg.header.length = sizeof(remote_control_body_alarm_t);
+
+		msg.body.alarm.alarm_index = i;
+		if (!ProcessSerialMsg(pConn, msg, Error)) {
+			//goto err;
+		}
+
+		CopyMemory(m_AlarmArray + i, &msg.body.alarm, sizeof(remote_control_body_alarm_t));
+	}
+	bRet = TRUE;
+err:
+	ReleaseMutex(m_hSerialMutex);
+	if (pConn)
+		pConn->Close();
+	return bRet;
+}
+
+BOOL CRemoteConfig::LoadRemoteConfigDateTime(CIVError& Error)
 {
 	remote_control_msg_t msg;
 	CSerialPortConnection* pConn = NULL;
@@ -285,6 +411,9 @@ BOOL CRemoteConfig::LoadRemoteDateTime(CIVError& Error)
 		Error.SetError(CIVError::IVE_SERIAL_DEVICE);
 		goto err;
 	}
+
+	Sleep(1000);
+
 	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
 	msg.header.cmd = REMOTE_CONTROL_CMD_GET_TIME;
 	msg.header.length = sizeof(remote_control_body_time_t);
@@ -322,89 +451,14 @@ BOOL CRemoteConfig::Initialize(CIVError& Error)
 
 BOOL CRemoteConfig::LoadRemoteConfig(CIVError& Error)
 {
-	remote_control_msg_t msg;
-	CSerialPortConnection* pConn = NULL;
-	BOOL bRet = FALSE;
+	if (!LoadRemoteConfigParam(Error))
+		return FALSE;
 
-	WaitForSingleObject(m_hSerialMutex, INFINITE);
+	if (!LoadRemoteConfigAlarm(Error))
+		return FALSE;
 
-	if (!LoadSerialConfig(Error)) {
-		Error.SetError(CIVError::IVE_CONFIG);
-		goto err;
-	}
+	if (!LoadRemoteConfigDateTime(Error))
+		return FALSE;
 
-	if ((pConn = CSerialPort::OpenSerial(
-		m_nPort,
-		m_nBaudRate,
-		m_nDataBits,
-		m_nParity,
-		m_nStopBits,
-		m_bRTSCTS,
-		m_bDTRDSR,
-		m_bXONXOFF
-	)) == NULL) {
-		Error.SetError(CIVError::IVE_SERIAL_DEVICE);
-		goto err;
-	}
-
-	Sleep(1000);
-
-	// read param
-	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_GET_PARAM;
-	msg.header.length = 0;
-
-	if (!ProcessSerialMsg(pConn, msg, Error)) {
-		goto err;
-	}
-
-	CopyMemory(&m_Param, &msg.body, sizeof(m_Param));
-
-	// alloc alarm memory ??
-	if (m_AlarmArray != NULL && m_nAlarmCnt != m_Param.alarm_cnt
-		|| m_AlarmArray == NULL) {
-		if (m_AlarmArray) {
-			free(m_AlarmArray);
-			m_AlarmArray = NULL;
-			m_nAlarmCnt = 0;
-		}
-		m_AlarmArray = (remote_control_body_alarm_t*)
-			malloc(sizeof(remote_control_body_alarm_t) * m_Param.alarm_cnt);
-
-		if (!m_AlarmArray) {
-			Error.SetError(CIVError::IVE_NOMEM);
-			goto err;
-		}
-		ZeroMemory(m_AlarmArray, sizeof(remote_control_body_alarm_t) * msg.body.param.alarm_cnt);
-	}
-
-	// read alarm
-	for (INT i = 0; i < m_Param.alarm_cnt; i++) {
-		msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-		msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
-		msg.header.length = sizeof(remote_control_body_alarm_t);
-
-		msg.body.alarm.alarm_index = i;
-		if (!ProcessSerialMsg(pConn, msg, Error)) {
-			//goto err;
-		}
-
-		CopyMemory(m_AlarmArray + i, &msg.body.alarm, sizeof(remote_control_body_alarm_t));
-	}
-
-	// read date time
-	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_GET_TIME;
-	msg.header.length = sizeof(remote_control_body_time_t);
-	if (!ProcessSerialMsg(pConn, msg, Error)) {
-		goto err;
-	}
-	CopyMemory(&m_DateTime, &msg.body.time, sizeof(remote_control_body_time_t));
-
-	bRet = TRUE;
-err:
-	ReleaseMutex(m_hSerialMutex);
-	if (pConn)
-		pConn->Close();
-	return bRet;
+	return TRUE;
 }

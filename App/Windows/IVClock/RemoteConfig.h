@@ -50,7 +50,9 @@ public:
 	BOOL SetRemoteConfigDateTime(CIVError& Error);
 
 	BOOL LoadRemoteConfig(CIVError& Error);
-	BOOL LoadRemoteDateTime(CIVError& Error);
+	BOOL LoadRemoteConfigParam(CIVError& Error);
+	BOOL LoadRemoteConfigAlarm(CIVError& Error);
+	BOOL LoadRemoteConfigDateTime(CIVError& Error);
 
 	remote_control_body_param_t& GetParam()
 	{

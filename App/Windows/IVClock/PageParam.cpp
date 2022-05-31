@@ -134,7 +134,7 @@ void CPageParam::SaveRemoteConfig()
 
 BOOL CPageParam::OnInitDialog()
 {	
-	//LoadRemoteConfig();
+	LoadRemoteConfig();
 
 	if (!CDialog::OnInitDialog()) {
 		return FALSE;

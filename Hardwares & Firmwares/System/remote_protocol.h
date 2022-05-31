@@ -72,7 +72,7 @@ typedef struct remote_control_body_time
 #pragma pack(push,1)
 typedef struct remote_control_body_alarm
 {
-  uint8_t alarm_index; // 0 - 9
+  uint8_t alarm_index; // 0 - 9, if -1, get alarm_cnt
   uint8_t day_mask;    //
   uint8_t hour;        // 0 - 23
   uint8_t min;         // 0 - 59
@@ -96,7 +96,6 @@ typedef struct remote_control_body_param
   uint8_t tmr_snd;
   uint8_t ply_vol; 
   // other const can not set
-  uint8_t alarm_cnt;
   uint8_t min_ply_vol;
   uint8_t max_ply_vol;
   uint8_t min_power_timeo;  
