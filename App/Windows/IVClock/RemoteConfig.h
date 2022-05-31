@@ -49,14 +49,19 @@ public:
 	BOOL SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error);
 	BOOL SetRemoteConfigDateTime(CIVError& Error);
 
-	BOOL LoadRemoteConfig(CIVError& Error);
-	BOOL LoadRemoteConfigParam(CIVError& Error);
-	BOOL LoadRemoteConfigAlarm(CIVError& Error);
-	BOOL LoadRemoteConfigDateTime(CIVError& Error);
+	BOOL LoadRemoteConfig(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent = NULL);
 
 	remote_control_body_param_t& GetParam()
 	{
 		return m_Param;
+	}
+
+	remote_control_body_time_t& GetDateTime()
+	{
+		return m_DateTime;
 	}
 protected:
 	// serial config

@@ -91,11 +91,13 @@ void CPageParam::LoadRemoteConfig()
 	{
 		pTmrPSTimeo->DeleteString(i);
 	}
+
 	for (INT i = theApp.m_RemoteConfig.GetParam().min_power_timeo;
 		i <= theApp.m_RemoteConfig.GetParam().max_power_timeo; i += theApp.m_RemoteConfig.GetParam().step_power_timeo) {
 		strLabel.Format(_T("%02d"), i);
 		pTmrPSTimeo->AddString(strLabel);
 	}
+
 	m_bPS = theApp.m_RemoteConfig.GetParam().power_timeo != 0;
 	if (theApp.m_RemoteConfig.GetParam().step_power_timeo) {
 		m_nPSTimeo = (theApp.m_RemoteConfig.GetParam().power_timeo
@@ -147,6 +149,7 @@ BOOL CPageParam::OnInitDialog()
 }
 
 BEGIN_MESSAGE_MAP(CPageParam, CDialog)
+	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_CHK_PS_EN, &CPageParam::OnBnClickedChkPsEn)
 	ON_BN_CLICKED(IDC_CHK_BS_EN, &CPageParam::OnBnClickedChkBsEn)
 END_MESSAGE_MAP()
