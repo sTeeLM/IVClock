@@ -17,6 +17,7 @@ CPageDateTime::CPageDateTime(CWnd* pParent /*=nullptr*/)
 	, m_nTMAutoSyncInterval(0)
 	, m_oleDate(COleDateTime::GetCurrentTime())
 	, m_oleTime(COleDateTime::GetCurrentTime())
+	, m_oleLastSync(COleDateTime::GetCurrentTime())
 	, m_pDateTimeThread(NULL)
 	, m_bStopDateTimeThread(FALSE)
 	, m_hStopDateTimeThread(NULL)
@@ -30,14 +31,16 @@ CPageDateTime::~CPageDateTime()
 
 }
 
-UINT CPageDateTime::fnDateTimeInc(LPVOID pParam)
+UINT CPageDateTime::fnDateTimeThread(LPVOID pParam)
 {
 	CPageDateTime* pThis = (CPageDateTime*)pParam;
 	DWORD dwWaitRes;
-
+	CIVError Error;
+	COleDateTime oleNow;
 	do {
-		dwWaitRes = WaitForSingleObject(pThis->m_hStopDateTimeThread, 5000);
+		dwWaitRes = WaitForSingleObject(pThis->m_hStopDateTimeThread, 10000);
 		if (dwWaitRes == WAIT_FAILED) {
+			Error.SetError(CIVError::IVE_INTERNAL);
 			break;
 		}
 
@@ -45,16 +48,20 @@ UINT CPageDateTime::fnDateTimeInc(LPVOID pParam)
 			break;
 		}
 
-		pThis->IncDateTime();
+		oleNow = COleDateTime::GetCurrentTime();
+
+		if (!pThis->RefreshDateTime(Error)) {
+			TRACE(_T("RefreshDateTime Error %s\n"), Error.GetErrorStr());
+		}
 
 	} while (!pThis->m_bStopDateTimeThread);
 
-	TRACE(_T("fnDateTimeInc quit!\n"));
+	TRACE(_T("fnDateTimeThread quit!\n"));
 	return 0;
 
 }
 
-BOOL CPageDateTime::StartDateTimeInc(CIVError &Error)
+BOOL CPageDateTime::StartDateTimeThread(CIVError &Error)
 {
 	DWORD dwCreateFlag = CREATE_SUSPENDED;
 
@@ -70,7 +77,7 @@ BOOL CPageDateTime::StartDateTimeInc(CIVError &Error)
 		return FALSE;
 	}
 
-	m_pDateTimeThread = AfxBeginThread(fnDateTimeInc, this, 0, 0, dwCreateFlag, NULL);
+	m_pDateTimeThread = AfxBeginThread(fnDateTimeThread, this, 0, 0, dwCreateFlag, NULL);
 	if (m_pDateTimeThread) {
 		m_pDateTimeThread->m_bAutoDelete = FALSE;
 		m_pDateTimeThread->ResumeThread();
@@ -81,7 +88,7 @@ BOOL CPageDateTime::StartDateTimeInc(CIVError &Error)
 	return m_pDateTimeThread != NULL;
 }
 
-void CPageDateTime::StopDateTimeInc()
+void CPageDateTime::StopDateTimeThread()
 {
 	if (m_pDateTimeThread) {
 		m_bStopDateTimeThread = TRUE;
@@ -99,14 +106,16 @@ void CPageDateTime::StopDateTimeInc()
 	}
 }
 
-void CPageDateTime::IncDateTime()
+BOOL CPageDateTime::RefreshDateTime(CIVError& Error)
 {
-	CIVError Error;
 	DWORD dwWaitRes;
+	BOOL bRet = FALSE;
 
 	dwWaitRes = WaitForSingleObject(m_hOleDateMutex, INFINITE);
-	if (dwWaitRes == WAIT_FAILED)
-		return;
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return bRet;
+	}
 
 	if (theApp.m_RemoteConfig.LoadRemoteConfigDateTime(Error, m_hStopDateTimeThread)) {
 		m_oleDate.SetDateTime(
@@ -122,9 +131,48 @@ void CPageDateTime::IncDateTime()
 		CDateTimeCtrl* pTime = (CDateTimeCtrl*)GetDlgItem(IDC_DTP_TIME);
 		pDate->SetTime(m_oleDate);
 		pTime->SetTime(m_oleTime);
+		bRet = TRUE;
 	}
 
 	ReleaseMutex(m_hOleDateMutex);
+
+	return bRet;
+}
+
+BOOL CPageDateTime::SyncDateTime(CIVError& Error)
+{
+	DWORD dwWaitRes;
+	BOOL bRet = FALSE;
+
+	dwWaitRes = WaitForSingleObject(m_hOleDateMutex, INFINITE);
+
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return bRet;
+	}
+
+	COleDateTimeSpan OneSec(0, 0, 0, 1); // 同步需要大约1S
+	m_oleDate = m_oleTime = COleDateTime::GetCurrentTime() + OneSec;
+
+	theApp.m_RemoteConfig.GetDateTime().year = m_oleDate.GetYear() - 2000;
+	theApp.m_RemoteConfig.GetDateTime().mon = m_oleDate.GetMonth();
+	theApp.m_RemoteConfig.GetDateTime().date = m_oleDate.GetDay();
+	theApp.m_RemoteConfig.GetDateTime().hour = m_oleDate.GetHour();
+	theApp.m_RemoteConfig.GetDateTime().min = m_oleDate.GetMinute();
+	theApp.m_RemoteConfig.GetDateTime().sec = m_oleDate.GetSecond();
+
+	if (theApp.m_RemoteConfig.SetRemoteConfigDateTime(Error)) {
+		// 也顺手刷新本地显示
+		CDateTimeCtrl* pDate = (CDateTimeCtrl*)GetDlgItem(IDC_DTP_DATE);
+		CDateTimeCtrl* pTime = (CDateTimeCtrl*)GetDlgItem(IDC_DTP_TIME);
+		pDate->SetTime(m_oleDate);
+		pTime->SetTime(m_oleTime);
+		bRet = TRUE;
+	}
+
+	ReleaseMutex(m_hOleDateMutex);
+
+	return bRet;
 }
 
 BOOL CPageDateTime::OnInitDialog()
@@ -155,11 +203,15 @@ BOOL CPageDateTime::OnInitDialog()
 		return FALSE;
 	}
 
-	StartDateTimeInc(Error);
+	StartDateTimeThread(Error);
 
 	if (!CDialog::OnInitDialog()) {
 		return FALSE;
 	}
+
+	GetDlgItem(IDC_COMBO_DATETIME_SYNC_INTERVAL)->
+		EnableWindow(((CButton*)GetDlgItem(IDC_CHK_DATETIME_AUTO_SYNC))->GetCheck() == BST_CHECKED);
+
 	return TRUE;
 }
 
@@ -184,43 +236,34 @@ void CPageDateTime::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CPageDateTime, CDialog)
+	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BTN_DATETIME_SYNC_NOW, &CPageDateTime::OnBnClickedBtnDatetimeSyncNow)
 	ON_BN_CLICKED(IDC_CHK_DATETIME_AUTO_SYNC, &CPageDateTime::OnBnClickedChkDatetimeAutoSync)
+	ON_BN_CLICKED(IDC_BTN_DATETIME_REFRESH, &CPageDateTime::OnBnClickedBtnDatetimeRefresh)
 END_MESSAGE_MAP()
 
 
 // CPageDateTime 消息处理程序
 
+void CPageDateTime::OnBnClickedBtnDatetimeRefresh()
+{
+	CIVError Error;
+	if (!RefreshDateTime(Error)) {
+		AfxMessageBox(Error.GetErrorStr());
+	}
+}
 
 void CPageDateTime::OnBnClickedBtnDatetimeSyncNow()
 {
 	CIVError Error;
-	DWORD dwWaitRes = WaitForSingleObject(m_hOleDateMutex, INFINITE);
-	if (dwWaitRes == WAIT_FAILED) {
-		Error.SetError(CIVError::IVE_INTERNAL);
-		AfxMessageBox(Error.GetErrorStr());
-		return;
-	}
-
-	m_oleDate = m_oleTime = COleDateTime::GetCurrentTime();
-
-	theApp.m_RemoteConfig.GetDateTime().year = m_oleDate.GetYear() - 2000;
-	theApp.m_RemoteConfig.GetDateTime().mon = m_oleDate.GetMonth();
-	theApp.m_RemoteConfig.GetDateTime().date = m_oleDate.GetDay();
-	theApp.m_RemoteConfig.GetDateTime().hour = m_oleDate.GetHour();
-	theApp.m_RemoteConfig.GetDateTime().min  = m_oleDate.GetMinute();
-	theApp.m_RemoteConfig.GetDateTime().sec = m_oleDate.GetSecond();
-
-	if (!theApp.m_RemoteConfig.SetRemoteConfigDateTime(Error)) {
+	if (!SyncDateTime(Error)) {
 		AfxMessageBox(Error.GetErrorStr());
 	}
-
-	ReleaseMutex(m_hOleDateMutex);
 }
 
 void CPageDateTime::OnDestroy()
 {
-	StopDateTimeInc();
+	StopDateTimeThread();
 	CloseHandle(m_hOleDateMutex);
 	m_hOleDateMutex = NULL;
 	CDialog::OnDestroy();
@@ -254,3 +297,6 @@ void CPageDateTime::OnBnClickedChkDatetimeAutoSync()
 	GetDlgItem(IDC_COMBO_DATETIME_SYNC_INTERVAL)->
 		EnableWindow(((CButton*)GetDlgItem(IDC_CHK_DATETIME_AUTO_SYNC))->GetCheck() == BST_CHECKED);
 }
+
+
+

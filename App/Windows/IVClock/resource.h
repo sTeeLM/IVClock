@@ -41,20 +41,21 @@
 #define IDC_CHK_DATETIME_AUTO_SYNC      1023
 #define IDC_COMBO_DATETIME_SYNC_INTERVAL 1024
 #define IDC_BTN_DATETIME_SYNC_NOW       1025
-#define IDC_COMBO_ALARM_INDEX           1026
-#define IDC_COMBO_BS_FROM               1027
-#define IDC_COMBO_BS_TO                 1028
-#define IDC_CHK_ALARM_DAY1              1028
-#define IDC_CHK_ALARM_DAY2              1029
-#define IDC_CHK_ALARM_DAY3              1030
-#define IDC_CHK_ALARM_DAY4              1031
-#define IDC_CHK_ALARM_DAY5              1032
-#define IDC_CHK_ALARM_DAY6              1033
-#define IDC_CHK_ALARM_DAY7              1034
-#define IDC_BTN_ALARM_SEL_ALL           1035
-#define IDC_BTN_ALARM_SEL_NONE          1036
-#define IDC_DTP_ALARM_TIME              1037
-#define IDC_SLIDER_PLY_VOL              1038
+#define IDC_BTN_DATETIME_REFRESH        1026
+#define IDC_COMBO_ALARM_INDEX           1027
+#define IDC_COMBO_BS_FROM               1028
+#define IDC_COMBO_BS_TO                 1029
+#define IDC_CHK_ALARM_DAY1              1030
+#define IDC_CHK_ALARM_DAY2              1031
+#define IDC_CHK_ALARM_DAY3              1032
+#define IDC_CHK_ALARM_DAY4              1033
+#define IDC_CHK_ALARM_DAY5              1034
+#define IDC_CHK_ALARM_DAY6              1035
+#define IDC_CHK_ALARM_DAY7              1036
+#define IDC_BTN_ALARM_SEL_ALL           1037
+#define IDC_BTN_ALARM_SEL_NONE          1038
+#define IDC_DTP_ALARM_TIME              1039
+#define IDC_SLIDER_PLY_VOL              1040
 
 // Next default values for new objects
 // 
@@ -62,7 +63,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -208,6 +208,7 @@ static void do_set_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
   clock_sync_to_rtc(CLOCK_SYNC_DATE);
   clock_enable_interrupt(TRUE);
   alarm_resync_rtc();
+  res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
   res->header.length = 0;  
 }

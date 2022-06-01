@@ -187,7 +187,7 @@ BOOL CRemoteConfig::SetRemoteConfigParam(CIVError& Error)
 	msg.header.cmd = REMOTE_CONTROL_CMD_SET_PARAM;
 	msg.header.length = sizeof(remote_control_body_param_t);
 
-	CopyMemory(&msg.body, &m_Param, sizeof(msg.body));
+	CopyMemory(&msg.body, &m_Param, sizeof(m_Param));
 
 	if (!ProcessSerialMsg(pConn, msg, Error)) {
 		goto err;
@@ -208,7 +208,54 @@ BOOL CRemoteConfig::SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error)
 
 BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error)
 {
-	return TRUE;
+
+	remote_control_msg_t msg;
+	CSerialPortConnection* pConn = NULL;
+	BOOL bRet = FALSE;
+	DWORD dwWaitRes;
+
+	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		goto err;
+	}
+
+	if (!LoadSerialConfig(Error)) {
+		Error.SetError(CIVError::IVE_CONFIG);
+		goto err;
+	}
+	if ((pConn = CSerialPort::OpenSerial(
+		m_nPort,
+		m_nBaudRate,
+		m_nDataBits,
+		m_nParity,
+		m_nStopBits,
+		m_bRTSCTS,
+		m_bDTRDSR,
+		m_bXONXOFF
+	)) == NULL) {
+		Error.SetError(CIVError::IVE_SERIAL_CONN);
+		goto err;
+	}
+
+	Sleep(1000);
+
+	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
+	msg.header.cmd = REMOTE_CONTROL_CMD_SET_TIME;
+	msg.header.length = sizeof(remote_control_body_time_t);
+
+	CopyMemory(&msg.body, &m_DateTime, sizeof(m_DateTime));
+
+	if (!ProcessSerialMsg(pConn, msg, Error)) {
+		goto err;
+	}
+
+	bRet = TRUE;
+err:
+	ReleaseMutex(m_hSerialMutex);
+	if (pConn)
+		pConn->Close();
+	return bRet;
 }
 
 BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t &msg, CIVError& Error)
@@ -322,7 +369,7 @@ BOOL CRemoteConfig::LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent/* =
 	if (!ProcessSerialMsg(pConn, msg, Error)) {
 		goto err;
 	}
-	CopyMemory(&m_Param, &msg.body.param, sizeof(remote_control_body_param_t));
+	CopyMemory(&m_Param, &msg.body.param, sizeof(m_Param));
 
 	bRet = TRUE;
 err:
@@ -498,7 +545,7 @@ BOOL CRemoteConfig::LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent/
 	if (!ProcessSerialMsg(pConn, msg, Error)) {
 		goto err;
 	}
-	CopyMemory(&m_DateTime, &msg.body.time, sizeof(remote_control_body_time_t));
+	CopyMemory(&m_DateTime, &msg.body.time, sizeof(m_DateTime));
 
 	bRet = TRUE;
 err:
