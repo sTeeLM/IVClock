@@ -35,59 +35,19 @@ BOOL CRemoteConfig::LoadSerialConfig(CIVError& Error)
 	return TRUE;
 }
 
-BOOL CRemoteConfig::Ping(CIVError& Error)
+BOOL CRemoteConfig::Ping(CIVError& Error, HANDLE hWaitEvent/* = NULL */ )
 {
-	remote_control_msg_t msg;
-	CSerialPortConnection* pConn = NULL;
-	BOOL bRet = FALSE;
-
-	WaitForSingleObject(m_hSerialMutex, INFINITE);
-
-	if (!LoadSerialConfig(Error)) {
-		Error.SetError(CIVError::IVE_CONFIG);
-		goto err;
-	}
-
-	if ((pConn = CSerialPort::OpenSerial(
-		m_nPort,
-		m_nBaudRate,
-		m_nDataBits,
-		m_nParity,
-		m_nStopBits,
-		m_bRTSCTS,
-		m_bDTRDSR,
-		m_bXONXOFF
-	)) == NULL) {
-		Error.SetError(CIVError::IVE_SERIAL_CONN);
-		goto err;
-	}
-
-	TRACE(_T("sizeof msg header %d\n"), sizeof(msg.header));
-	ZeroMemory(&msg.header, sizeof(msg.header));
-	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_PING;
-	msg.header.length = 0;
-	
-	if (!ProcessSerialMsg(pConn, msg, Error)) {
-		goto err;
-	}
-	
-	bRet = TRUE;
-err:
-	ReleaseMutex(m_hSerialMutex);
-	if (pConn)
-		pConn->Close();
-	return bRet;
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_PING);
 }
 
-UINT CRemoteConfig::fnDateTimeMon(LPVOID pParam)
+UINT CRemoteConfig::fnRemoteConfigMon(LPVOID pParam)
 {
 	CRemoteConfig* pRemoteConfig = (CRemoteConfig*)pParam;
 	DWORD dwWaitRes;
 	CIVError Error;
 		
 	do {
-		dwWaitRes = WaitForSingleObject(pRemoteConfig->m_hQuitRemoteConfigMon, 500);
+		dwWaitRes = WaitForSingleObject(pRemoteConfig->m_hQuitRemoteConfigMon, 10000);
 		if (dwWaitRes == WAIT_FAILED) {
 			break;
 		}
@@ -96,11 +56,11 @@ UINT CRemoteConfig::fnDateTimeMon(LPVOID pParam)
 			break;
 		}
 
-		pRemoteConfig->LoadRemoteConfig(Error);
+		pRemoteConfig->RemoteConfigMon(Error);
 
 	} while (!pRemoteConfig->m_bQuitRemoteConfigMon);
 
-	TRACE(_T("fnDateTimeMon quit!\n"));
+	TRACE(_T("fnRemoteConfigMon quit!\n"));
 	return 0;
 }
 
@@ -133,13 +93,13 @@ BOOL CRemoteConfig::StartRemoteConfigMon(CIVError& Error)
 
 	m_bQuitRemoteConfigMon = FALSE;
 
-	if (!(m_hQuitRemoteConfigMon = CreateEvent(NULL, TRUE, FALSE, _T("DateTimeMon")))) {
+	if (!(m_hQuitRemoteConfigMon = CreateEvent(NULL, TRUE, FALSE, _T("RemoteConfigMon")))) {
 		Error.SetError(CIVError::IVE_INTERNAL);
 		return FALSE;
 	}
 
 
-	m_pRemoteConfigMon = AfxBeginThread(fnDateTimeMon, this, 0, 0, dwCreateFlag, NULL);
+	m_pRemoteConfigMon = AfxBeginThread(fnRemoteConfigMon, this, 0, 0, dwCreateFlag, NULL);
 	if (m_pRemoteConfigMon) {
 		m_pRemoteConfigMon->m_bAutoDelete = FALSE;
 		m_pRemoteConfigMon->ResumeThread();
@@ -150,14 +110,15 @@ BOOL CRemoteConfig::StartRemoteConfigMon(CIVError& Error)
 	return m_pRemoteConfigMon != NULL;
 }
 
-BOOL CRemoteConfig::SetRemoteConfigParam(CIVError& Error)
+
+BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_control_cmd_type_t eCmd, INT nIndex /* = 0*/)
 {
 	remote_control_msg_t msg;
 	CSerialPortConnection* pConn = NULL;
 	BOOL bRet = FALSE;
 	DWORD dwWaitRes;
 
-	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
 	if (dwWaitRes == WAIT_FAILED) {
 		Error.SetError(CIVError::IVE_INTERNAL);
 		goto err;
@@ -181,81 +142,85 @@ BOOL CRemoteConfig::SetRemoteConfigParam(CIVError& Error)
 		goto err;
 	}
 
-	Sleep(1000);
+	if (hWaitEvent) {
+		dwWaitRes = WaitForSingleObject(hWaitEvent, 1000);
+		if (dwWaitRes == WAIT_FAILED) {
+			Error.SetError(CIVError::IVE_INTERNAL);
+			goto err;
+		}
+		else if (dwWaitRes == WAIT_OBJECT_0) {
+			Error.SetError(CIVError::IVE_CANCELED);
+			goto err;
+		}
+	}
+	else {
+		Sleep(1000);
+	}
 
 	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_SET_PARAM;
-	msg.header.length = sizeof(remote_control_body_param_t);
-
-	CopyMemory(&msg.body, &m_Param, sizeof(m_Param));
+	msg.header.cmd   = eCmd;
+	msg.header.code  = REMOTE_CONTROL_CODE_OK;
+	switch (eCmd) {
+	case REMOTE_CONTROL_CMD_PING:
+		msg.header.length = 0;
+		break;
+	case REMOTE_CONTROL_CMD_SET_TIME:
+		msg.header.length = sizeof(remote_control_body_time_t);
+		CopyMemory(&msg.body, &m_DateTime, sizeof(m_DateTime));
+		break;
+	case REMOTE_CONTROL_CMD_GET_TIME:
+		msg.header.length = 0;
+		ZeroMemory(&msg.body, sizeof(m_DateTime));
+		break;
+	case REMOTE_CONTROL_CMD_SET_PARAM:
+		msg.header.length = sizeof(remote_control_body_param_t);
+		CopyMemory(&msg.body, &m_Param, sizeof(m_Param));
+		break;
+	case REMOTE_CONTROL_CMD_GET_PARAM:
+		msg.header.length = 0;
+		ZeroMemory(&msg.body, sizeof(m_Param));
+		break;
+	case REMOTE_CONTROL_CMD_SET_ALARM:
+		msg.header.length = sizeof(remote_control_body_alarm_t);
+		msg.body.alarm.alarm_index = nIndex;
+		CopyMemory(&msg.body, &m_AlarmArray[nIndex],sizeof(remote_control_body_alarm_t));
+		break;
+	}
 
 	if (!ProcessSerialMsg(pConn, msg, Error)) {
 		goto err;
 	}
 
+	switch (eCmd) {
+	case REMOTE_CONTROL_CMD_GET_TIME:
+		CopyMemory(&m_DateTime, &msg.body, sizeof(m_DateTime));
+		break;
+	case REMOTE_CONTROL_CMD_GET_PARAM:
+		CopyMemory(&m_Param, &msg.body, sizeof(m_Param));
+		break;
+	}
+
 	bRet = TRUE;
 err:
-	ReleaseMutex(m_hSerialMutex);
+	ReleaseMutex(m_hDataMutex);
 	if (pConn)
 		pConn->Close();
 	return bRet;
 }
 
-BOOL CRemoteConfig::SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error)
+BOOL CRemoteConfig::SetRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent /* = NULL*/)
+{
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_PARAM);
+}
+
+BOOL CRemoteConfig::SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error, HANDLE hWaitEvent /* = NULL */)
 {
 	return TRUE;
 }
 
-BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error)
+BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent /* = NULL */)
 {
-
-	remote_control_msg_t msg;
-	CSerialPortConnection* pConn = NULL;
-	BOOL bRet = FALSE;
-	DWORD dwWaitRes;
-
-	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
-	if (dwWaitRes == WAIT_FAILED) {
-		Error.SetError(CIVError::IVE_INTERNAL);
-		goto err;
-	}
-
-	if (!LoadSerialConfig(Error)) {
-		Error.SetError(CIVError::IVE_CONFIG);
-		goto err;
-	}
-	if ((pConn = CSerialPort::OpenSerial(
-		m_nPort,
-		m_nBaudRate,
-		m_nDataBits,
-		m_nParity,
-		m_nStopBits,
-		m_bRTSCTS,
-		m_bDTRDSR,
-		m_bXONXOFF
-	)) == NULL) {
-		Error.SetError(CIVError::IVE_SERIAL_CONN);
-		goto err;
-	}
-
-	Sleep(1000);
-
-	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_SET_TIME;
-	msg.header.length = sizeof(remote_control_body_time_t);
-
-	CopyMemory(&msg.body, &m_DateTime, sizeof(m_DateTime));
-
-	if (!ProcessSerialMsg(pConn, msg, Error)) {
-		goto err;
-	}
-
-	bRet = TRUE;
-err:
-	ReleaseMutex(m_hSerialMutex);
-	if (pConn)
-		pConn->Close();
-	return bRet;
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_TIME);
 }
 
 BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t &msg, CIVError& Error)
@@ -318,70 +283,7 @@ err:
 
 BOOL CRemoteConfig::LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent/* = NULL*/)
 {
-	remote_control_msg_t msg;
-	CSerialPortConnection* pConn = NULL;
-	BOOL bRet = FALSE;
-	DWORD dwWaitRes;
-
-	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
-	if (dwWaitRes == WAIT_FAILED) {
-		Error.SetError(CIVError::IVE_INTERNAL);
-		goto err;
-	}
-
-	if (!LoadSerialConfig(Error)) {
-		Error.SetError(CIVError::IVE_CONFIG);
-		goto err;
-	}
-	if ((pConn = CSerialPort::OpenSerial(
-		m_nPort,
-		m_nBaudRate,
-		m_nDataBits,
-		m_nParity,
-		m_nStopBits,
-		m_bRTSCTS,
-		m_bDTRDSR,
-		m_bXONXOFF
-	)) == NULL) {
-		Error.SetError(CIVError::IVE_SERIAL_DEVICE);
-		goto err;
-	}
-
-	if (hWaitEvent) {
-		dwWaitRes = WaitForSingleObject(hWaitEvent, 1000);
-		if (dwWaitRes == WAIT_FAILED) {
-			Error.SetError(CIVError::IVE_INTERNAL);
-			goto err;
-		}
-		else if (dwWaitRes == WAIT_OBJECT_0) {
-			Error.SetError(CIVError::IVE_CANCELED);
-			goto err;
-		}
-
-	}
-	else {
-		Sleep(1000);
-	}
-
-	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_GET_PARAM;
-	msg.header.length = sizeof(remote_control_body_param_t);
-	if (!ProcessSerialMsg(pConn, msg, Error)) {
-		goto err;
-	}
-	CopyMemory(&m_Param, &msg.body.param, sizeof(m_Param));
-
-	bRet = TRUE;
-err:
-
-	if (!bRet) {
-		ZeroMemory(&m_Param, sizeof(m_Param));
-	}
-
-	ReleaseMutex(m_hSerialMutex);
-	if (pConn)
-		pConn->Close();
-	return bRet;
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_PARAM);
 }
 
 
@@ -392,7 +294,7 @@ BOOL CRemoteConfig::LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent/* =
 	BOOL bRet = FALSE;
 	DWORD dwWaitRes;
 	
-	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
 	if (dwWaitRes == WAIT_FAILED) {
 		Error.SetError(CIVError::IVE_INTERNAL);
 		goto err;
@@ -486,7 +388,7 @@ err:
 		m_nAlarmCnt = 0;
 	}
 
-	ReleaseMutex(m_hSerialMutex);
+	ReleaseMutex(m_hDataMutex);
 	if (pConn)
 		pConn->Close();
 	return bRet;
@@ -494,70 +396,146 @@ err:
 
 BOOL CRemoteConfig::LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent/* = NULL */)
 {
-	remote_control_msg_t msg;
-	CSerialPortConnection* pConn = NULL;
-	BOOL bRet = FALSE;
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_TIME);
+}
+
+BOOL CRemoteConfig::SetParam(CIVError& Error, const remote_control_body_param_t& param)
+{
 	DWORD dwWaitRes;
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+
+	CopyMemory(&m_Param, &param, sizeof(m_Param));
+
+	ReleaseMutex(m_hDataMutex);
+	return TRUE;
+}
+
+BOOL CRemoteConfig::GetParam(CIVError& Error, remote_control_body_param_t& param)
+{
+	DWORD dwWaitRes;
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+
+	CopyMemory(&param, &m_Param, sizeof(m_Param));
+
+	ReleaseMutex(m_hDataMutex);
+	return TRUE;
+}
+
+
+BOOL CRemoteConfig::SetDateTime(CIVError& Error, const remote_control_body_time_t& datetime)
+{
+	DWORD dwWaitRes;
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+
+	CopyMemory(&m_DateTime, &datetime, sizeof(m_DateTime));
+
+	ReleaseMutex(m_hDataMutex);
+	return TRUE;
+}
+
+
+BOOL CRemoteConfig::GetDateTime(CIVError& Error, remote_control_body_time_t& datetime)
+{
+	DWORD dwWaitRes;
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+
+	CopyMemory(&datetime, &m_DateTime, sizeof(m_DateTime));
+
+	ReleaseMutex(m_hDataMutex);
+	return TRUE;
+}
+
+BOOL CRemoteConfig::AddTask(CIVError& Error, CTask::IV_TASK_TYPE_T eTaskType, HWND hCallbackHwnd, UINT nMessage, LPVOID pParam /* = NULL */ )
+{
+	CTask* pTask = NULL;
+	DWORD dwWaitRes;
+	BOOL bRet = FALSE;
 
 	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
 	if (dwWaitRes == WAIT_FAILED) {
 		Error.SetError(CIVError::IVE_INTERNAL);
-		goto err;
+		return FALSE;
 	}
 
-	if (!LoadSerialConfig(Error)) {
-		Error.SetError(CIVError::IVE_CONFIG);
-		goto err;
+	pTask = new CTask(hCallbackHwnd, eTaskType, nMessage, pParam);
+	if (pTask) {
+		m_TaskQueue.AddToEnd(pTask);
+		bRet = TRUE;
 	}
-
-	if ((pConn = CSerialPort::OpenSerial(
-		m_nPort,
-		m_nBaudRate,
-		m_nDataBits,
-		m_nParity,
-		m_nStopBits,
-		m_bRTSCTS,
-		m_bDTRDSR,
-		m_bXONXOFF
-	)) == NULL) {
-		Error.SetError(CIVError::IVE_SERIAL_DEVICE);
-		goto err;
-	}
-
-	if (hWaitEvent) {
-		dwWaitRes = WaitForSingleObject(hWaitEvent, 1000);
-		if (dwWaitRes == WAIT_FAILED) {
-			Error.SetError(CIVError::IVE_INTERNAL);
-			goto err;
-		} else if (dwWaitRes == WAIT_OBJECT_0) {
-			Error.SetError(CIVError::IVE_CANCELED);
-			goto err;
-		}
-
-	}
-	else {
-		Sleep(1000);
-	}
-
-	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_GET_TIME;
-	msg.header.length = sizeof(remote_control_body_time_t);
-	if (!ProcessSerialMsg(pConn, msg, Error)) {
-		goto err;
-	}
-	CopyMemory(&m_DateTime, &msg.body.time, sizeof(m_DateTime));
-
-	bRet = TRUE;
-err:
-
-	if (!bRet) {
-		ZeroMemory(&m_DateTime, sizeof(m_DateTime));
-	}
-
 	ReleaseMutex(m_hSerialMutex);
-	if (pConn)
-		pConn->Close();
+
 	return bRet;
+}
+
+BOOL CRemoteConfig::RemoteConfigMon(CIVError& Error)
+{
+	DWORD dwWaitRes;
+	BOOL bRet = FALSE;
+	CTask* pTask = NULL;
+
+	// fetch a task
+	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+	pTask = m_TaskQueue.GetFromFront();
+	ReleaseMutex(m_hSerialMutex);
+
+	if (!pTask)
+		return TRUE;
+
+	switch (pTask->m_eTaskType) {
+	case CTask::IV_TASK_PING:
+		pTask->m_bRes = Ping(pTask->m_Error, m_hQuitRemoteConfigMon);
+		break;
+	case CTask::IV_TASK_GET_PARAM:
+		pTask->m_bRes = LoadRemoteConfigParam(pTask->m_Error, m_hQuitRemoteConfigMon);
+		break;
+	case CTask::IV_TASK_SET_PARAM:
+		pTask->m_bRes = SetRemoteConfigParam(pTask->m_Error, m_hQuitRemoteConfigMon);
+		break;
+	case CTask::IV_TASK_GET_ALARM:
+		pTask->m_bRes = LoadRemoteConfigAlarm(pTask->m_Error, m_hQuitRemoteConfigMon);
+		break;
+	case CTask::IV_TASK_SET_ALARM:
+		pTask->m_bRes = SetRemoteConfigAlarm((UINT)pTask->m_pParam, pTask->m_Error, m_hQuitRemoteConfigMon);
+		break;
+	case CTask::IV_TASK_GET_TIME:
+		pTask->m_bRes = LoadRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
+		break;
+	case CTask::IV_TASK_SET_TIME:
+		pTask->m_bRes = SetRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
+		break;
+	default:
+		TRACE(_T("UNKNOWN TASK TYPE % d"), pTask->m_eTaskType);
+		Error.SetError(CIVError::IVE_INTERNAL);
+		delete pTask;
+		return FALSE;
+	}
+
+	SendMessage(pTask->m_hWnd, pTask->m_nMessage, (WPARAM) pTask, 0);
+
+	delete pTask;
+
+	Error.SetError(CIVError::IVE_NONE);
+	return TRUE;
 }
 
 void CRemoteConfig::DeInitialize() 
@@ -565,6 +543,11 @@ void CRemoteConfig::DeInitialize()
 	if (m_hSerialMutex) {
 		CloseHandle(m_hSerialMutex);
 		m_hSerialMutex = NULL;
+	}
+
+	if (m_hDataMutex) {
+		CloseHandle(m_hDataMutex);
+		m_hDataMutex = NULL;
 	}
 }
 
@@ -574,6 +557,11 @@ BOOL CRemoteConfig::Initialize(CIVError& Error)
 
 	if ((m_hSerialMutex = CreateMutex(NULL, FALSE, _T("SerialMutex"))) == NULL) {
 		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+	if ((m_hDataMutex = CreateMutex(NULL, FALSE, _T("DataMutex"))) == NULL) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		CloseHandle(m_hSerialMutex);
 		return FALSE;
 	}
 	return TRUE;
@@ -592,3 +580,5 @@ BOOL CRemoteConfig::LoadRemoteConfig(CIVError& Error, HANDLE hWaitEvent/* = NULL
 
 	return TRUE;
 }
+
+

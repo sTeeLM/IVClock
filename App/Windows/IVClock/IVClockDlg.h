@@ -9,8 +9,6 @@
 #include "PageSerial.h"
 #include "PageAlarm.h"
 
-#define WM_SHOWTASK (WM_USER + 1)
-
 // CIVClockDlg 对话框
 class CIVClockDlg : public CDialogEx
 {

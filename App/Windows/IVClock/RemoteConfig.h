@@ -3,6 +3,7 @@
 #include "ConfigManager.h"
 #include "SerialPort.h"
 #include "IVError.h"
+#include "TaskQueue.h"
 #include "remote_protocol.h"
 
 class CRemoteConfig :public CObject
@@ -22,7 +23,8 @@ public:
 		m_pRemoteConfigMon(NULL),
 		m_bQuitRemoteConfigMon(FALSE),
 		m_hQuitRemoteConfigMon(NULL),
-		m_hSerialMutex(NULL)
+		m_hSerialMutex(NULL),
+		m_hDataMutex(NULL)
 	{
 		ZeroMemory(&m_Param, sizeof(m_Param));
 		ZeroMemory(&m_DateTime, sizeof(m_DateTime));
@@ -36,7 +38,7 @@ public:
 
 	BOOL LoadSerialConfig(CIVError& Error);
 
-	BOOL Ping(CIVError & Error);
+	BOOL Ping(CIVError & Error, HANDLE hWaitEvent = NULL);
 
 	BOOL StartRemoteConfigMon(CIVError& Error);
 
@@ -45,24 +47,18 @@ public:
 	BOOL Initialize(CIVError& Error);
 	void DeInitialize();
 
-	BOOL SetRemoteConfigParam(CIVError& Error);
-	BOOL SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error);
-	BOOL SetRemoteConfigDateTime(CIVError& Error);
-
 	BOOL LoadRemoteConfig(CIVError& Error, HANDLE hWaitEvent = NULL);
-	BOOL LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent = NULL);
-	BOOL LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent = NULL);
-	BOOL LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent = NULL);
 
-	remote_control_body_param_t& GetParam()
-	{
-		return m_Param;
-	}
+	BOOL GetParam(CIVError& Error, remote_control_body_param_t& param);
 
-	remote_control_body_time_t& GetDateTime()
-	{
-		return m_DateTime;
-	}
+	BOOL GetDateTime(CIVError& Error, remote_control_body_time_t& datetime);
+
+	BOOL SetParam(CIVError& Error, const remote_control_body_param_t& param);
+
+	BOOL SetDateTime(CIVError& Error, const remote_control_body_time_t& datetime);
+
+	BOOL AddTask(CIVError& Error, CTask::IV_TASK_TYPE_T eTaskType, HWND hCallbackHwnd, UINT nMessage, LPVOID pParam = NULL);
+
 protected:
 	// serial config
 	INT m_nPort;
@@ -75,6 +71,7 @@ protected:
 	INT m_bXONXOFF;
 
 	// param
+	HANDLE m_hDataMutex;
 	remote_control_body_param_t m_Param;
 	remote_control_body_time_t  m_DateTime;
 	remote_control_body_alarm_t* m_AlarmArray;
@@ -85,10 +82,21 @@ protected:
 	BOOL        m_bQuitRemoteConfigMon;
 	HANDLE      m_hQuitRemoteConfigMon;
 
-	// mutex
+	// task queue
 	HANDLE      m_hSerialMutex;
+	CTaskQueue  m_TaskQueue;
 protected:
-	static UINT fnDateTimeMon(LPVOID pParam);
+	static UINT fnRemoteConfigMon(LPVOID pParam);
+	BOOL RemoteConfigMon(CIVError& Error);
 	BOOL ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t& msg, CIVError& Error);
+	BOOL LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_control_cmd_type_t eCmd, INT nIndex = 0);
+
+	BOOL SetRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL SetRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent = NULL);
+
+	BOOL LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent = NULL);
 };
 

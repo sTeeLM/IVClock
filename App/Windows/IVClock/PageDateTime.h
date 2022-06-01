@@ -24,17 +24,6 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 
-	BOOL StartDateTimeThread(CIVError& Error);
-	void StopDateTimeThread();
-	BOOL RefreshDateTime(CIVError& Error);
-	BOOL SyncDateTime(CIVError& Error);
-	static UINT fnDateTimeThread(LPVOID pParam);
-
-
-	CWinThread* m_pDateTimeThread;
-	BOOL m_bStopDateTimeThread;
-	HANDLE m_hStopDateTimeThread;
-	HANDLE m_hOleDateMutex;
 public:
 	BOOL m_bTMAutoSync;
 	INT m_nTMAutoSyncInterval;
@@ -44,7 +33,8 @@ public:
 public:
 	afx_msg void OnBnClickedBtnDatetimeSyncNow();
 	afx_msg void OnDestroy();
-
+	afx_msg LRESULT cbGetTimeDate(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT cbSetTimeDate(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedChkDatetimeAutoSync();
 	afx_msg void OnBnClickedBtnDatetimeRefresh();
 };

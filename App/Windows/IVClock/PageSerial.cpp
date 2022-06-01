@@ -95,12 +95,25 @@ BOOL CPageSerial::OnInitDialog()
 }
 
 BEGIN_MESSAGE_MAP(CPageSerial, CDialog)
+	ON_MESSAGE(WM_CB_PING, cbPing)
 	ON_BN_CLICKED(IDC_BTN_TEST_CONN, &CPageSerial::OnBnClickedBtnTestConn)
 END_MESSAGE_MAP()
 
 
 // CPageSerial 消息处理程序
 
+LRESULT CPageSerial::cbPing(WPARAM wParam, LPARAM lParam)
+{
+	CTask* pTask = (CTask*)wParam;
+	if (pTask) {
+		if(pTask->m_bRes)
+			GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("PASSED!"));
+		else
+			GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("FAILED!"));
+	}
+
+	return 0;
+}
 
 void CPageSerial::OnBnClickedBtnTestConn()
 {
@@ -109,14 +122,9 @@ void CPageSerial::OnBnClickedBtnTestConn()
 	UpdateData(TRUE);
 
 	GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("TESTING"));
+	
+	theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_PING, this->GetSafeHwnd(), WM_CB_PING);
 
-	if (theApp.m_RemoteConfig.Ping(Error)) {
-		GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("PASSED!"));
-		UpdateData(FALSE);
-	}
-	else {
-		GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("FAILED!"));
-	}
 }
 
 void CPageSerial::Save()

@@ -25,6 +25,7 @@ CPageParam::CPageParam(CWnd* pParent /*=nullptr*/)
 	, m_bBP(FALSE)
 	, m_bMonLT(FALSE)
 	, m_bAcc(FALSE)
+	, m_nStepPowerTimeo(15)
 {
 
 }
@@ -60,9 +61,13 @@ void CPageParam::UpdateUI()
 
 void CPageParam::LoadRemoteConfig()
 {
+	CIVError Error;
+	remote_control_body_param_t param;
 
-	m_bTM12 = !theApp.m_RemoteConfig.GetParam().time_12;
-	m_bTmpCent = !theApp.m_RemoteConfig.GetParam().temp_cen;
+	theApp.m_RemoteConfig.GetParam(Error, param);
+
+	m_bTM12 = !param.time_12;
+	m_bTmpCent = !param.temp_cen;
 
 	// load IDC_COMBO_TMR_SND
 	CComboBox* pTmrSndBox = (CComboBox*)GetDlgItem(IDC_COMBO_TMR_SND);
@@ -71,19 +76,19 @@ void CPageParam::LoadRemoteConfig()
 		pTmrSndBox->DeleteString(i);
 	}
 	CString strLabel;
-	for (INT i = 0; i < theApp.m_RemoteConfig.GetParam().tmr_snd_cnt; i++) {
+	for (INT i = 0; i < param.tmr_snd_cnt; i++) {
 		strLabel.Format(_T("sound %02d"), i);
 		pTmrSndBox->AddString(strLabel);
 	}
 
-	m_nTmrSND = theApp.m_RemoteConfig.GetParam().tmr_snd;
+	m_nTmrSND = param.tmr_snd;
 
 	// load IDC_SLIDER_PLY_VOL
 	CSliderCtrl* pSlide = (CSliderCtrl*)GetDlgItem(IDC_SLIDER_PLY_VOL);
-	pSlide->SetRangeMin(theApp.m_RemoteConfig.GetParam().min_ply_vol, TRUE);
-	pSlide->SetRangeMax(theApp.m_RemoteConfig.GetParam().max_ply_vol, TRUE);
+	pSlide->SetRangeMin(param.min_ply_vol, TRUE);
+	pSlide->SetRangeMax(param.max_ply_vol, TRUE);
 
-	m_nPlyVol = theApp.m_RemoteConfig.GetParam().ply_vol;
+	m_nPlyVol = param.ply_vol;
 
 	// load IDC_COMBO_PS_TIMEO
 	CComboBox* pTmrPSTimeo = (CComboBox*)GetDlgItem(IDC_COMBO_PS_TIMEO);
@@ -92,46 +97,55 @@ void CPageParam::LoadRemoteConfig()
 		pTmrPSTimeo->DeleteString(i);
 	}
 
-	for (INT i = theApp.m_RemoteConfig.GetParam().min_power_timeo;
-		i <= theApp.m_RemoteConfig.GetParam().max_power_timeo; i += theApp.m_RemoteConfig.GetParam().step_power_timeo) {
+	for (INT i = param.min_power_timeo;
+		i <= param.max_power_timeo; i += param.step_power_timeo) {
 		strLabel.Format(_T("%02d"), i);
 		pTmrPSTimeo->AddString(strLabel);
 	}
 
-	m_bPS = theApp.m_RemoteConfig.GetParam().power_timeo != 0;
-	if (theApp.m_RemoteConfig.GetParam().step_power_timeo) {
-		m_nPSTimeo = (theApp.m_RemoteConfig.GetParam().power_timeo
-			/ theApp.m_RemoteConfig.GetParam().step_power_timeo) - 1;
+	m_nStepPowerTimeo = param.step_power_timeo;
+
+	m_bPS = param.power_timeo != 0;
+	if (param.step_power_timeo) {
+		m_nPSTimeo = (param.power_timeo
+			/ param.step_power_timeo) - 1;
 	}
 
-	m_bBS = theApp.m_RemoteConfig.GetParam().alm1_en;
-	m_nBSFrom = theApp.m_RemoteConfig.GetParam().alm1_begin;
-	m_nBSTo = theApp.m_RemoteConfig.GetParam().alm1_end;
-	m_bBP = theApp.m_RemoteConfig.GetParam().bp_en;
-	m_bMonLT = theApp.m_RemoteConfig.GetParam().mon_lt_en;
-	m_bAcc = theApp.m_RemoteConfig.GetParam().acc_en;
+	m_bBS = param.alm1_en;
+	m_nBSFrom = param.alm1_begin;
+	m_nBSTo = param.alm1_end;
+	m_bBP = param.bp_en;
+	m_bMonLT = param.mon_lt_en;
+	m_bAcc = param.acc_en;
 }
 
 void CPageParam::SaveRemoteConfig()
 {
-	theApp.m_RemoteConfig.GetParam().time_12 = !m_bTM12;
-	theApp.m_RemoteConfig.GetParam().temp_cen = !m_bTmpCent;
+	CIVError Error;
+	remote_control_body_param_t param;
 
-	theApp.m_RemoteConfig.GetParam().tmr_snd = m_nTmrSND;
-	theApp.m_RemoteConfig.GetParam().ply_vol = m_nPlyVol;
+	ZeroMemory(&param, sizeof(param));
+
+	param.time_12 = !m_bTM12;
+	param.temp_cen = !m_bTmpCent;
+
+	param.tmr_snd = m_nTmrSND;
+	param.ply_vol = m_nPlyVol;
 
 	if (m_bPS) {
-		theApp.m_RemoteConfig.GetParam().power_timeo = (m_nPSTimeo + 1) * theApp.m_RemoteConfig.GetParam().step_power_timeo;
+		param.power_timeo = (m_nPSTimeo + 1) * m_nStepPowerTimeo;
 	}
 	else {
-		theApp.m_RemoteConfig.GetParam().power_timeo = 0;
+		param.power_timeo = 0;
 	}
-	theApp.m_RemoteConfig.GetParam().alm1_en = m_bBS;
-	theApp.m_RemoteConfig.GetParam().alm1_begin = m_nBSFrom;
-	theApp.m_RemoteConfig.GetParam().alm1_end = m_nBSTo;
-	theApp.m_RemoteConfig.GetParam().bp_en = m_bBP;
-	theApp.m_RemoteConfig.GetParam().mon_lt_en = m_bMonLT;
-	theApp.m_RemoteConfig.GetParam().acc_en = m_bAcc;
+	param.alm1_en = m_bBS;
+	param.alm1_begin = m_nBSFrom;
+	param.alm1_end = m_nBSTo;
+	param.bp_en = m_bBP;
+	param.mon_lt_en = m_bMonLT;
+	param.acc_en = m_bAcc;
+
+	theApp.m_RemoteConfig.SetParam(Error, param);
 }
 
 BOOL CPageParam::OnInitDialog()
@@ -145,11 +159,11 @@ BOOL CPageParam::OnInitDialog()
 	UpdateUI();
 
 	return TRUE;
-
 }
 
 BEGIN_MESSAGE_MAP(CPageParam, CDialog)
 	ON_WM_DESTROY()
+	ON_MESSAGE(WM_CB_SET_PARAM, cbSetParam)
 	ON_BN_CLICKED(IDC_CHK_PS_EN, &CPageParam::OnBnClickedChkPsEn)
 	ON_BN_CLICKED(IDC_CHK_BS_EN, &CPageParam::OnBnClickedChkBsEn)
 END_MESSAGE_MAP()
@@ -157,6 +171,10 @@ END_MESSAGE_MAP()
 
 // CPageParam 消息处理程序
 
+LRESULT CPageParam::cbSetParam(WPARAM wParam, LPARAM lParam)
+{
+	return 0;
+}
 
 void CPageParam::OnBnClickedChkPsEn()
 {
@@ -178,7 +196,7 @@ void CPageParam::Save()
 
 	SaveRemoteConfig();
 
-	if (!theApp.m_RemoteConfig.SetRemoteConfigParam(Error)) {
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_SET_PARAM, GetSafeHwnd(), WM_CB_SET_PARAM)) {
 		AfxMessageBox(Error.GetErrorStr());
 	}
 }

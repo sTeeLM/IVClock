@@ -32,5 +32,6 @@ public:
 
 public:
 	afx_msg void OnBnClickedBtnTestConn();
+	afx_msg LRESULT cbPing(WPARAM wParam, LPARAM lParam);
 	void Save();
 };

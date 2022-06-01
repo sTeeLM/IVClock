@@ -24,6 +24,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedChkPsEn();
+	afx_msg void OnBnClickedChkBsEn();
+	afx_msg LRESULT cbSetParam(WPARAM wParam, LPARAM lParam);
 	BOOL m_bTM12;
 	BOOL m_bTmpCent;
 	INT m_nTmrSND;
@@ -36,5 +38,5 @@ public:
 	BOOL m_bBP;
 	BOOL m_bMonLT;
 	BOOL m_bAcc;
-	afx_msg void OnBnClickedChkBsEn();
+	INT m_nStepPowerTimeo;
 };

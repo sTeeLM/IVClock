@@ -37,3 +37,10 @@ protected:
 };
 
 extern CIVClockApp theApp;
+
+#define WM_SHOWTASK (WM_USER + 1)
+#define WM_CB_PING  (WM_USER + 2)
+#define WM_CB_GET_PARAM (WM_USER + 3)
+#define WM_CB_SET_PARAM (WM_USER + 4)
+#define WM_CB_GET_TIME (WM_USER + 3)
+#define WM_CB_SET_TIME (WM_USER + 4)

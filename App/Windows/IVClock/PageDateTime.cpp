@@ -18,10 +18,6 @@ CPageDateTime::CPageDateTime(CWnd* pParent /*=nullptr*/)
 	, m_oleDate(COleDateTime::GetCurrentTime())
 	, m_oleTime(COleDateTime::GetCurrentTime())
 	, m_oleLastSync(COleDateTime::GetCurrentTime())
-	, m_pDateTimeThread(NULL)
-	, m_bStopDateTimeThread(FALSE)
-	, m_hStopDateTimeThread(NULL)
-	, m_hOleDateMutex(NULL)
 {
 
 }
@@ -31,6 +27,7 @@ CPageDateTime::~CPageDateTime()
 
 }
 
+/*
 UINT CPageDateTime::fnDateTimeThread(LPVOID pParam)
 {
 	CPageDateTime* pThis = (CPageDateTime*)pParam;
@@ -174,11 +171,14 @@ BOOL CPageDateTime::SyncDateTime(CIVError& Error)
 
 	return bRet;
 }
-
+*/
 BOOL CPageDateTime::OnInitDialog()
 {
 	CIVError Error;
 	CConfigManager::CONFIG_VALUE_T val;
+	remote_control_body_time_t datetime;
+
+	theApp.m_RemoteConfig.GetDateTime(Error, datetime);
 
 	theApp.m_Config.GetConfig(_T("time_sync"), _T("enable"), val);
 
@@ -189,21 +189,14 @@ BOOL CPageDateTime::OnInitDialog()
 	m_nTMAutoSyncInterval = val.u8;
 
 	m_oleDate.SetDateTime(
-		theApp.m_RemoteConfig.GetDateTime().year + 2000,
-		theApp.m_RemoteConfig.GetDateTime().mon,
-		theApp.m_RemoteConfig.GetDateTime().date,
-		theApp.m_RemoteConfig.GetDateTime().hour,
-		theApp.m_RemoteConfig.GetDateTime().min,
-		theApp.m_RemoteConfig.GetDateTime().sec
+		datetime.year + 2000,
+		datetime.mon,
+		datetime.date,
+		datetime.hour,
+		datetime.min,
+		datetime.sec
 	);
 	m_oleTime = m_oleDate;
-
-	if ((m_hOleDateMutex = CreateMutex(NULL, FALSE, _T("OleDateMutex"))) == NULL) {
-		Error.SetError(CIVError::IVE_INTERNAL);
-		return FALSE;
-	}
-
-	StartDateTimeThread(Error);
 
 	if (!CDialog::OnInitDialog()) {
 		return FALSE;
@@ -237,6 +230,8 @@ void CPageDateTime::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CPageDateTime, CDialog)
 	ON_WM_DESTROY()
+	ON_MESSAGE(WM_CB_GET_TIME, cbGetTimeDate)
+	ON_MESSAGE(WM_CB_GET_TIME, cbSetTimeDate)
 	ON_BN_CLICKED(IDC_BTN_DATETIME_SYNC_NOW, &CPageDateTime::OnBnClickedBtnDatetimeSyncNow)
 	ON_BN_CLICKED(IDC_CHK_DATETIME_AUTO_SYNC, &CPageDateTime::OnBnClickedChkDatetimeAutoSync)
 	ON_BN_CLICKED(IDC_BTN_DATETIME_REFRESH, &CPageDateTime::OnBnClickedBtnDatetimeRefresh)
@@ -245,43 +240,41 @@ END_MESSAGE_MAP()
 
 // CPageDateTime 消息处理程序
 
+LRESULT CPageDateTime::cbGetTimeDate(WPARAM wParam, LPARAM lParam)
+{
+	return 0;
+}
+
+
+LRESULT CPageDateTime::cbSetTimeDate(WPARAM wParam, LPARAM lParam)
+{
+	return 0;
+}
+
+
 void CPageDateTime::OnBnClickedBtnDatetimeRefresh()
 {
 	CIVError Error;
-	if (!RefreshDateTime(Error)) {
-		AfxMessageBox(Error.GetErrorStr());
-	}
+	theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_TIME, GetSafeHwnd(), WM_CB_GET_TIME);
+
 }
 
 void CPageDateTime::OnBnClickedBtnDatetimeSyncNow()
 {
 	CIVError Error;
-	if (!SyncDateTime(Error)) {
-		AfxMessageBox(Error.GetErrorStr());
-	}
+	theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_TIME, GetSafeHwnd(), WM_CB_SET_TIME);
+
 }
 
 void CPageDateTime::OnDestroy()
 {
-	StopDateTimeThread();
-	CloseHandle(m_hOleDateMutex);
-	m_hOleDateMutex = NULL;
 	CDialog::OnDestroy();
 }
 
 
 void CPageDateTime::Save()
 {
-	CIVError Error;
 	CConfigManager::CONFIG_VALUE_T val;
-	DWORD dwWaitRes = WaitForSingleObject(m_hOleDateMutex, INFINITE);
-	if (dwWaitRes == WAIT_FAILED) {
-		Error.SetError(CIVError::IVE_INTERNAL);
-		AfxMessageBox(Error.GetErrorStr());
-		return;
-	}
-
-	UpdateData(TRUE);
 
 	val.u8 = m_bTMAutoSync;
 	theApp.m_Config.SetConfig(_T("time_sync"), _T("enable"), val);
@@ -289,7 +282,6 @@ void CPageDateTime::Save()
 	val.u8 = m_nTMAutoSyncInterval;
 	theApp.m_Config.SetConfig(_T("time_sync"), _T("interval_sec"), val);
 
-	ReleaseMutex(m_hOleDateMutex);
 }
 
 void CPageDateTime::OnBnClickedChkDatetimeAutoSync()
