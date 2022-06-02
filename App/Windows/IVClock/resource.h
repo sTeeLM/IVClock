@@ -31,6 +31,7 @@
 #define IDC_CHK_MON_LT_EN               1016
 #define IDC_RADIO_TMP_CENT              1017
 #define DC_RADIO_TMP_FAHR               1018
+#define IDC_RADIO_TMP_FAHR              1018
 #define IDC_CHK_PS_EN                   1019
 #define IDC_COMBO_TMR_SND               1020
 #define IDC_COMBO_PLY_VOL               1021
@@ -43,7 +44,9 @@
 #define IDC_BTN_DATETIME_SYNC_NOW       1025
 #define IDC_BTN_DATETIME_REFRESH        1026
 #define IDC_COMBO_ALARM_INDEX           1027
+#define IDC_DTP_LOCAL_DATE              1027
 #define IDC_COMBO_BS_FROM               1028
+#define IDC_DTP_LOCAL_TIME              1028
 #define IDC_COMBO_BS_TO                 1029
 #define IDC_CHK_ALARM_DAY1              1030
 #define IDC_CHK_ALARM_DAY2              1031
@@ -56,6 +59,11 @@
 #define IDC_BTN_ALARM_SEL_NONE          1038
 #define IDC_DTP_ALARM_TIME              1039
 #define IDC_SLIDER_PLY_VOL              1040
+#define IDC_BTN_SAVE                    1040
+#define IDC_BTN_SET                     1041
+#define IDC_EDIT_LAST_REFRESH           1042
+#define IDC_EDIT_LAST_SYNC              1043
+#define IDC_BUTTON1                     1043
 
 // Next default values for new objects
 // 
@@ -63,7 +71,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1040
+#define _APS_NEXT_CONTROL_VALUE         1044
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

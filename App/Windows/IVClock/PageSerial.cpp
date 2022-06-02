@@ -21,6 +21,7 @@ CPageSerial::CPageSerial(CWnd* pParent /*=nullptr*/)
 	, m_bDTRDSR(FALSE)
 	, m_bRTSCTS(FALSE)
 	, m_bXONXOFF(FALSE)
+	, m_bInProgress(FALSE)
 {
 
 }
@@ -97,6 +98,7 @@ BOOL CPageSerial::OnInitDialog()
 BEGIN_MESSAGE_MAP(CPageSerial, CDialog)
 	ON_MESSAGE(WM_CB_PING, cbPing)
 	ON_BN_CLICKED(IDC_BTN_TEST_CONN, &CPageSerial::OnBnClickedBtnTestConn)
+	ON_BN_CLICKED(IDC_BTN_SAVE, &CPageSerial::OnBnClickedBtnSave)
 END_MESSAGE_MAP()
 
 
@@ -111,8 +113,32 @@ LRESULT CPageSerial::cbPing(WPARAM wParam, LPARAM lParam)
 		else
 			GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("FAILED!"));
 	}
-
+	m_bInProgress = FALSE;
+	UpdateUI();
 	return 0;
+}
+/*
+*	DDX_CBIndex(pDX, IDC_COMBO_PORT, m_nPort);
+	DDX_CBIndex(pDX, IDC_COMBO_BAUDRATE, m_nBaudRate);
+	DDX_CBIndex(pDX, IDC_COMBO_DATA_BITS, m_nDataBits);
+	DDX_CBIndex(pDX, IDC_COMBO_PARITY, m_nParity);
+	DDX_CBIndex(pDX, IDC_COMBO_STOP_BITS, m_nStopBits);
+	DDX_Check(pDX, IDC_CHK_DTR_DSR, m_bDTRDSR);
+	DDX_Check(pDX, IDC_CHK_RTS_CTS, m_bRTSCTS);
+	DDX_Check(pDX, IDC_CHK_XON_XOFF, m_bXONXOFF); 
+*/
+void CPageSerial::UpdateUI()
+{
+	GetDlgItem(IDC_COMBO_PORT)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_COMBO_BAUDRATE)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_COMBO_DATA_BITS)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_COMBO_PARITY)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_COMBO_STOP_BITS)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_DTR_DSR)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_RTS_CTS)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_XON_XOFF)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_BTN_TEST_CONN)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_BTN_SAVE)->EnableWindow(!m_bInProgress);
 }
 
 void CPageSerial::OnBnClickedBtnTestConn()
@@ -123,11 +149,19 @@ void CPageSerial::OnBnClickedBtnTestConn()
 
 	GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("TESTING"));
 	
-	theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_PING, this->GetSafeHwnd(), WM_CB_PING);
+	m_bInProgress = TRUE;
+	UpdateUI();
 
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_PING, this->GetSafeHwnd(), WM_CB_PING)) {
+		AfxMessageBox(Error.GetErrorStr());
+		m_bInProgress = FALSE;
+		UpdateUI();
+	}
+	
 }
 
-void CPageSerial::Save()
+
+void CPageSerial::OnBnClickedBtnSave()
 {
 	CConfigManager::CONFIG_VALUE_T val;
 	UpdateData(TRUE);

@@ -35,7 +35,7 @@ const CConfigManager::CONFIG_ENTRY_T CConfigManager::m_ConfigEntry[] = {
 
 	// time sync config
 	{_T("time_sync"), _T("enable"), CONFIG_VALUE_TYPE_UINT8,   {.u8 = 0}},  // false
-	{_T("time_sync"), _T("interval_sec"), CONFIG_VALUE_TYPE_UINT8,   {.u8 = 0}},  // false
+	{_T("time_sync"), _T("interval_sec"), CONFIG_VALUE_TYPE_UINT32,   {.u32 = 0}},  // false
 };
 
 CConfigManager::CConfigManager() :

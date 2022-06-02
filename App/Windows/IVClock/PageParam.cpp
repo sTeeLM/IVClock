@@ -26,6 +26,7 @@ CPageParam::CPageParam(CWnd* pParent /*=nullptr*/)
 	, m_bMonLT(FALSE)
 	, m_bAcc(FALSE)
 	, m_nStepPowerTimeo(15)
+	, m_bInProgress(FALSE)
 {
 
 }
@@ -54,17 +55,33 @@ void CPageParam::DoDataExchange(CDataExchange* pDX)
 
 void CPageParam::UpdateUI()
 {
-	GetDlgItem(IDC_COMBO_PS_TIMEO)->EnableWindow(((CButton*)GetDlgItem(IDC_CHK_PS_EN))->GetCheck() == BST_CHECKED);
-	GetDlgItem(IDC_COMBO_BS_FROM)->EnableWindow(((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
-	GetDlgItem(IDC_COMBO_BS_TO)->EnableWindow(((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
+	GetDlgItem(IDC_COMBO_PS_TIMEO)->EnableWindow(!m_bInProgress &&
+		((CButton*)GetDlgItem(IDC_CHK_PS_EN))->GetCheck() == BST_CHECKED);
+	GetDlgItem(IDC_COMBO_BS_FROM)->EnableWindow(!m_bInProgress &&
+		((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
+	GetDlgItem(IDC_COMBO_BS_TO)->EnableWindow(!m_bInProgress &&
+		((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
+
+	GetDlgItem(IDC_RADIO_TM12)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_RADIO_TM24)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_RADIO_TMP_CENT)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_RADIO_TMP_FAHR)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_SLIDER_PLY_VOL)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_PS_EN)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_BS_EN)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_COMBO_TMR_SND)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_BP_EN)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_MON_LT_EN)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_CHK_ACC_EN)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_BTN_SET)->EnableWindow(!m_bInProgress);
 }
 
-void CPageParam::LoadRemoteConfig()
+BOOL CPageParam::LoadRemoteConfig(CIVError& Error)
 {
-	CIVError Error;
 	remote_control_body_param_t param;
 
-	theApp.m_RemoteConfig.GetParam(Error, param);
+	if (!theApp.m_RemoteConfig.GetParam(Error, param))
+		return FALSE;
 
 	m_bTM12 = !param.time_12;
 	m_bTmpCent = !param.temp_cen;
@@ -117,11 +134,12 @@ void CPageParam::LoadRemoteConfig()
 	m_bBP = param.bp_en;
 	m_bMonLT = param.mon_lt_en;
 	m_bAcc = param.acc_en;
+
+	return TRUE;
 }
 
-void CPageParam::SaveRemoteConfig()
+BOOL CPageParam::SaveRemoteConfig(CIVError &Error)
 {
-	CIVError Error;
 	remote_control_body_param_t param;
 
 	ZeroMemory(&param, sizeof(param));
@@ -145,12 +163,15 @@ void CPageParam::SaveRemoteConfig()
 	param.mon_lt_en = m_bMonLT;
 	param.acc_en = m_bAcc;
 
-	theApp.m_RemoteConfig.SetParam(Error, param);
+	return theApp.m_RemoteConfig.SetParam(Error, param);
 }
 
 BOOL CPageParam::OnInitDialog()
 {	
-	LoadRemoteConfig();
+	CIVError Error;
+	if (!LoadRemoteConfig(Error)) {
+		return FALSE;
+	}
 
 	if (!CDialog::OnInitDialog()) {
 		return FALSE;
@@ -166,6 +187,7 @@ BEGIN_MESSAGE_MAP(CPageParam, CDialog)
 	ON_MESSAGE(WM_CB_SET_PARAM, cbSetParam)
 	ON_BN_CLICKED(IDC_CHK_PS_EN, &CPageParam::OnBnClickedChkPsEn)
 	ON_BN_CLICKED(IDC_CHK_BS_EN, &CPageParam::OnBnClickedChkBsEn)
+	ON_BN_CLICKED(IDC_BTN_SET, &CPageParam::OnBnClickedBtnSet)
 END_MESSAGE_MAP()
 
 
@@ -173,6 +195,16 @@ END_MESSAGE_MAP()
 
 LRESULT CPageParam::cbSetParam(WPARAM wParam, LPARAM lParam)
 {
+	CTask* pTask = (CTask*)wParam;
+
+	m_bInProgress = FALSE;
+	UpdateUI();
+
+	if (pTask) {
+		if (!pTask->m_bRes) {
+			AfxMessageBox(pTask->m_Error.GetErrorStr());
+		}
+	}
 	return 0;
 }
 
@@ -187,16 +219,24 @@ void CPageParam::OnBnClickedChkBsEn()
 	UpdateUI();
 }
 
-
-void CPageParam::Save()
+void CPageParam::OnBnClickedBtnSet()
 {
 	CIVError Error;
 
 	UpdateData(TRUE);
 
-	SaveRemoteConfig();
+	if (!SaveRemoteConfig(Error)) {
+		AfxMessageBox(Error.GetErrorStr());
+		return;
+	}
+
+	m_bInProgress = TRUE;
+
+	UpdateUI();
 
 	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_SET_PARAM, GetSafeHwnd(), WM_CB_SET_PARAM)) {
 		AfxMessageBox(Error.GetErrorStr());
+		m_bInProgress = FALSE;
+		UpdateUI();
 	}
 }

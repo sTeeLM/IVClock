@@ -15,17 +15,16 @@ public:
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PROPPAGE_PARAM };
 #endif
-	void Save();
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	void UpdateUI();
-	void LoadRemoteConfig();
-	void SaveRemoteConfig();
+	BOOL LoadRemoteConfig(CIVError& Error);
+	BOOL SaveRemoteConfig(CIVError& Error);
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnBnClickedChkPsEn();
-	afx_msg void OnBnClickedChkBsEn();
-	afx_msg LRESULT cbSetParam(WPARAM wParam, LPARAM lParam);
+
+protected:
+	BOOL m_bInProgress;
 	BOOL m_bTM12;
 	BOOL m_bTmpCent;
 	INT m_nTmrSND;
@@ -39,4 +38,10 @@ public:
 	BOOL m_bMonLT;
 	BOOL m_bAcc;
 	INT m_nStepPowerTimeo;
+
+public:
+	afx_msg void OnBnClickedChkPsEn();
+	afx_msg void OnBnClickedChkBsEn();
+	afx_msg LRESULT cbSetParam(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnBnClickedBtnSet();
 };

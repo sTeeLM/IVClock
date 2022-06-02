@@ -24,7 +24,11 @@ public:
 		m_bQuitRemoteConfigMon(FALSE),
 		m_hQuitRemoteConfigMon(NULL),
 		m_hSerialMutex(NULL),
-		m_hDataMutex(NULL)
+		m_hDataMutex(NULL),
+		m_hTaskEvent(NULL),
+		m_bInTray(FALSE),
+		m_hWndDateTime(NULL),
+		m_oleLastSync(COleDateTime::GetCurrentTime())
 	{
 		ZeroMemory(&m_Param, sizeof(m_Param));
 		ZeroMemory(&m_DateTime, sizeof(m_DateTime));
@@ -57,9 +61,24 @@ public:
 
 	BOOL SetDateTime(CIVError& Error, const remote_control_body_time_t& datetime);
 
+	BOOL SetDateTime(CIVError& Error, const COleDateTime & oleDateTime);
+
 	BOOL AddTask(CIVError& Error, CTask::IV_TASK_TYPE_T eTaskType, HWND hCallbackHwnd, UINT nMessage, LPVOID pParam = NULL);
 
+	void IntoTray() {
+		m_bInTray = TRUE;
+	}
+
+	void LeaveTray() {
+		m_bInTray = FALSE;
+	}
+
+	void SetDateTimeHwnd(HWND hWnd) { m_hWndDateTime = hWnd; }
 protected:
+
+	// 
+	BOOL m_bInTray;
+	HWND m_hWndDateTime;
 	// serial config
 	INT m_nPort;
 	INT m_nBaudRate;
@@ -81,10 +100,12 @@ protected:
 	CWinThread* m_pRemoteConfigMon;
 	BOOL        m_bQuitRemoteConfigMon;
 	HANDLE      m_hQuitRemoteConfigMon;
+	HANDLE      m_hTaskEvent;
 
 	// task queue
 	HANDLE      m_hSerialMutex;
 	CTaskQueue  m_TaskQueue;
+	COleDateTime m_oleLastSync;
 protected:
 	static UINT fnRemoteConfigMon(LPVOID pParam);
 	BOOL RemoteConfigMon(CIVError& Error);

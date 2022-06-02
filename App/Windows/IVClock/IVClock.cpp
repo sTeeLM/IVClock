@@ -105,6 +105,11 @@ BOOL CIVClockApp::InitInstance()
 		goto err;
 	}
 
+	if (!m_RemoteConfig.StartRemoteConfigMon(Error)) {
+		AfxMessageBox(Error.GetErrorStr());
+		goto err;
+	}
+
 	m_pMainWnd = &dlg;
 	nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
@@ -123,7 +128,7 @@ BOOL CIVClockApp::InitInstance()
 		TRACE(traceAppMsg, 0, "警告: 如果您在对话框上使用 MFC 控件，则无法 #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS。\n");
 	}
 err:
-
+	m_RemoteConfig.StopRemoteConfigMon();
 	m_RemoteConfig.DeInitialize();
 
 	// 删除上面创建的 shell 管理器。

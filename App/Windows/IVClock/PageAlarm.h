@@ -10,7 +10,7 @@ class CPageAlarm : public CDialog
 public:
 	CPageAlarm(CWnd* pParent = nullptr);   // 标准构造函数
 	virtual ~CPageAlarm();
-
+	virtual BOOL OnInitDialog();
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PROPPAGE_ALARM };
@@ -18,7 +18,8 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
-
+	BOOL SaveRemoteConfig(CIVError& Error);
+	BOOL LoadRemoteConfig(CIVError& Error);
 	DECLARE_MESSAGE_MAP()
 public:
 	
@@ -26,4 +27,5 @@ public:
 	afx_msg void OnBnClickedBtnAlarmSelAll();
 	afx_msg void OnBnClickedBtnAlarmSelNone();
 	COleDateTime m_oleAlarmTime;
+	afx_msg void OnBnClickedBtnSet();
 };

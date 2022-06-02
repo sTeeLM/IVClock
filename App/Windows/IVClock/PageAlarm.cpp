@@ -23,6 +23,15 @@ CPageAlarm::~CPageAlarm()
 {
 }
 
+BOOL CPageAlarm::OnInitDialog()
+{
+
+	if (!CDialog::OnInitDialog()) {
+		return FALSE;
+	}
+	return TRUE;
+}
+
 void CPageAlarm::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
@@ -30,10 +39,21 @@ void CPageAlarm::DoDataExchange(CDataExchange* pDX)
 	DDX_DateTimeCtrl(pDX, IDC_DTP_ALARM_TIME, m_oleAlarmTime);
 }
 
+BOOL CPageAlarm::SaveRemoteConfig(CIVError& Error)
+{
+	return 0;
+}
+
+BOOL CPageAlarm::LoadRemoteConfig(CIVError& Error)
+{
+	return 0;
+}
+
 
 BEGIN_MESSAGE_MAP(CPageAlarm, CDialog)
 	ON_BN_CLICKED(IDC_BTN_ALARM_SEL_ALL, &CPageAlarm::OnBnClickedBtnAlarmSelAll)
 	ON_BN_CLICKED(IDC_BTN_ALARM_SEL_NONE, &CPageAlarm::OnBnClickedBtnAlarmSelNone)
+	ON_BN_CLICKED(IDC_BTN_SET, &CPageAlarm::OnBnClickedBtnSet)
 END_MESSAGE_MAP()
 
 
@@ -47,6 +67,12 @@ void CPageAlarm::OnBnClickedBtnAlarmSelAll()
 
 
 void CPageAlarm::OnBnClickedBtnAlarmSelNone()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CPageAlarm::OnBnClickedBtnSet()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }

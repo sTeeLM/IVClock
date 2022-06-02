@@ -224,10 +224,8 @@ void CIVClockDlg::OnBnClickedOk()
 	INT n = m_ctlTab.GetCurSel();
 	switch (n) {
 		case 0:
-			m_pageSerial.Save();
 			break;
 		case 1:
-			m_pageParam.Save();
 			break;
 		case 2:
 			m_pageDateTime.Save();
@@ -307,7 +305,14 @@ LRESULT CIVClockDlg::OnShowTask(WPARAM wParam, LPARAM lParam)
 void CIVClockDlg::OnSize(UINT nType, INT cx, INT cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
-	if (nType == SIZE_MINIMIZED)   //判断是最小化按钮时，执行最小化到托盘函数
+	if (nType == SIZE_MINIMIZED) {   //判断是最小化按钮时，执行最小化到托盘函数
+		TRACE(_T("SIZE_MINIMIZED\n"));
 		ToTray();
+		theApp.m_RemoteConfig.IntoTray();
+	}
+	else if (nType == SIZE_RESTORED) {
+		TRACE(_T("SIZE_RESTORED\n"));
+		theApp.m_RemoteConfig.LeaveTray();
+	}
 }
 

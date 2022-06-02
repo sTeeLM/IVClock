@@ -17,8 +17,11 @@ public:
 #endif
 
 protected:
+	BOOL m_bInProgress;
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL OnInitDialog();
+	void UpdateUI();
 	DECLARE_MESSAGE_MAP()
 public:
 	INT m_nPort;
@@ -33,5 +36,5 @@ public:
 public:
 	afx_msg void OnBnClickedBtnTestConn();
 	afx_msg LRESULT cbPing(WPARAM wParam, LPARAM lParam);
-	void Save();
+	afx_msg void OnBnClickedBtnSave();
 };

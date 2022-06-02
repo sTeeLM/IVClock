@@ -45,10 +45,15 @@ UINT CRemoteConfig::fnRemoteConfigMon(LPVOID pParam)
 	CRemoteConfig* pRemoteConfig = (CRemoteConfig*)pParam;
 	DWORD dwWaitRes;
 	CIVError Error;
+	HANDLE aryEvent[2] = {  pRemoteConfig->m_hQuitRemoteConfigMon, pRemoteConfig->m_hTaskEvent };
 		
 	do {
-		dwWaitRes = WaitForSingleObject(pRemoteConfig->m_hQuitRemoteConfigMon, 10000);
+		dwWaitRes = ::WaitForMultipleObjects(2, aryEvent, FALSE, 10000);
 		if (dwWaitRes == WAIT_FAILED) {
+			Error.SetError(CIVError::IVE_INTERNAL);
+			break;
+		}
+		else if (dwWaitRes == WAIT_OBJECT_0) {
 			break;
 		}
 		
@@ -80,6 +85,12 @@ void CRemoteConfig::StopRemoteConfigMon()
 		CloseHandle(m_hQuitRemoteConfigMon);
 		m_hQuitRemoteConfigMon = NULL;
 	}
+
+	if (m_hTaskEvent) {
+		ResetEvent(m_hTaskEvent);
+		CloseHandle(m_hTaskEvent);
+		m_hTaskEvent = NULL;
+	}
 }
 
 BOOL CRemoteConfig::StartRemoteConfigMon(CIVError& Error)
@@ -98,6 +109,13 @@ BOOL CRemoteConfig::StartRemoteConfigMon(CIVError& Error)
 		return FALSE;
 	}
 
+	if (!(m_hTaskEvent = CreateEvent(NULL, TRUE, FALSE, _T("RemoteConfigMonTask")))) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		CloseHandle(m_hQuitRemoteConfigMon);
+		m_hQuitRemoteConfigMon = NULL;
+		return FALSE;
+	}
+	
 
 	m_pRemoteConfigMon = AfxBeginThread(fnRemoteConfigMon, this, 0, 0, dwCreateFlag, NULL);
 	if (m_pRemoteConfigMon) {
@@ -105,6 +123,10 @@ BOOL CRemoteConfig::StartRemoteConfigMon(CIVError& Error)
 		m_pRemoteConfigMon->ResumeThread();
 	}
 	else {
+		CloseHandle(m_hQuitRemoteConfigMon);
+		m_hQuitRemoteConfigMon = NULL;
+		CloseHandle(m_hTaskEvent);
+		m_hTaskEvent = NULL;
 		Error.SetError(CIVError::IVE_INTERNAL);
 	}
 	return m_pRemoteConfigMon != NULL;
@@ -215,7 +237,7 @@ BOOL CRemoteConfig::SetRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent /* =
 
 BOOL CRemoteConfig::SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error, HANDLE hWaitEvent /* = NULL */)
 {
-	return TRUE;
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_ALARM, nAlarmIndex);
 }
 
 BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent /* = NULL */)
@@ -445,6 +467,18 @@ BOOL CRemoteConfig::SetDateTime(CIVError& Error, const remote_control_body_time_
 	return TRUE;
 }
 
+BOOL CRemoteConfig::SetDateTime(CIVError& Error, const COleDateTime& oleDateTime)
+{
+	remote_control_body_time_t datetime;
+	datetime.year = oleDateTime.GetYear() - 2000;
+	datetime.mon = oleDateTime.GetMonth();
+	datetime.date = oleDateTime.GetDay();
+	datetime.hour = oleDateTime.GetHour();
+	datetime.min = oleDateTime.GetMinute();
+	datetime.sec = oleDateTime.GetSecond();
+	return SetDateTime(Error, datetime);
+}
+
 
 BOOL CRemoteConfig::GetDateTime(CIVError& Error, remote_control_body_time_t& datetime)
 {
@@ -480,6 +514,8 @@ BOOL CRemoteConfig::AddTask(CIVError& Error, CTask::IV_TASK_TYPE_T eTaskType, HW
 	}
 	ReleaseMutex(m_hSerialMutex);
 
+	PulseEvent(m_hTaskEvent);
+
 	return bRet;
 }
 
@@ -498,8 +534,44 @@ BOOL CRemoteConfig::RemoteConfigMon(CIVError& Error)
 	pTask = m_TaskQueue.GetFromFront();
 	ReleaseMutex(m_hSerialMutex);
 
-	if (!pTask)
+	if (!pTask) { // 没有task，是否要执行定时任务？
+		if (m_bInTray) { // 最小化了，每特定间隔时间同步一次本地时间
+			TRACE(_T("Check if Sync Time\n"));
+			CConfigManager::CONFIG_VALUE_T val;
+			theApp.m_Config.GetConfig(_T("time_sync"), _T("enable"), val);
+			if (val.u8) {
+				theApp.m_Config.GetConfig(_T("time_sync"), _T("interval_sec"), val);
+				COleDateTime oleNow = COleDateTime::GetCurrentTime();
+				if ((oleNow - m_oleLastSync).GetSeconds() > val.u32) {
+					COleDateTimeSpan OneSec(0, 0, 0, 1); // 同步需要大约1S
+					m_oleLastSync = oleNow + OneSec;
+					if (SetDateTime(Error, m_oleLastSync)) {
+						pTask = new CTask(m_hWndDateTime, CTask::IV_TASK_SET_TIME, WM_CB_SET_TIME, 0);
+						if (!pTask) {
+							Error.SetError(CIVError::IVE_NOMEM);
+							return FALSE;
+						}
+					}
+					else {
+						return FALSE;
+					}
+				}
+			}
+		}
+
+		if(!pTask && !m_bInTray) { // 没有最小化，每10s读取一次远程时间
+			TRACE(_T("Refresh Time\n"));
+			pTask = new CTask(m_hWndDateTime, CTask::IV_TASK_GET_TIME, WM_CB_GET_TIME, 0);
+			if (!pTask) {
+				Error.SetError(CIVError::IVE_NOMEM);
+				return FALSE;
+			}
+		}
+	}
+
+	if (!pTask) {
 		return TRUE;
+	}
 
 	switch (pTask->m_eTaskType) {
 	case CTask::IV_TASK_PING:
@@ -549,6 +621,8 @@ void CRemoteConfig::DeInitialize()
 		CloseHandle(m_hDataMutex);
 		m_hDataMutex = NULL;
 	}
+
+	m_TaskQueue.Clear();
 }
 
 BOOL CRemoteConfig::Initialize(CIVError& Error)
