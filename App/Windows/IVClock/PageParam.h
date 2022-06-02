@@ -43,5 +43,6 @@ public:
 	afx_msg void OnBnClickedChkPsEn();
 	afx_msg void OnBnClickedChkBsEn();
 	afx_msg LRESULT cbSetParam(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT cbGetParam(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedBtnSet();
 };

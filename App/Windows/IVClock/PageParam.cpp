@@ -55,30 +55,34 @@ void CPageParam::DoDataExchange(CDataExchange* pDX)
 
 void CPageParam::UpdateUI()
 {
-	GetDlgItem(IDC_COMBO_PS_TIMEO)->EnableWindow(!m_bInProgress &&
+	GetDlgItem(IDC_COMBO_PS_TIMEO)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid() &&
 		((CButton*)GetDlgItem(IDC_CHK_PS_EN))->GetCheck() == BST_CHECKED);
-	GetDlgItem(IDC_COMBO_BS_FROM)->EnableWindow(!m_bInProgress &&
+	GetDlgItem(IDC_COMBO_BS_FROM)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid() &&
 		((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
-	GetDlgItem(IDC_COMBO_BS_TO)->EnableWindow(!m_bInProgress &&
+	GetDlgItem(IDC_COMBO_BS_TO)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid() &&
 		((CButton*)GetDlgItem(IDC_CHK_BS_EN))->GetCheck() == BST_CHECKED);
 
-	GetDlgItem(IDC_RADIO_TM12)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_RADIO_TM24)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_RADIO_TMP_CENT)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_RADIO_TMP_FAHR)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_SLIDER_PLY_VOL)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_CHK_PS_EN)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_CHK_BS_EN)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_COMBO_TMR_SND)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_CHK_BP_EN)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_CHK_MON_LT_EN)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_CHK_ACC_EN)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_BTN_SET)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_RADIO_TM12)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_RADIO_TM24)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_RADIO_TMP_CENT)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_RADIO_TMP_FAHR)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_SLIDER_PLY_VOL)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_CHK_PS_EN)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_CHK_BS_EN)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_COMBO_TMR_SND)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_CHK_BP_EN)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_CHK_MON_LT_EN)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_CHK_ACC_EN)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
+	GetDlgItem(IDC_BTN_SET)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsParamValid());
 }
 
 BOOL CPageParam::LoadRemoteConfig(CIVError& Error)
 {
 	remote_control_body_param_t param;
+
+	// 如果没有读取到合法的远程配置数据，跳过更新
+	if (!theApp.m_RemoteConfig.IsParamValid())
+		return TRUE;
 
 	if (!theApp.m_RemoteConfig.GetParam(Error, param))
 		return FALSE;
@@ -142,6 +146,8 @@ BOOL CPageParam::SaveRemoteConfig(CIVError &Error)
 {
 	remote_control_body_param_t param;
 
+	UpdateData(TRUE);
+
 	ZeroMemory(&param, sizeof(param));
 
 	param.time_12 = !m_bTM12;
@@ -185,6 +191,7 @@ BOOL CPageParam::OnInitDialog()
 BEGIN_MESSAGE_MAP(CPageParam, CDialog)
 	ON_WM_DESTROY()
 	ON_MESSAGE(WM_CB_SET_PARAM, cbSetParam)
+	ON_MESSAGE(WM_CB_GET_PARAM, cbGetParam)
 	ON_BN_CLICKED(IDC_CHK_PS_EN, &CPageParam::OnBnClickedChkPsEn)
 	ON_BN_CLICKED(IDC_CHK_BS_EN, &CPageParam::OnBnClickedChkBsEn)
 	ON_BN_CLICKED(IDC_BTN_SET, &CPageParam::OnBnClickedBtnSet)
@@ -192,6 +199,20 @@ END_MESSAGE_MAP()
 
 
 // CPageParam 消息处理程序
+
+LRESULT CPageParam::cbGetParam(WPARAM wParam, LPARAM lParam)
+{
+	CTask* pTask = (CTask*)wParam;
+	CIVError Error;
+
+	if (pTask->m_bRes) {
+		LoadRemoteConfig(Error);
+		UpdateData(FALSE);
+	}
+
+	UpdateUI();
+	return 0;
+}
 
 LRESULT CPageParam::cbSetParam(WPARAM wParam, LPARAM lParam)
 {
@@ -223,15 +244,12 @@ void CPageParam::OnBnClickedBtnSet()
 {
 	CIVError Error;
 
-	UpdateData(TRUE);
-
 	if (!SaveRemoteConfig(Error)) {
 		AfxMessageBox(Error.GetErrorStr());
 		return;
 	}
 
 	m_bInProgress = TRUE;
-
 	UpdateUI();
 
 	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_SET_PARAM, GetSafeHwnd(), WM_CB_SET_PARAM)) {

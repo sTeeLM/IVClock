@@ -9,11 +9,11 @@
 #include "console.h"
 #include "rtc.h"
 
-#define ALARM0_MAX_SND_INDEX 9
+#define ALARM0_CNT 10
 
 static int8_t alarm0_cur; // -1说明当前rtc中没有alarm0生效
 static uint8_t alarm0_hit_index;
-struct alarm0_struct alarm0[ALARM0_CNT];
+static struct alarm0_struct alarm0[ALARM0_CNT];
 static uint8_t alarm1_begin;
 static uint8_t alarm1_end;
 
@@ -337,7 +337,7 @@ void alarm0_inc_hour(uint8_t index)
 void alarm0_inc_snd(uint8_t index)
 {
   alarm0[index].snd ++;
-  if(alarm0[index].snd > ALARM0_MAX_SND_INDEX) {
+  if(alarm0[index].snd >= player_get_snd_cnt(PLAYER_SND_DIR_ALARM)) {
     alarm0[index].snd = 0;
   }
 }
@@ -350,7 +350,7 @@ uint8_t alarm0_get_snd(uint8_t index)
 void alarm0_set_snd(uint8_t index, uint8_t snd)
 {
   alarm0[index].snd = snd;
-  if(alarm0[index].snd > ALARM0_MAX_SND_INDEX) {
+  if(alarm0[index].snd >= player_get_snd_cnt(PLAYER_SND_DIR_ALARM)) {
     alarm0[index].snd = 0;
   }
 }

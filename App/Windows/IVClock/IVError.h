@@ -19,8 +19,11 @@ public:
 		IVE_SERIAL_PROTOCAL,
 		IVE_SERIAL_DEVICE
 	}IVE_TYPE_T;
-	void SetError(IVE_TYPE_T eError) {}
-	CString GetErrorStr() { return _T("NONE"); }
+	void SetError(IVE_TYPE_T eError);
+	const CString & GetErrorStr() { return m_strError; }
+protected:
+	IVE_TYPE_T m_eError;
+	CString m_strError;
 };
 
 

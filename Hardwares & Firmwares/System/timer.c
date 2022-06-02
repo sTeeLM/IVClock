@@ -217,7 +217,7 @@ uint8_t timer_get_snd(void)
 uint8_t timer_inc_snd(void)
 {
   tmr_snd ++;
-  if(tmr_snd > PLAYER_SND_10)
+  if(tmr_snd >= player_get_snd_cnt(PLAYER_SND_DIR_EFFETS))
     tmr_snd = 0;
   return tmr_snd;
 }
@@ -225,7 +225,7 @@ uint8_t timer_inc_snd(void)
 void timer_set_snd(uint8_t snd)
 {
   tmr_snd = snd;
-  if(tmr_snd > PLAYER_SND_10)
+  if(tmr_snd >= player_get_snd_cnt(PLAYER_SND_DIR_EFFETS))
     tmr_snd = 0;
 }
 

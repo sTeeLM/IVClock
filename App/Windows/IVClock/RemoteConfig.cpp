@@ -61,7 +61,17 @@ UINT CRemoteConfig::fnRemoteConfigMon(LPVOID pParam)
 			break;
 		}
 
-		pRemoteConfig->RemoteConfigMon(Error);
+		if (!pRemoteConfig->ScheduleRevalidTask(Error)) {
+			TRACE(_T("ScheduleRevalidTask failed: %s"), Error.GetErrorStr());
+		}
+
+		if (!pRemoteConfig->ScheduleTimeTask(Error)) {
+			TRACE(_T("ScheduleTimeTask failed: %s"), Error.GetErrorStr());
+		}
+
+		if (!pRemoteConfig->DealTask(Error)) {
+			TRACE(_T("DealTask failed: %s"), Error.GetErrorStr());
+		}
 
 	} while (!pRemoteConfig->m_bQuitRemoteConfigMon);
 
@@ -133,7 +143,7 @@ BOOL CRemoteConfig::StartRemoteConfigMon(CIVError& Error)
 }
 
 
-BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_control_cmd_type_t eCmd, INT nIndex /* = 0*/)
+BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_control_cmd_type_t eCmd)
 {
 	remote_control_msg_t msg;
 	CSerialPortConnection* pConn = NULL;
@@ -188,24 +198,24 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 		break;
 	case REMOTE_CONTROL_CMD_SET_TIME:
 		msg.header.length = sizeof(remote_control_body_time_t);
-		CopyMemory(&msg.body, &m_DateTime, sizeof(m_DateTime));
+		CopyMemory(&msg.body, &m_LocalDateTime, sizeof(m_LocalDateTime));
 		break;
 	case REMOTE_CONTROL_CMD_GET_TIME:
 		msg.header.length = 0;
-		ZeroMemory(&msg.body, sizeof(m_DateTime));
+		ZeroMemory(&msg.body, sizeof(remote_control_body_time_t));
 		break;
 	case REMOTE_CONTROL_CMD_SET_PARAM:
 		msg.header.length = sizeof(remote_control_body_param_t);
-		CopyMemory(&msg.body, &m_Param, sizeof(m_Param));
+		CopyMemory(&msg.body, &m_LocalParam, sizeof(m_LocalParam));
 		break;
 	case REMOTE_CONTROL_CMD_GET_PARAM:
 		msg.header.length = 0;
-		ZeroMemory(&msg.body, sizeof(m_Param));
+		ZeroMemory(&msg.body, sizeof(remote_control_body_param_t));
 		break;
 	case REMOTE_CONTROL_CMD_SET_ALARM:
 		msg.header.length = sizeof(remote_control_body_alarm_t);
-		msg.body.alarm.alarm_index = nIndex;
-		CopyMemory(&msg.body, &m_AlarmArray[nIndex],sizeof(remote_control_body_alarm_t));
+		msg.body.alarm.alarm_index = m_LocalAlarm.alarm_index;
+		CopyMemory(&msg.body, &m_LocalAlarm,sizeof(remote_control_body_alarm_t));
 		break;
 	}
 
@@ -215,10 +225,10 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 
 	switch (eCmd) {
 	case REMOTE_CONTROL_CMD_GET_TIME:
-		CopyMemory(&m_DateTime, &msg.body, sizeof(m_DateTime));
+		CopyMemory(&m_RemoteDateTime, &msg.body, sizeof(m_RemoteDateTime));
 		break;
 	case REMOTE_CONTROL_CMD_GET_PARAM:
-		CopyMemory(&m_Param, &msg.body, sizeof(m_Param));
+		CopyMemory(&m_RemoteParam, &msg.body, sizeof(m_RemoteParam));
 		break;
 	}
 
@@ -235,9 +245,9 @@ BOOL CRemoteConfig::SetRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent /* =
 	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_PARAM);
 }
 
-BOOL CRemoteConfig::SetRemoteConfigAlarm(INT nAlarmIndex, CIVError& Error, HANDLE hWaitEvent /* = NULL */)
+BOOL CRemoteConfig::SetRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent /* = NULL */)
 {
-	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_ALARM, nAlarmIndex);
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_ALARM);
 }
 
 BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent /* = NULL */)
@@ -305,7 +315,7 @@ err:
 
 BOOL CRemoteConfig::LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent/* = NULL*/)
 {
-	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_PARAM);
+	return (m_bRemoteParamValid = LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_PARAM));
 }
 
 
@@ -362,32 +372,33 @@ BOOL CRemoteConfig::LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent/* =
 	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
 	msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
 	msg.header.length = sizeof(remote_control_body_alarm_t);
-	msg.body.alarm.alarm_index = (uint8_t)(-1);
+	msg.body.alarm.alarm_cnt = (uint8_t)(-1);
 	if (!ProcessSerialMsg(pConn, msg, Error)) {
 		goto err;
 	}
 	TRACE(_T("LoadRemoteConfigAlarm alarm cnt is %d\n"), msg.body.alarm.alarm_index);
 	// alloc alarm memory ??
-	if (m_AlarmArray != NULL && m_nAlarmCnt != msg.body.alarm.alarm_index
-		|| m_AlarmArray == NULL) {
-		if (m_AlarmArray) {
-			free(m_AlarmArray);
-			m_AlarmArray = NULL;
-			m_nAlarmCnt = 0;
+	if (m_RemoteAlarmArray != NULL && m_nRemoteAlarmCnt != msg.body.alarm.alarm_index
+		|| m_RemoteAlarmArray == NULL) {
+		if (m_RemoteAlarmArray) {
+			free(m_RemoteAlarmArray);
+			m_RemoteAlarmArray = NULL;
+			m_nRemoteAlarmCnt = 0;
 		}
-		m_AlarmArray = (remote_control_body_alarm_t*)
+		m_RemoteAlarmArray = (remote_control_body_alarm_t*)
 			malloc(sizeof(remote_control_body_alarm_t) * msg.body.alarm.alarm_index);
 
-		if (!m_AlarmArray) {
+		if (!m_RemoteAlarmArray) {
 			Error.SetError(CIVError::IVE_NOMEM);
 			goto err;
 		}
-		m_nAlarmCnt = msg.body.alarm.alarm_index;
-		ZeroMemory(m_AlarmArray, sizeof(remote_control_body_alarm_t) * m_nAlarmCnt);
+		m_nRemoteAlarmCnt = msg.body.alarm.alarm_cnt;
+		m_nRemoteAlarmSndCnt = msg.body.alarm.alarm_snd_cnt;
+		ZeroMemory(m_RemoteAlarmArray, sizeof(remote_control_body_alarm_t) * m_nRemoteAlarmCnt);
 	}
 
 	// read alarm
-	for (INT i = 0; i < m_nAlarmCnt; i++) {
+	for (INT i = 0; i < m_nRemoteAlarmCnt; i++) {
 		msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
 		msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
 		msg.header.length = sizeof(remote_control_body_alarm_t);
@@ -397,28 +408,31 @@ BOOL CRemoteConfig::LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent/* =
 			//goto err;
 		}
 
-		CopyMemory(m_AlarmArray + i, &msg.body.alarm, sizeof(remote_control_body_alarm_t));
+		CopyMemory(m_RemoteAlarmArray + i, &msg.body.alarm, sizeof(remote_control_body_alarm_t));
 	}
 	bRet = TRUE;
 err:
 
 	if (!bRet) {
-		if (m_AlarmArray) {
-			free(m_AlarmArray);
-			m_AlarmArray = NULL;
+		if (m_RemoteAlarmArray) {
+			free(m_RemoteAlarmArray);
+			m_RemoteAlarmArray = NULL;
 		}
-		m_nAlarmCnt = 0;
+		m_nRemoteAlarmCnt = 0;
 	}
 
 	ReleaseMutex(m_hDataMutex);
 	if (pConn)
 		pConn->Close();
+
+	m_bRemoteAlarmValid = bRet;
+
 	return bRet;
 }
 
 BOOL CRemoteConfig::LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent/* = NULL */)
 {
-	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_TIME);
+	return (m_bRemoteDateTimeValid = LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_TIME));
 }
 
 BOOL CRemoteConfig::SetParam(CIVError& Error, const remote_control_body_param_t& param)
@@ -430,7 +444,7 @@ BOOL CRemoteConfig::SetParam(CIVError& Error, const remote_control_body_param_t&
 		return FALSE;
 	}
 
-	CopyMemory(&m_Param, &param, sizeof(m_Param));
+	CopyMemory(&m_LocalParam, &param, sizeof(m_LocalParam));
 
 	ReleaseMutex(m_hDataMutex);
 	return TRUE;
@@ -445,7 +459,7 @@ BOOL CRemoteConfig::GetParam(CIVError& Error, remote_control_body_param_t& param
 		return FALSE;
 	}
 
-	CopyMemory(&param, &m_Param, sizeof(m_Param));
+	CopyMemory(&param, &m_RemoteParam, sizeof(m_RemoteParam));
 
 	ReleaseMutex(m_hDataMutex);
 	return TRUE;
@@ -461,7 +475,7 @@ BOOL CRemoteConfig::SetDateTime(CIVError& Error, const remote_control_body_time_
 		return FALSE;
 	}
 
-	CopyMemory(&m_DateTime, &datetime, sizeof(m_DateTime));
+	CopyMemory(&m_LocalDateTime, &datetime, sizeof(m_LocalDateTime));
 
 	ReleaseMutex(m_hDataMutex);
 	return TRUE;
@@ -479,6 +493,40 @@ BOOL CRemoteConfig::SetDateTime(CIVError& Error, const COleDateTime& oleDateTime
 	return SetDateTime(Error, datetime);
 }
 
+BOOL CRemoteConfig::GetAlarm(CIVError& Error, remote_control_body_alarm_t& alarm, INT nIndex)
+{
+	DWORD dwWaitRes;
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+
+	ZeroMemory(&alarm, sizeof(alarm));
+
+	if(nIndex >= 0 && nIndex < m_nRemoteAlarmCnt)
+		CopyMemory(&alarm, &m_RemoteAlarmArray[nIndex], sizeof(alarm));
+
+	ReleaseMutex(m_hDataMutex);
+	return TRUE;
+}
+
+BOOL CRemoteConfig::SetAlarm(CIVError& Error, const remote_control_body_alarm_t& alarm)
+{
+	DWORD dwWaitRes;
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+
+	if (alarm.alarm_index >= 0 && alarm.alarm_index < m_nRemoteAlarmCnt)
+		CopyMemory(&m_LocalAlarm, &alarm, sizeof(alarm));
+
+	ReleaseMutex(m_hDataMutex);
+	return TRUE;
+}
+
 
 BOOL CRemoteConfig::GetDateTime(CIVError& Error, remote_control_body_time_t& datetime)
 {
@@ -489,7 +537,7 @@ BOOL CRemoteConfig::GetDateTime(CIVError& Error, remote_control_body_time_t& dat
 		return FALSE;
 	}
 
-	CopyMemory(&datetime, &m_DateTime, sizeof(m_DateTime));
+	CopyMemory(&datetime, &m_RemoteDateTime, sizeof(m_RemoteDateTime));
 
 	ReleaseMutex(m_hDataMutex);
 	return TRUE;
@@ -519,92 +567,112 @@ BOOL CRemoteConfig::AddTask(CIVError& Error, CTask::IV_TASK_TYPE_T eTaskType, HW
 	return bRet;
 }
 
-BOOL CRemoteConfig::RemoteConfigMon(CIVError& Error)
+
+BOOL CRemoteConfig::ScheduleTimeTask(CIVError& Error)
+{
+
+	if (m_bInTray) { // 最小化了，每特定间隔时间同步一次本地时间
+		TRACE(_T("Check if Sync Time\n"));
+		CConfigManager::CONFIG_VALUE_T val;
+		theApp.m_Config.GetConfig(_T("time_sync"), _T("enable"), val);
+		if (val.u8) {
+			theApp.m_Config.GetConfig(_T("time_sync"), _T("interval_sec"), val);
+			COleDateTime oleNow = COleDateTime::GetCurrentTime();
+			if ((oleNow - m_oleLastSync).GetSeconds() > val.u32) {
+				COleDateTimeSpan OneSec(0, 0, 0, 1); // 同步需要大约1S
+				m_oleLastSync = oleNow + OneSec;
+				if (SetDateTime(Error, m_oleLastSync)) {
+					if (!AddTask(Error, CTask::IV_TASK_SET_TIME, m_hWndDateTime, WM_CB_SET_TIME)) {
+						return FALSE;
+					}
+				}
+				else {
+					return FALSE;
+				}
+			}
+		}
+	}
+
+	if (!m_bInTray) { // 没有最小化，每10s读取一次远程时间
+		TRACE(_T("Refresh Time\n"));
+		if (!AddTask(Error, CTask::IV_TASK_GET_TIME, m_hWndDateTime, WM_CB_GET_TIME)) {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+BOOL CRemoteConfig::ScheduleRevalidTask(CIVError& Error)
+{
+	if (!m_bRemoteParamValid) {
+		return AddTask(Error, CTask::IV_TASK_GET_PARAM, m_hWndParam, WM_CB_GET_PARAM);
+	}
+
+	if (!m_bRemoteDateTimeValid) {
+		return AddTask(Error, CTask::IV_TASK_GET_PARAM, m_hWndDateTime, WM_CB_GET_TIME);
+	}
+
+	if (!m_bRemoteAlarmValid) {
+		return AddTask(Error, CTask::IV_TASK_GET_ALARM, m_hWndAlarm, WM_CB_GET_ALARM);
+	}
+
+	return TRUE;
+}
+
+BOOL CRemoteConfig::DealTask(CIVError& Error)
 {
 	DWORD dwWaitRes;
 	BOOL bRet = FALSE;
 	CTask* pTask = NULL;
 
-	// fetch a task
-	dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
-	if (dwWaitRes == WAIT_FAILED) {
-		Error.SetError(CIVError::IVE_INTERNAL);
-		return FALSE;
-	}
-	pTask = m_TaskQueue.GetFromFront();
-	ReleaseMutex(m_hSerialMutex);
+	do {
+		// fetch a task
+		dwWaitRes = WaitForSingleObject(m_hSerialMutex, INFINITE);
+		if (dwWaitRes == WAIT_FAILED) {
+			Error.SetError(CIVError::IVE_INTERNAL);
+			return FALSE;
+		}
+		pTask = m_TaskQueue.GetFromFront();
+		ReleaseMutex(m_hSerialMutex);
 
-	if (!pTask) { // 没有task，是否要执行定时任务？
-		if (m_bInTray) { // 最小化了，每特定间隔时间同步一次本地时间
-			TRACE(_T("Check if Sync Time\n"));
-			CConfigManager::CONFIG_VALUE_T val;
-			theApp.m_Config.GetConfig(_T("time_sync"), _T("enable"), val);
-			if (val.u8) {
-				theApp.m_Config.GetConfig(_T("time_sync"), _T("interval_sec"), val);
-				COleDateTime oleNow = COleDateTime::GetCurrentTime();
-				if ((oleNow - m_oleLastSync).GetSeconds() > val.u32) {
-					COleDateTimeSpan OneSec(0, 0, 0, 1); // 同步需要大约1S
-					m_oleLastSync = oleNow + OneSec;
-					if (SetDateTime(Error, m_oleLastSync)) {
-						pTask = new CTask(m_hWndDateTime, CTask::IV_TASK_SET_TIME, WM_CB_SET_TIME, 0);
-						if (!pTask) {
-							Error.SetError(CIVError::IVE_NOMEM);
-							return FALSE;
-						}
-					}
-					else {
-						return FALSE;
-					}
-				}
-			}
+		if (!pTask) {
+			return TRUE;
 		}
 
-		if(!pTask && !m_bInTray) { // 没有最小化，每10s读取一次远程时间
-			TRACE(_T("Refresh Time\n"));
-			pTask = new CTask(m_hWndDateTime, CTask::IV_TASK_GET_TIME, WM_CB_GET_TIME, 0);
-			if (!pTask) {
-				Error.SetError(CIVError::IVE_NOMEM);
-				return FALSE;
-			}
+		switch (pTask->m_eTaskType) {
+		case CTask::IV_TASK_PING:
+			pTask->m_bRes = Ping(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		case CTask::IV_TASK_GET_PARAM:
+			pTask->m_bRes = LoadRemoteConfigParam(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		case CTask::IV_TASK_SET_PARAM:
+			pTask->m_bRes = SetRemoteConfigParam(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		case CTask::IV_TASK_GET_ALARM:
+			pTask->m_bRes = LoadRemoteConfigAlarm(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		case CTask::IV_TASK_SET_ALARM:
+			pTask->m_bRes = SetRemoteConfigAlarm(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		case CTask::IV_TASK_GET_TIME:
+			pTask->m_bRes = LoadRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		case CTask::IV_TASK_SET_TIME:
+			pTask->m_bRes = SetRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		default:
+			TRACE(_T("UNKNOWN TASK TYPE % d"), pTask->m_eTaskType);
+			Error.SetError(CIVError::IVE_INTERNAL);
+			delete pTask;
+			return FALSE;
 		}
-	}
 
-	if (!pTask) {
-		return TRUE;
-	}
+		SendMessage(pTask->m_hWnd, pTask->m_nMessage, (WPARAM)pTask, 0);
 
-	switch (pTask->m_eTaskType) {
-	case CTask::IV_TASK_PING:
-		pTask->m_bRes = Ping(pTask->m_Error, m_hQuitRemoteConfigMon);
-		break;
-	case CTask::IV_TASK_GET_PARAM:
-		pTask->m_bRes = LoadRemoteConfigParam(pTask->m_Error, m_hQuitRemoteConfigMon);
-		break;
-	case CTask::IV_TASK_SET_PARAM:
-		pTask->m_bRes = SetRemoteConfigParam(pTask->m_Error, m_hQuitRemoteConfigMon);
-		break;
-	case CTask::IV_TASK_GET_ALARM:
-		pTask->m_bRes = LoadRemoteConfigAlarm(pTask->m_Error, m_hQuitRemoteConfigMon);
-		break;
-	case CTask::IV_TASK_SET_ALARM:
-		pTask->m_bRes = SetRemoteConfigAlarm((UINT)pTask->m_pParam, pTask->m_Error, m_hQuitRemoteConfigMon);
-		break;
-	case CTask::IV_TASK_GET_TIME:
-		pTask->m_bRes = LoadRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
-		break;
-	case CTask::IV_TASK_SET_TIME:
-		pTask->m_bRes = SetRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
-		break;
-	default:
-		TRACE(_T("UNKNOWN TASK TYPE % d"), pTask->m_eTaskType);
-		Error.SetError(CIVError::IVE_INTERNAL);
 		delete pTask;
-		return FALSE;
-	}
-
-	SendMessage(pTask->m_hWnd, pTask->m_nMessage, (WPARAM) pTask, 0);
-
-	delete pTask;
+	} while (TRUE);
 
 	Error.SetError(CIVError::IVE_NONE);
 	return TRUE;
@@ -641,18 +709,15 @@ BOOL CRemoteConfig::Initialize(CIVError& Error)
 	return TRUE;
 }
 
-BOOL CRemoteConfig::LoadRemoteConfig(CIVError& Error, HANDLE hWaitEvent/* = NULL */)
+void CRemoteConfig::TryLoadRemoteConfig()
 {
-	if (!LoadRemoteConfigParam(Error, hWaitEvent))
-		return FALSE;
+	CIVError Error;
 
-	if (!LoadRemoteConfigAlarm(Error, hWaitEvent))
-		return FALSE;
+	LoadRemoteConfigParam(Error, NULL);
 
-	if (!LoadRemoteConfigDateTime(Error, hWaitEvent))
-		return FALSE;
+	LoadRemoteConfigAlarm(Error, NULL);
 
-	return TRUE;
+	LoadRemoteConfigDateTime(Error, NULL);
 }
 
 

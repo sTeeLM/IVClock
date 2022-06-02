@@ -91,6 +91,7 @@ dir 04（闹钟）：
 #define PLAYER_FILE_ALARM8  8
 #define PLAYER_FILE_ALARM9  9
 #define PLAYER_FILE_ALARM10  10
+#define PLAYER_FILE_ALARM_CNT     10
 
 #define PLAYER_DIR_EFECTS 5
 /*
@@ -107,7 +108,7 @@ dir 04（音效）：
 #define PLAYER_FILE_EFECTS8  8
 #define PLAYER_FILE_EFECTS9  9
 #define PLAYER_FILE_EFECTS10  10
-
+#define PLAYER_FILE_EFECTS_CNT     10
 /*
 现在时间            1
 二 零 一 二         4
@@ -475,21 +476,33 @@ void player_report_temperature(void)
   player_play_sequence_start();
 }
 
-static uint8_t player_play_snd_index_to_file(enum player_snd_dir dir, enum player_snd_index index)
+static uint8_t player_play_snd_index_to_file(enum player_snd_dir dir, uint8_t index)
 {
   if(dir == PLAYER_SND_DIR_ALARM) {
-    if(index > 9)
-      index = 9;
+    if(index > PLAYER_FILE_ALARM_CNT - 1)
+      index = PLAYER_FILE_ALARM_CNT - 1;
+    return index + 1;
+  } else if (dir == PLAYER_SND_DIR_EFFETS) {
+    if(index >  PLAYER_FILE_EFECTS_CNT - 1)
+      index = PLAYER_FILE_EFECTS_CNT - 1;
     return index + 1;
   } else {
-    if(index > 9)
-      index = 9;
-    return index + 1;
+    return 0;
   }
 }
 
+uint8_t player_get_snd_cnt(enum player_snd_dir dir)
+{
+  if(dir == PLAYER_SND_DIR_ALARM) {
+    return PLAYER_FILE_ALARM_CNT;
+  } else if (dir == PLAYER_SND_DIR_EFFETS) {
+    return PLAYER_FILE_EFECTS_CNT;
+  } else {
+    return 0;
+  }
+}
 
-void player_play_snd(enum player_snd_dir dir, enum player_snd_index index)
+void player_play_snd(enum player_snd_dir dir, uint8_t index)
 {
   player_seq[player_seq_current_index].dir  = dir;
   player_seq[player_seq_current_index].file = player_play_snd_index_to_file(dir, index);

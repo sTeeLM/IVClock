@@ -100,10 +100,8 @@ BOOL CIVClockApp::InitInstance()
 		goto err;
 	}
 
-	if (!m_RemoteConfig.LoadRemoteConfig(Error)) {
-		AfxMessageBox(Error.GetErrorStr());
-		goto err;
-	}
+
+	m_RemoteConfig.TryLoadRemoteConfig();
 
 	if (!m_RemoteConfig.StartRemoteConfigMon(Error)) {
 		AfxMessageBox(Error.GetErrorStr());

@@ -63,6 +63,8 @@ void CIVClockDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CIVClockDlg, CDialogEx)
+	ON_COMMAND(ID_EXIT, OnExit)
+	ON_COMMAND(ID_RESTORE, OnRestore)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
@@ -75,6 +77,20 @@ END_MESSAGE_MAP()
 
 
 // CIVClockDlg 消息处理程序
+
+void CIVClockDlg::OnExit()
+{
+	TRACE(_T("OnExit\n"));
+	DeleteTray();
+	OnCancel();
+}
+
+void CIVClockDlg::OnRestore()
+{
+	TRACE(_T("OnRestore\n"));
+	ShowWindow(SW_NORMAL);
+	DeleteTray();
+}
 
 BOOL CIVClockDlg::OnInitDialog()
 {
@@ -105,12 +121,17 @@ BOOL CIVClockDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	m_ctlTab.InsertItem(0, _T("SERIAL"));
-	m_ctlTab.InsertItem(1, _T("PARAM"));
-	m_ctlTab.InsertItem(2, _T("DATETIME"));
-	m_ctlTab.InsertItem(3, _T("ALARM"));
+	CString strLabel;
+	strLabel.LoadString(IDS_TAB_SERIAL);
+	m_ctlTab.InsertItem(0, strLabel);
+	strLabel.LoadString(IDS_TAB_PARAM);
+	m_ctlTab.InsertItem(1, strLabel);
+	strLabel.LoadString(IDS_TAB_DATETIME);
+	m_ctlTab.InsertItem(2, strLabel);
+	strLabel.LoadString(IDS_TAB_ALARM);
+	m_ctlTab.InsertItem(3, strLabel);
 
-	m_pageSerial.Create(IDD_PROPPAGE_INFO, &m_ctlTab);
+	m_pageSerial.Create(IDD_PROPPAGE_SERIAL, &m_ctlTab);
 	m_pageParam.Create(IDD_PROPPAGE_PARAM, &m_ctlTab);
 	m_pageDateTime.Create(IDD_PROPPAGE_DATETIME, &m_ctlTab);
 	m_pageAlarm.Create(IDD_PROPPAGE_ALARM, &m_ctlTab);
@@ -121,6 +142,7 @@ BOOL CIVClockDlg::OnInitDialog()
 	rect.bottom -= 4;
 	rect.left += 4;
 	rect.right -= 4;
+
 	m_pageSerial.MoveWindow(&rect);
 	m_pageParam.MoveWindow(&rect);
 	m_pageDateTime.MoveWindow(&rect);
@@ -129,6 +151,10 @@ BOOL CIVClockDlg::OnInitDialog()
 	m_pageSerial.ShowWindow(SW_SHOW);
 	m_ctlTab.SetCurSel(0);
 	// TODO: 在此添加额外的初始化代码
+
+	theApp.m_RemoteConfig.SetParamHwnd(m_pageParam.GetSafeHwnd());
+	theApp.m_RemoteConfig.SetDateTimeHwnd(m_pageDateTime.GetSafeHwnd());
+	theApp.m_RemoteConfig.SetAlarmHwnd(m_pageAlarm.GetSafeHwnd());
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -263,7 +289,7 @@ void CIVClockDlg::DeleteTray()
 {
 	NOTIFYICONDATA nid;
 	nid.cbSize = (DWORD)sizeof(NOTIFYICONDATA);
-	nid.hWnd = this->m_hWnd;
+	nid.hWnd = GetSafeHwnd();
 	nid.uID = IDR_MAINFRAME;
 	nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	nid.uCallbackMessage = WM_SHOWTASK; //自定义的消息名称
@@ -274,27 +300,23 @@ void CIVClockDlg::DeleteTray()
 
 LRESULT CIVClockDlg::OnShowTask(WPARAM wParam, LPARAM lParam)
 {
+	POINT Point;
+	CMenu menu;
+
 	if (wParam != IDR_MAINFRAME)
 		return 1;
 	switch (lParam)
 	{
 	case WM_RBUTTONUP://右键起来时弹出快捷菜单，这里只有一个“关闭”
 	{
-		LPPOINT lpoint = new tagPOINT;
-		::GetCursorPos(lpoint);//得到鼠标位置
-		CMenu menu;
-		menu.CreatePopupMenu();//声明一个弹出式菜单
-
-
-		menu.AppendMenu(MF_STRING, WM_DESTROY, _T("关闭")); //增加菜单项“关闭”，点击则发送消息WM_DESTROY给主窗口（已隐藏），将程序结束。
-		menu.TrackPopupMenu(TPM_LEFTALIGN, lpoint->x, lpoint->y, this); //确定弹出式菜单的位置
-		HMENU hmenu = menu.Detach();
+		GetCursorPos(&Point);//得到鼠标位置
+		menu.LoadMenu(IDR_MENU_TRAY);//声明一个弹出式菜单
+		menu.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN, Point.x, Point.y, this); //确定弹出式菜单的位置
 		menu.DestroyMenu(); //资源回收
-		delete lpoint;
 	} break;
 	case WM_LBUTTONDBLCLK: //双击左键的处理
 	{
-		this->ShowWindow(SW_NORMAL);//简单的显示主窗口完事儿
+		ShowWindow(SW_NORMAL);//简单的显示主窗口完事儿
 		DeleteTray();
 	} break;
 	default: break;

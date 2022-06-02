@@ -20,12 +20,25 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	BOOL SaveRemoteConfig(CIVError& Error);
 	BOOL LoadRemoteConfig(CIVError& Error);
+	void SetAlarmDisplay(const remote_control_body_alarm_t& alarm);
+	void UpdateUI();
 	DECLARE_MESSAGE_MAP()
+
+protected:
+	BOOL m_bInProgress;
+
 public:
 	
 	INT m_nAlarmIndex;
+	INT m_nAlarmSnd;
+	INT m_nAlarmHour;
+	INT m_nAlarmMin;
+
+public:
 	afx_msg void OnBnClickedBtnAlarmSelAll();
 	afx_msg void OnBnClickedBtnAlarmSelNone();
-	COleDateTime m_oleAlarmTime;
 	afx_msg void OnBnClickedBtnSet();
+	afx_msg void OnCbnSelchangeComboAlarmIndex();
+	afx_msg LRESULT cbSetAlarm(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT cbGetAlarm(WPARAM wParam, LPARAM lParam);
 };

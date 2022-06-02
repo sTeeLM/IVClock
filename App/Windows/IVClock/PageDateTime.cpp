@@ -38,6 +38,7 @@ UINT CPageDateTime::fnLocalDateTimeThread(LPVOID pParam)
 	DWORD dwWaitRes;
 	CIVError Error;
 	COleDateTime oleNow;
+
 	do {
 		dwWaitRes = WaitForSingleObject(pThis->m_hStopDateTimeThread, 500);
 		if (dwWaitRes == WAIT_FAILED) {
@@ -138,8 +139,8 @@ UINT CPageDateTime::IndexToSyncInterval(INT nIndex)
 
 void CPageDateTime::UpdateUI()
 {
-	GetDlgItem(IDC_BTN_DATETIME_SYNC_NOW)->EnableWindow(!m_bInProgress);
-	GetDlgItem(IDC_BTN_DATETIME_REFRESH)->EnableWindow(!m_bInProgress);
+	GetDlgItem(IDC_BTN_DATETIME_SYNC_NOW)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsDateTimeValid());
+	GetDlgItem(IDC_BTN_DATETIME_REFRESH)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsDateTimeValid());
 }
 
 BOOL CPageDateTime::OnInitDialog()
@@ -147,10 +148,6 @@ BOOL CPageDateTime::OnInitDialog()
 	CIVError Error;
 	CConfigManager::CONFIG_VALUE_T val;
 	remote_control_body_time_t datetime;
-
-	theApp.m_RemoteConfig.SetDateTimeHwnd(GetSafeHwnd());
-
-	theApp.m_RemoteConfig.GetDateTime(Error, datetime);
 
 	theApp.m_Config.GetConfig(_T("time_sync"), _T("enable"), val);
 
@@ -160,15 +157,23 @@ BOOL CPageDateTime::OnInitDialog()
 
 	m_nTMAutoSyncInterval = SyncIntervalToIndex(val.u32);
 
-	m_oleDate.SetDateTime(
-		datetime.year + 2000,
-		datetime.mon,
-		datetime.date,
-		datetime.hour,
-		datetime.min,
-		datetime.sec
-	);
-	m_oleTime = m_oleDate;
+	if (theApp.m_RemoteConfig.IsDateTimeValid()) {
+		if (theApp.m_RemoteConfig.GetDateTime(Error, datetime)) {
+			m_oleDate.SetDateTime(
+				datetime.year + 2000,
+				datetime.mon,
+				datetime.date,
+				datetime.hour,
+				datetime.min,
+				datetime.sec
+			);
+			m_oleTime = m_oleDate;
+		}
+		else {
+			AfxMessageBox(Error.GetErrorStr());
+			return FALSE;
+		}
+	}
 
 	if (!StartLocalDateTimeThread(Error)) {
 		return FALSE;
@@ -180,6 +185,8 @@ BOOL CPageDateTime::OnInitDialog()
 
 	GetDlgItem(IDC_COMBO_DATETIME_SYNC_INTERVAL)->
 		EnableWindow(((CButton*)GetDlgItem(IDC_CHK_DATETIME_AUTO_SYNC))->GetCheck() == BST_CHECKED);
+
+	UpdateUI();
 
 	return TRUE;
 }
@@ -231,14 +238,22 @@ LRESULT CPageDateTime::cbGetTimeDate(WPARAM wParam, LPARAM lParam)
 			CDateTimeCtrl* pTime = (CDateTimeCtrl*)GetDlgItem(IDC_DTP_TIME);
 			pDate->SetTime(m_oleDate);
 			pTime->SetTime(m_oleTime);
-			GetDlgItem(IDC_EDIT_LAST_REFRESH)->SetWindowText(m_oleTime.Format(_T("%Y-%m-%d %H:%M:%S")));
+			GetDlgItem(IDC_EDIT_LAST_REFRESH)->SetWindowText(COleDateTime::GetCurrentTime().Format(_T("%Y-%m-%d %H:%M:%S")));
 		}
 		else {
-			AfxMessageBox(Error.GetErrorStr());
+			if (pTask->m_pParam)
+				AfxMessageBox(Error.GetErrorStr());
+			else {
+				TRACE(_T("GetTimeDate Error:%s\n"), Error.GetErrorStr());
+			}
 		}
 	}
 	else {
-		AfxMessageBox(pTask->m_Error.GetErrorStr());
+		if(pTask->m_pParam)
+			AfxMessageBox(pTask->m_Error.GetErrorStr());
+		else {
+			TRACE(_T("GetTimeDate Error:%s\n"), pTask->m_Error.GetErrorStr());
+		}
 	}
 
 	return 0;
@@ -262,7 +277,12 @@ LRESULT CPageDateTime::cbSetTimeDate(WPARAM wParam, LPARAM lParam)
 		GetDlgItem(IDC_EDIT_LAST_SYNC)->SetWindowText(m_oleLastSync.Format(_T("%Y-%m-%d %H:%M:%S")));
 	}
 	else {
-		AfxMessageBox(pTask->m_Error.GetErrorStr());
+		if (pTask->m_pParam) {
+			AfxMessageBox(pTask->m_Error.GetErrorStr());
+		}
+		else {
+			TRACE(_T("cbSetTimeDate Error:%s\n"), Error.GetErrorStr());
+		}
 	}
 
 	return 0;
@@ -272,7 +292,7 @@ LRESULT CPageDateTime::cbSetTimeDate(WPARAM wParam, LPARAM lParam)
 void CPageDateTime::OnBnClickedBtnDatetimeRefresh()
 {
 	CIVError Error;
-	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_TIME, GetSafeHwnd(), WM_CB_GET_TIME)) {
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_TIME, GetSafeHwnd(), WM_CB_GET_TIME, (LPVOID)1)) {
 		AfxMessageBox(Error.GetErrorStr());
 	}
 
@@ -293,7 +313,7 @@ void CPageDateTime::OnBnClickedBtnDatetimeSyncNow()
 		return;
 	}
 
-	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_TIME, GetSafeHwnd(), WM_CB_SET_TIME)) {
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_TIME, GetSafeHwnd(), WM_CB_SET_TIME, (LPVOID)1)) {
 		AfxMessageBox(Error.GetErrorStr());
 		return;
 	}

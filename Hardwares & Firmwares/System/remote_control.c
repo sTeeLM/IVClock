@@ -216,12 +216,13 @@ static void do_set_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_get_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   if(cmd->body.alarm.alarm_index == (uint8_t)(-1)) {
-    res->body.alarm.alarm_index = ALARM0_CNT;
+    res->body.alarm.alarm_cnt = alarm0_get_cnt();
+    res->body.alarm.alarm_snd_cnt = player_get_snd_cnt(PLAYER_SND_DIR_ALARM);
     res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
     res->header.code = REMOTE_CONTROL_CODE_OK;
     res->header.length = sizeof(res->body.alarm);
     
-  } else if(cmd->body.alarm.alarm_index < ALARM0_CNT) {
+  } else if(cmd->body.alarm.alarm_index < alarm0_get_cnt()) {
     res->body.alarm.alarm_index = cmd->body.alarm.alarm_index;
     res->body.alarm.day_mask = alarm0_get_day_mask(cmd->body.alarm.alarm_index);
     res->body.alarm.hour = alarm0_get_hour(cmd->body.alarm.alarm_index);   
@@ -241,7 +242,7 @@ static void do_get_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   uint8_t i;
-  if(cmd->body.alarm.alarm_index < ALARM0_CNT) {
+  if(cmd->body.alarm.alarm_index < alarm0_get_cnt()) {
     alarm0_set_day_mask(cmd->body.alarm.alarm_index, cmd->body.alarm.day_mask);
     alarm0_set_hour(cmd->body.alarm.alarm_index, cmd->body.alarm.hour);
     alarm0_set_min(cmd->body.alarm.alarm_index, cmd->body.alarm.min); 
@@ -277,7 +278,7 @@ static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   res->body.param.min_power_timeo = POWER_MIN_TIMEO;  
   res->body.param.max_power_timeo = POWER_MAX_TIMEO; 
   res->body.param.step_power_timeo = POWER_STEP_TIMEO;
-  res->body.param.tmr_snd_cnt = PLAYER_SND_CNT;
+  res->body.param.tmr_snd_cnt = player_get_snd_cnt(PLAYER_SND_DIR_EFFETS);
   
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;

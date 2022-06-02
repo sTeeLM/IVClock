@@ -9,8 +9,6 @@ void alarm_init(void);
 void alarm_proc(enum task_events ev);
 void alarm_dump(void);
 
-#define ALARM0_CNT 10
-
 // 闹钟0是一个可以设置日重复的每日闹铃
 struct alarm0_struct {
   uint8_t day_mask;                // 1->enable 0->disable
@@ -19,19 +17,19 @@ struct alarm0_struct {
   uint8_t snd;                     // 闹铃声音snd index
 };
 
-extern struct alarm0_struct alarm0[ALARM0_CNT];
+//extern struct alarm0_struct alarm0[ALARM0_CNT];
 
 enum alarm_sync_type {
   ALARM_SYNC_ALARM0,
   ALARM_SYNC_ALARM1
 };
 
-uint8_t alarm0_get_cnt(void);
 uint8_t alarm0_get_hit_index(void);
 void alarm_save_config(enum alarm_sync_type t, uint8_t index);
 void alarm_load_config(void);
 void alarm_resync_rtc(void);
 
+uint8_t alarm0_get_cnt(void);
 bool alarm0_test_enable(uint8_t index, uint8_t day);
 void alarm0_set_enable(uint8_t index, uint8_t day, bool enable);
 uint8_t alarm0_get_day_mask(uint8_t index);

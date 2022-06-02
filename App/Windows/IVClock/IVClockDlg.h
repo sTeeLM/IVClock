@@ -37,6 +37,11 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT OnShowTask(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnSize(UINT nType,INT cx,INT cy);
+	afx_msg void OnExit();
+	afx_msg void OnRestore();
+	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedCancel();
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -45,7 +50,5 @@ public:
 	CPageSerial  m_pageSerial;
 	CPageAlarm m_pageAlarm;
 	CPageDateTime m_pageDateTime;
-	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnBnClickedOk();
-	afx_msg void OnBnClickedCancel();
+
 };
