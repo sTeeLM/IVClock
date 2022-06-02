@@ -254,9 +254,9 @@ void CIVClockDlg::OnBnClickedOk()
 		case 1:
 			break;
 		case 2:
-			m_pageDateTime.Save();
 			break;
-		case 3:break;
+		case 3:
+			break;
 	}
 }
 
