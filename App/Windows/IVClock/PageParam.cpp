@@ -218,14 +218,14 @@ LRESULT CPageParam::cbSetParam(WPARAM wParam, LPARAM lParam)
 {
 	CTask* pTask = (CTask*)wParam;
 
-	m_bInProgress = FALSE;
-	UpdateUI();
-
 	if (pTask) {
 		if (!pTask->m_bRes) {
 			AfxMessageBox(pTask->m_Error.GetErrorStr());
 		}
 	}
+
+	m_bInProgress = FALSE;
+	UpdateUI();
 	return 0;
 }
 

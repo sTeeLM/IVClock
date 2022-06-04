@@ -8,6 +8,7 @@
 #include "PageDateTime.h"
 #include "PageSerial.h"
 #include "PageAlarm.h"
+#include "PageBatTemp.h"
 
 // CIVClockDlg 对话框
 class CIVClockDlg : public CDialogEx
@@ -36,11 +37,11 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT OnShowTask(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT cbPing(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnSize(UINT nType,INT cx,INT cy);
 	afx_msg void OnExit();
 	afx_msg void OnRestore();
 	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 
 	DECLARE_MESSAGE_MAP()
@@ -50,5 +51,5 @@ public:
 	CPageSerial  m_pageSerial;
 	CPageAlarm m_pageAlarm;
 	CPageDateTime m_pageDateTime;
-
+	CPageBatTemp m_pageBatTemp;
 };

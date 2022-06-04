@@ -217,26 +217,48 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 		msg.body.alarm.alarm_index = m_LocalAlarm.alarm_index;
 		CopyMemory(&msg.body, &m_LocalAlarm,sizeof(remote_control_body_alarm_t));
 		break;
+	case REMOTE_CONTROL_CMD_GET_BAT_TEMP:
+		msg.header.length = sizeof(remote_control_body_bat_temp_t);
+		ZeroMemory(&msg.body, sizeof(remote_control_body_bat_temp_t));
+		break;
 	}
 
 	if (!ProcessSerialMsg(pConn, msg, Error)) {
 		goto err;
 	}
 
+	//设置成功，同步也更新m_RemoteXXX，不要再发GET命令了
 	switch (eCmd) {
+	case REMOTE_CONTROL_CMD_SET_TIME: 
 	case REMOTE_CONTROL_CMD_GET_TIME:
 		CopyMemory(&m_RemoteDateTime, &msg.body, sizeof(m_RemoteDateTime));
+		m_bRemoteDateTimeValid = TRUE;
 		break;
+	case REMOTE_CONTROL_CMD_SET_PARAM:
 	case REMOTE_CONTROL_CMD_GET_PARAM:
 		CopyMemory(&m_RemoteParam, &msg.body, sizeof(m_RemoteParam));
+		m_bRemoteParamValid = TRUE;
+		break;
+	case REMOTE_CONTROL_CMD_SET_ALARM:
+		if (m_RemoteAlarmArray && msg.body.alarm.alarm_index < m_nRemoteAlarmCnt) {
+			CopyMemory(&m_RemoteAlarmArray[msg.body.alarm.alarm_index], &msg.body, sizeof(m_LocalAlarm));
+			m_bRemoteAlarmValid = TRUE;
+		}
+		break;
+	case REMOTE_CONTROL_CMD_GET_BAT_TEMP:
+		CopyMemory(&m_RemoteBatTemp, &msg.body, sizeof(m_RemoteBatTemp));
+		m_bRemoteBatTempValid = TRUE;
 		break;
 	}
 
 	bRet = TRUE;
+
+	m_oleLastSuccessCom = COleDateTime::GetCurrentTime();
 err:
 	ReleaseMutex(m_hDataMutex);
 	if (pConn)
 		pConn->Close();
+
 	return bRet;
 }
 
@@ -315,7 +337,7 @@ err:
 
 BOOL CRemoteConfig::LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent/* = NULL*/)
 {
-	return (m_bRemoteParamValid = LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_PARAM));
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_PARAM);
 }
 
 
@@ -368,7 +390,7 @@ BOOL CRemoteConfig::LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent/* =
 		Sleep(1000);
 	}
 
-	// get alarm count
+	// get alarm count and alarm snd count
 	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
 	msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
 	msg.header.length = sizeof(remote_control_body_alarm_t);
@@ -410,6 +432,9 @@ BOOL CRemoteConfig::LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent/* =
 
 		CopyMemory(m_RemoteAlarmArray + i, &msg.body.alarm, sizeof(remote_control_body_alarm_t));
 	}
+
+	m_oleLastSuccessCom = COleDateTime::GetCurrentTime();
+	m_bRemoteAlarmValid = TRUE;
 	bRet = TRUE;
 err:
 
@@ -425,14 +450,17 @@ err:
 	if (pConn)
 		pConn->Close();
 
-	m_bRemoteAlarmValid = bRet;
-
 	return bRet;
 }
 
 BOOL CRemoteConfig::LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent/* = NULL */)
 {
-	return (m_bRemoteDateTimeValid = LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_TIME));
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_TIME);
+}
+
+BOOL CRemoteConfig::LoadRemoteConfigBatTemp(CIVError& Error, HANDLE hWaitEvent)
+{
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_BAT_TEMP);
 }
 
 BOOL CRemoteConfig::SetParam(CIVError& Error, const remote_control_body_param_t& param)
@@ -506,6 +534,23 @@ BOOL CRemoteConfig::GetAlarm(CIVError& Error, remote_control_body_alarm_t& alarm
 
 	if(nIndex >= 0 && nIndex < m_nRemoteAlarmCnt)
 		CopyMemory(&alarm, &m_RemoteAlarmArray[nIndex], sizeof(alarm));
+
+	ReleaseMutex(m_hDataMutex);
+	return TRUE;
+}
+
+BOOL CRemoteConfig::GetBatTemp(CIVError& Error, remote_control_body_bat_temp_t& battemp)
+{
+	DWORD dwWaitRes;
+	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
+	if (dwWaitRes == WAIT_FAILED) {
+		Error.SetError(CIVError::IVE_INTERNAL);
+		return FALSE;
+	}
+
+	ZeroMemory(&battemp, sizeof(battemp));
+
+	CopyMemory(&battemp, &m_RemoteBatTemp, sizeof(battemp));
 
 	ReleaseMutex(m_hDataMutex);
 	return TRUE;
@@ -603,18 +648,33 @@ BOOL CRemoteConfig::ScheduleTimeTask(CIVError& Error)
 	return TRUE;
 }
 
+// 只有在显示界面的时候，才会去频繁做各种通讯验证和刷新
+#define IV_TOTAL_LIFE_SPAN (30)
 BOOL CRemoteConfig::ScheduleRevalidTask(CIVError& Error)
 {
+	COleDateTime oleNow = COleDateTime::GetCurrentTime();
+	COleDateTimeSpan oleSpan = oleNow - m_oleLastSuccessCom;
+
+	double dTotalSec = oleSpan.GetTotalSeconds();
+
+	TRACE(_T("ScheduleRevalidTask: dTotalSec %f\n"), dTotalSec);
+	if (dTotalSec > IV_TOTAL_LIFE_SPAN) {
+		AddTask(Error, CTask::IV_TASK_PING, theApp.GetMainWnd()->GetSafeHwnd(), WM_CB_PING);
+	}
+
 	if (!m_bRemoteParamValid) {
-		return AddTask(Error, CTask::IV_TASK_GET_PARAM, m_hWndParam, WM_CB_GET_PARAM);
+		TRACE(_T("ScheduleRevalidTask: IV_TASK_GET_PARAM\n"));
+		AddTask(Error, CTask::IV_TASK_GET_PARAM, m_hWndParam, WM_CB_GET_PARAM);
 	}
 
 	if (!m_bRemoteDateTimeValid) {
-		return AddTask(Error, CTask::IV_TASK_GET_PARAM, m_hWndDateTime, WM_CB_GET_TIME);
+		TRACE(_T("ScheduleRevalidTask: IV_TASK_GET_TIME\n"));
+		AddTask(Error, CTask::IV_TASK_GET_TIME, m_hWndDateTime, WM_CB_GET_TIME);
 	}
 
 	if (!m_bRemoteAlarmValid) {
-		return AddTask(Error, CTask::IV_TASK_GET_ALARM, m_hWndAlarm, WM_CB_GET_ALARM);
+		TRACE(_T("ScheduleRevalidTask: IV_TASK_GET_ALARM\n"));
+		AddTask(Error, CTask::IV_TASK_GET_ALARM, m_hWndAlarm, WM_CB_GET_ALARM);
 	}
 
 	return TRUE;
@@ -661,6 +721,9 @@ BOOL CRemoteConfig::DealTask(CIVError& Error)
 			break;
 		case CTask::IV_TASK_SET_TIME:
 			pTask->m_bRes = SetRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
+			break;
+		case CTask::IV_TASK_GET_BATTEMP:
+			pTask->m_bRes = LoadRemoteConfigBatTemp(pTask->m_Error, m_hQuitRemoteConfigMon);
 			break;
 		default:
 			TRACE(_T("UNKNOWN TASK TYPE % d"), pTask->m_eTaskType);
@@ -718,6 +781,8 @@ void CRemoteConfig::TryLoadRemoteConfig()
 	LoadRemoteConfigAlarm(Error, NULL);
 
 	LoadRemoteConfigDateTime(Error, NULL);
+
+	LoadRemoteConfigBatTemp(Error, NULL);
 }
 
 

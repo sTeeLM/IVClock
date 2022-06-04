@@ -12,12 +12,28 @@
 #define IDS_TAB_ALARM                   105
 #define IDD_PROPPAGE_DATETIME           106
 #define IDS_TAB_MISC                    106
+#define IDS_TAB_BATTEMP                 106
 #define IDD_PROPPAGE_ALARM              107
+#define IDS_TEST_PASSED                 107
 #define IDD_PROPPAGE_PARAM              108
+#define IDS_TEST_TESTING                108
 #define IDD_PROPPAGE_INFO               109
 #define IDD_PROPPAGE_SERIAL             109
+#define IDS_TEST_FAILED                 109
+#define IDD_PROPPAGE_BATTEMP            110
 #define IDR_MAINFRAME                   128
 #define IDR_MENU_TRAY                   138
+#define IDS_IVE_NONE                    200
+#define IDS_IVE_CONFIG                  201
+#define IDS_IVE_NOMEM                   202
+#define IDS_IVE_CANCELED                203
+#define IDS_IVE_INTERNAL                204
+#define IDS_IVE_SERIAL_CONN             205
+#define IDS_IVE_SERIAL_WRITE            206
+#define IDS_IVE_SERIAL_READ             207
+#define IDS_IVE_SERIAL_PROTOCAL         208
+#define IDS_IVE_SERIAL_DEVICE           209
+#define IDS_IVE_UNKNOWN                 210
 #define IDC_TAB_MAIN                    1000
 #define IDC_COMBO_PORT                  1001
 #define IDC_COMBO_BAUDRATE              1002
@@ -68,6 +84,14 @@
 #define IDC_COMBO_ALARM_HOUR            1048
 #define IDC_COMBO_ALARM_MIN             1049
 #define IDC_COMBO_ALARM_SND             1050
+#define IDC_EDIT_BAT_VOTAGE             1051
+#define IDC_EDIT_TEMP_FAH               1052
+#define IDC_EDIT_TEMP_CEN               1053
+#define IDC_BTN_BATTEMP_REFRESH         1055
+#define IDC_PROGRESS_BAT_QUANTITY       1056
+#define IDC_PROGRESS1                   1057
+#define IDC_MFCLINK1                    1058
+#define IDC_MFCLINK_EMAIL               1058
 #define ID_EXIT                         32773
 #define ID_RESTORE                      32774
 
@@ -75,9 +99,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        139
+#define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32775
-#define _APS_NEXT_CONTROL_VALUE         1051
+#define _APS_NEXT_CONTROL_VALUE         1059
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

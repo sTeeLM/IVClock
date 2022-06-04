@@ -21,8 +21,11 @@ protected:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	virtual BOOL OnInitDialog();
-	void UpdateUI();
 	DECLARE_MESSAGE_MAP()
+
+	afx_msg void OnBnClickedBtnTestConn();
+	afx_msg LRESULT cbPing(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnBnClickedBtnSave();
 public:
 	INT m_nPort;
 	INT m_nBaudRate;
@@ -34,7 +37,6 @@ public:
 	BOOL m_bXONXOFF;
 
 public:
-	afx_msg void OnBnClickedBtnTestConn();
-	afx_msg LRESULT cbPing(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnBnClickedBtnSave();
+	void UpdateUI();
+
 };

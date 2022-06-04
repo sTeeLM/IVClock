@@ -113,6 +113,11 @@ double power_get_bat_voltage(void)
   return voltage;
 }
 
+uint8_t power_get_bat_quantity(void)
+{
+  return 0;
+}
+
 void power_cal_65(void)
 {
   config_val_t val;

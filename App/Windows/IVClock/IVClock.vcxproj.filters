@@ -60,6 +60,9 @@
     <ClInclude Include="TaskQueue.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="PageBatTemp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IVClock.cpp">
@@ -96,6 +99,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="TaskQueue.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PageBatTemp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,6 +11,7 @@ public:
 	CPageParam(CWnd* pParent = nullptr);   // 标准构造函数
 	virtual ~CPageParam();
 	virtual BOOL OnInitDialog();
+	void UpdateUI();
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PROPPAGE_PARAM };
@@ -18,11 +19,14 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
-	void UpdateUI();
 	BOOL LoadRemoteConfig(CIVError& Error);
 	BOOL SaveRemoteConfig(CIVError& Error);
 	DECLARE_MESSAGE_MAP()
-
+	afx_msg void OnBnClickedChkPsEn();
+	afx_msg void OnBnClickedChkBsEn();
+	afx_msg LRESULT cbSetParam(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT cbGetParam(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnBnClickedBtnSet();
 protected:
 	BOOL m_bInProgress;
 	BOOL m_bTM12;
@@ -38,11 +42,4 @@ protected:
 	BOOL m_bMonLT;
 	BOOL m_bAcc;
 	INT m_nStepPowerTimeo;
-
-public:
-	afx_msg void OnBnClickedChkPsEn();
-	afx_msg void OnBnClickedChkBsEn();
-	afx_msg LRESULT cbSetParam(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT cbGetParam(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnBnClickedBtnSet();
 };

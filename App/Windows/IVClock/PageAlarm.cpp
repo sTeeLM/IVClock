@@ -64,9 +64,9 @@ BOOL CPageAlarm::SaveRemoteConfig(CIVError& Error)
 	alarm.snd  = m_nAlarmSnd;
 	alarm.alarm_index = m_nAlarmIndex;
 
-	for (UINT i = IDC_CHK_ALARM_DAY1; i <= IDC_CHK_ALARM_DAY7; i++) {
-		alarm.day_mask |= (((CButton*)GetDlgItem(i))->GetCheck() == BST_CHECKED) ? 1 : 0;
+	for (UINT i = IDC_CHK_ALARM_DAY7; i >= IDC_CHK_ALARM_DAY1; i--) {
 		alarm.day_mask <<= 1;
+		alarm.day_mask |= (((CButton*)GetDlgItem(i))->GetCheck() == BST_CHECKED) ? 1 : 0;
 	}
 
 	return theApp.m_RemoteConfig.SetAlarm(Error, alarm);
@@ -76,6 +76,7 @@ BOOL CPageAlarm::LoadRemoteConfig(CIVError& Error)
 {
 	// load IDC_COMBO_ALARM_INDEX
 	CString strLabel;
+	remote_control_body_alarm_t alarm;
 
 	if (!theApp.m_RemoteConfig.IsAlarmValid()) {
 		return TRUE;
@@ -114,6 +115,16 @@ BOOL CPageAlarm::LoadRemoteConfig(CIVError& Error)
 	for (INT i = 0; i < theApp.m_RemoteConfig.GetAlarmSndCnt(); i++) {
 		strLabel.Format(_T("snd %02d"), i);
 		pAlarmSndBox->AddString(strLabel);
+	}
+
+	if (theApp.m_RemoteConfig.GetAlarmCnt() > 0) {
+		if (!theApp.m_RemoteConfig.GetAlarm(Error, alarm, m_nAlarmIndex)) {
+			return FALSE;
+		}
+		SetAlarmDisplay(alarm);
+		m_nAlarmHour = alarm.hour;
+		m_nAlarmMin  = alarm.min;
+		m_nAlarmSnd  = alarm.snd;
 	}
 
 	return TRUE;
@@ -166,9 +177,6 @@ LRESULT CPageAlarm::cbSetAlarm(WPARAM wParam, LPARAM lParam)
 {
 	CTask* pTask = (CTask*)wParam;
 
-	m_bInProgress = FALSE;
-	UpdateUI();
-
 	if (!pTask->m_bRes) {
 		if(pTask->m_pParam)
 			AfxMessageBox(pTask->m_Error.GetErrorStr());
@@ -176,6 +184,9 @@ LRESULT CPageAlarm::cbSetAlarm(WPARAM wParam, LPARAM lParam)
 			TRACE(_T("Set Alarm Error: %s\n"), pTask->m_Error.GetErrorStr());
 		}
 	}
+
+	m_bInProgress = FALSE;
+	UpdateUI();
 
 	return 0;
 }
@@ -209,7 +220,7 @@ void CPageAlarm::OnBnClickedBtnSet()
 	m_bInProgress = TRUE;
 	UpdateUI();
 
-	if (theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_SET_ALARM, GetSafeHwnd(), WM_CB_SET_ALARM)) {
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_SET_ALARM, GetSafeHwnd(), WM_CB_SET_ALARM,(LPVOID)1)) {
 		AfxMessageBox(Error.GetErrorStr());
 		m_bInProgress = FALSE;
 		UpdateUI();

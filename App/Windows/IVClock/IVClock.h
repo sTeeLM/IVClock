@@ -46,3 +46,4 @@ extern CIVClockApp theApp;
 #define WM_CB_SET_TIME (WM_USER + 6)
 #define WM_CB_GET_ALARM (WM_USER + 7)
 #define WM_CB_SET_ALARM (WM_USER + 8)
+#define WM_CB_GET_BATTEMP (WM_USER + 8)

@@ -220,8 +220,6 @@ LRESULT CPageDateTime::cbGetTimeDate(WPARAM wParam, LPARAM lParam)
 	CTask* pTask = (CTask*)wParam;
 	CIVError Error;
 
-	m_bInProgress = FALSE;
-	UpdateUI();
 
 	if (pTask->m_bRes) {
 		if (theApp.m_RemoteConfig.GetDateTime(Error, datetime)) {
@@ -255,7 +253,8 @@ LRESULT CPageDateTime::cbGetTimeDate(WPARAM wParam, LPARAM lParam)
 			TRACE(_T("GetTimeDate Error:%s\n"), pTask->m_Error.GetErrorStr());
 		}
 	}
-
+	m_bInProgress = FALSE;
+	UpdateUI();
 	return 0;
 }
 
@@ -264,9 +263,6 @@ LRESULT CPageDateTime::cbSetTimeDate(WPARAM wParam, LPARAM lParam)
 {
 	CTask* pTask = (CTask*)wParam;
 	CIVError Error;
-
-	m_bInProgress = FALSE;
-	UpdateUI();
 
 	if (pTask->m_bRes) {
 		m_oleTime = m_oleDate = m_oleLastSync;
@@ -284,7 +280,8 @@ LRESULT CPageDateTime::cbSetTimeDate(WPARAM wParam, LPARAM lParam)
 			TRACE(_T("cbSetTimeDate Error:%s\n"), Error.GetErrorStr());
 		}
 	}
-
+	m_bInProgress = FALSE;
+	UpdateUI();
 	return 0;
 }
 
@@ -313,7 +310,7 @@ void CPageDateTime::OnBnClickedBtnDatetimeSyncNow()
 		return;
 	}
 
-	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_TIME, GetSafeHwnd(), WM_CB_SET_TIME, (LPVOID)1)) {
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_SET_TIME, GetSafeHwnd(), WM_CB_SET_TIME, (LPVOID)1)) {
 		AfxMessageBox(Error.GetErrorStr());
 		return;
 	}

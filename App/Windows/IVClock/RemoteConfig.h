@@ -31,17 +31,22 @@ public:
 		m_hWndParam(NULL),
 		m_hWndDateTime(NULL),
 		m_hWndAlarm(NULL),
+		m_hWndBatTemp(NULL),
 		m_oleLastSync(COleDateTime::GetCurrentTime()),
+		m_oleLastSuccessCom(COleDateTime::GetCurrentTime()),
 		m_bRemoteParamValid(FALSE),
 		m_bRemoteDateTimeValid(FALSE),
-		m_bRemoteAlarmValid(FALSE)
+		m_bRemoteAlarmValid(FALSE),
+		m_bRemoteBatTempValid(FALSE)
 	{
 		ZeroMemory(&m_RemoteParam, sizeof(m_RemoteParam));
 		ZeroMemory(&m_RemoteDateTime, sizeof(m_RemoteDateTime));
+		ZeroMemory(&m_RemoteBatTemp, sizeof(m_RemoteBatTemp));
 
 		ZeroMemory(&m_LocalParam, sizeof(m_LocalParam));
 		ZeroMemory(&m_LocalDateTime, sizeof(m_LocalDateTime));
 		ZeroMemory(&m_LocalAlarm, sizeof(m_LocalAlarm));
+
 	}
 	virtual ~CRemoteConfig() {
 		if (m_RemoteAlarmArray)
@@ -65,6 +70,7 @@ public:
 	BOOL IsDateTimeValid() {
 		return m_bRemoteDateTimeValid;
 	}
+
 	BOOL SetParam(CIVError& Error, const remote_control_body_param_t& param);
 	BOOL SetDateTime(CIVError& Error, const remote_control_body_time_t& datetime);
 	BOOL SetDateTime(CIVError& Error, const COleDateTime & oleDateTime);
@@ -73,6 +79,11 @@ public:
 		return m_bRemoteAlarmValid;
 	}
 	BOOL SetAlarm(CIVError& Error, const remote_control_body_alarm_t& alarm);
+	BOOL GetBatTemp(CIVError& Error, remote_control_body_bat_temp_t& battemp);
+	BOOL IsBatTempValid() {
+		return m_bRemoteBatTempValid;
+	}
+
 	INT  GetAlarmCnt() {
 		return m_nRemoteAlarmCnt;
 	}
@@ -93,7 +104,14 @@ public:
 	void SetParamHwnd(HWND hWnd) { m_hWndParam = hWnd; }
 	void SetDateTimeHwnd(HWND hWnd) { m_hWndDateTime = hWnd; }
 	void SetAlarmHwnd(HWND hWnd) { m_hWndAlarm = hWnd; }
+	void SetBatTempHwnd(HWND hWnd) { m_hWndBatTemp = hWnd; }
 
+	void SetValid(BOOL bValid = TRUE) {
+		m_bRemoteParamValid = bValid;
+		m_bRemoteDateTimeValid = bValid;
+		m_bRemoteAlarmValid = bValid;
+		m_bRemoteBatTempValid = bValid;
+	}
 protected:
 
 	// 
@@ -127,10 +145,15 @@ protected:
 	INT m_nRemoteAlarmSndCnt;
 	HWND m_hWndAlarm;
 
+	BOOL m_bRemoteBatTempValid;
+	remote_control_body_bat_temp_t m_RemoteBatTemp;
+	HWND m_hWndBatTemp;
+
 	// use by SetRemoteXXX, and SetXXX
 	remote_control_body_param_t m_LocalParam;
 	remote_control_body_time_t  m_LocalDateTime;
 	remote_control_body_alarm_t m_LocalAlarm;
+
 
 	// thread
 	CWinThread* m_pRemoteConfigMon;
@@ -142,6 +165,9 @@ protected:
 	HANDLE      m_hSerialMutex;
 	CTaskQueue  m_TaskQueue;
 	COleDateTime m_oleLastSync;
+
+	// last success load or set
+	COleDateTime m_oleLastSuccessCom;
 protected:
 
 	BOOL ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t& msg, CIVError& Error);
@@ -154,6 +180,7 @@ protected:
 	BOOL LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent = NULL);
 	BOOL LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent = NULL);
 	BOOL LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL LoadRemoteConfigBatTemp(CIVError& Error, HANDLE hWaitEvent = NULL);
 
 	static UINT fnRemoteConfigMon(LPVOID pParam);
 	BOOL DealTask(CIVError& Error);

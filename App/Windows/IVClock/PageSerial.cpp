@@ -107,11 +107,14 @@ END_MESSAGE_MAP()
 LRESULT CPageSerial::cbPing(WPARAM wParam, LPARAM lParam)
 {
 	CTask* pTask = (CTask*)wParam;
-	if (pTask) {
-		if(pTask->m_bRes)
-			GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("PASSED!"));
-		else
-			GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("FAILED!"));
+	CString strLabel;
+	if (pTask->m_bRes) {
+		strLabel.LoadString(IDS_TEST_PASSED);
+		GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(strLabel);
+	}
+	else {
+		strLabel.LoadString(IDS_TEST_FAILED);
+		GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(strLabel);
 	}
 	m_bInProgress = FALSE;
 	UpdateUI();
@@ -145,9 +148,12 @@ void CPageSerial::OnBnClickedBtnTestConn()
 {
 	CIVError Error;
 
+	CString strLabel;
+
 	UpdateData(TRUE);
 
-	GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(_T("TESTING"));
+	strLabel.LoadString(IDS_TEST_TESTING);
+	GetDlgItem(IDC_EDIT_TEST_RES)->SetWindowText(strLabel);
 	
 	m_bInProgress = TRUE;
 	UpdateUI();

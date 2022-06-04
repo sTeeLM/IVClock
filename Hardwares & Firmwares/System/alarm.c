@@ -1,3 +1,4 @@
+#include <string.h>
 #include "alarm.h"
 #include "ds3231.h"
 #include "debug.h"
@@ -71,7 +72,7 @@ static void alarm1_sync_to_rtc(void)
   BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL);
 }
 
-
+/*
 void  alarm_bubble_sort(uint8_t * arr, uint8_t len) 
 {   
   uint8_t i, j, temp;
@@ -89,43 +90,49 @@ void  alarm_bubble_sort(uint8_t * arr, uint8_t len)
     }
   }
 }
+*/
 
 // 结合当前clock时间，确定哪一个alarm0应该放在rtc里
 // 这个在alarm触发以及时钟时间修改的时候都应该被更新
+static char alarm0_hit_map[7][1440]; // 1440 = 24 * 60
 static int8_t alarm0_find_curr(void)
 {
   uint8_t index[ALARM0_CNT];
-  uint8_t i, hour, min, sec;
+  uint8_t i, day, hour, min;
+  uint16_t j, cur_pos;
+  
+  memset(alarm0_hit_map, 0, sizeof(alarm0_hit_map));
+  
   for(i = 0 ; i < ALARM0_CNT ; i++){
-    index[i] = i;
-  }
-  // 对alarm从早到晚排序
-  alarm_bubble_sort(index, ALARM0_CNT);
-  IVDBG("alarm_bubble_sort:");
-  IVDBG_RH;
-  for(i = 0 ; i < ALARM0_CNT; i ++) {
-    IVDBG_R(" %d", index[i]);
-  }
-  IVDBG_RT;
-  
-  rtc_get_time(&hour, &min, &sec);
-  
-  // 寻找第一个晚于当前时间的alarm0 slot
-  // 如果没有就从前朝后找第一个有效的
-  for(i = 0 ; i < ALARM0_CNT ; i ++) {
-    if((alarm0[index[i]].hour >  hour 
-      || (alarm0[index[i]].hour  ==  hour && alarm0[index[i]].min > min))
-      && alarm0[index[i]].day_mask) {
-      IVDBG("alarm0_find_curr return %d", index[i]);
-      return index[i];
+    for(day = 1 ; day <= 7 ; day ++) {
+      if(alarm0_test_enable(i, day)) {
+        alarm0_hit_map[day - 1][alarm0[i].hour * 24 + alarm0[i].min] = i + 1;
+      }
     }
   }
   
-  for(i = 0 ; i < ALARM0_CNT ; i ++) {
-    if(alarm0[index[i]].day_mask) {
-      IVDBG("alarm0_find_curr return %d", index[i]);
-      return index[i];
+  hour = clock_get_hour();
+  min  = clock_get_min();
+  day  = clock_get_day();
+
+  day = day - 1; // 1-7 -> 0-6
+  
+  // 从alarm0_hit_map的当前位置开始，向后找第一个
+  cur_pos = day * 1440 + hour * 24 + min;
+  
+  for(j = (cur_pos + 1); j < 1440 * 7; j ++) {
+    if(alarm0_hit_map[j / 1440][j % 1440]) {
+      IVDBG("alarm0_find_curr return %d", alarm0_hit_map[j / 1440][j % 1440] - 1);
+      return alarm0_hit_map[j / 1440][j % 1440] - 1;      
     }
+  }
+
+  // 没找到，到头绕过开始，不排除又找到同一个位置的自己了
+  for(j = 0 ; j <= cur_pos ;j ++) {
+    if(alarm0_hit_map[j / 1440][j % 1440]) {
+      IVDBG("alarm0_find_curr return %d", alarm0_hit_map[j / 1440][j % 1440] - 1);
+      return alarm0_hit_map[j / 1440][j % 1440] - 1;      
+    }    
   }
   IVDBG("alarm0_find_curr return %d", -1);
   return -1;
@@ -278,7 +285,7 @@ void alarm_show(void)
 // day  1-7
 bool alarm0_test_enable(uint8_t index, uint8_t day)
 {
-  IVDBG("alarm0_test_enable %d 0x%02x %u!", index, alarm0[index].day_mask, day);
+  //IVDBG("alarm0_test_enable %d 0x%02x %u!", index, alarm0[index].day_mask, day);
   return (alarm0[index].day_mask & (1 << (day - 1))) != 0;
 }
 

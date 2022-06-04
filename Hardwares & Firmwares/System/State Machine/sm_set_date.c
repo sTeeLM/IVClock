@@ -32,6 +32,7 @@ static void do_set_date_year(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_UP:
       display_set_blink_clock_year(TRUE);
       if(start_inc) {
+        alarm_resync_rtc();
         clock_sync_to_rtc(CLOCK_SYNC_DATE);
         start_inc = 0;
       }
@@ -39,6 +40,7 @@ static void do_set_date_year(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_PRESS:
       clock_inc_year();
       clock_refresh_display();
+      alarm_resync_rtc();
       clock_sync_to_rtc(CLOCK_SYNC_DATE);
       break;
     case EV_BUTTON_MOD_UP:
@@ -70,6 +72,7 @@ static void do_set_date_mon(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     case EV_BUTTON_SET_UP:
       display_set_blink_clock_mon(TRUE);
       if(start_inc) {
+        alarm_resync_rtc();
         clock_sync_to_rtc(CLOCK_SYNC_DATE);
         start_inc = 0;
       }
@@ -77,6 +80,7 @@ static void do_set_date_mon(uint8_t from_func, uint8_t from_state, uint8_t to_fu
     case EV_BUTTON_SET_PRESS:
       clock_inc_month();
       clock_refresh_display();
+    alarm_resync_rtc();
       clock_sync_to_rtc(CLOCK_SYNC_DATE);
       break;
     case EV_BUTTON_MOD_PRESS:
@@ -105,6 +109,7 @@ static void do_set_date_date(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_UP:
       display_set_blink_clock_date(TRUE);
       if(start_inc) {
+        alarm_resync_rtc();
         clock_sync_to_rtc(CLOCK_SYNC_DATE);
         start_inc = 0;
       }
@@ -112,6 +117,7 @@ static void do_set_date_date(uint8_t from_func, uint8_t from_state, uint8_t to_f
     case EV_BUTTON_SET_PRESS:
       clock_inc_date();
       clock_refresh_display();
+      alarm_resync_rtc();
       clock_sync_to_rtc(CLOCK_SYNC_DATE);
       break;
     case EV_BUTTON_MOD_PRESS:

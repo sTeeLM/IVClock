@@ -11,6 +11,8 @@ enum thermometer_unit_type
 };
 
 void thermometer_init(void);
+double thermometer_read_cen_double(void);
+double thermometer_read_fah_double(void);
 bool thermometer_read_cen(uint16_t * integer, uint16_t * flt);
 bool thermometer_read_fah(uint16_t * integer, uint16_t * flt);
 enum thermometer_unit_type thermometer_get_unit(void);
