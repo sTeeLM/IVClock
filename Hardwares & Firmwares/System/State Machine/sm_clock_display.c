@@ -156,7 +156,7 @@ static struct sm_trans sm_trans_clock_display_time[] = {
 
 static struct sm_trans sm_trans_clock_display_date[] = {   
   {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},
-  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_time},   
+  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},   
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},  
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init}, 
@@ -165,7 +165,7 @@ static struct sm_trans sm_trans_clock_display_date[] = {
 
 static struct sm_trans sm_trans_clock_display_week[] = {  
   {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week},
-  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_time},   
+  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},   
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},  
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},  
@@ -175,7 +175,7 @@ static struct sm_trans sm_trans_clock_display_week[] = {
 
 static struct sm_trans sm_trans_clock_display_temp[] = {
   {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp}, 
-  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_time}, 
+  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time}, 
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week}, 
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},  
