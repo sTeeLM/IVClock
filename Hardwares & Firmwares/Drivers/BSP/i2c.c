@@ -196,6 +196,7 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
     }
    } while ( --Size != 0 );
   
+   I2C_Stop();
    return BSP_ERROR_NONE;
 }
 

@@ -13,6 +13,9 @@
 #include "power.h"
 #include "delay.h"
 
+#define DISPLAY_RETURN_TIME_TIMEO (5) //切换到日期等显示模式之后，过5秒自动切回显示时间
+
+static uint32_t curr_return_time_timeo;
 
 void do_clock_display_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
@@ -23,6 +26,23 @@ void do_clock_display_init(uint8_t from_func, uint8_t from_state, uint8_t to_fun
     power_reset_timeo();
     sm_common_show_function("---F0---");
   }
+}
+
+static void display_test_return_time_timeo(void)
+{
+  uint8_t diff;
+  if(curr_return_time_timeo == 0)
+    return;
+  diff = clock_diff_now_sec(curr_return_time_timeo);
+  IVDBG("display_test_return_timeo diff = %d", diff);
+  if(diff > DISPLAY_RETURN_TIME_TIMEO) {
+    task_set(EV_VT1);
+  }
+}
+
+static void display_reset_return_time_timeo(void)
+{
+  curr_return_time_timeo = clock_get_now_sec();
 }
 
 static void do_clock_display_time(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
@@ -42,9 +62,9 @@ static void do_clock_display_time(uint8_t from_func, uint8_t from_state, uint8_t
 static void do_clock_display_date(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   if(EV_1S == ev) {
-    power_test_powersave();
+    display_test_return_time_timeo();
   } else {
-    power_reset_timeo();
+    display_reset_return_time_timeo();
     clock_refresh_display_enable(FALSE);
     display_clr();
     display_set_mode(DISPLAY_MODE_CLOCK_YYMMDD);
@@ -56,9 +76,9 @@ static void do_clock_display_date(uint8_t from_func, uint8_t from_state, uint8_t
 static void do_clock_display_week(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   if(EV_1S == ev) {
-    power_test_powersave();
+    display_test_return_time_timeo();   
   } else {
-    power_reset_timeo();
+    display_reset_return_time_timeo();
     clock_refresh_display_enable(FALSE);
     display_clr();
     display_set_mode(DISPLAY_MODE_CLOCK_WEEK);
@@ -71,9 +91,9 @@ static void do_clock_display_temp(uint8_t from_func, uint8_t from_state, uint8_t
 {
 
   if(EV_1S == ev) {
-    power_test_powersave();
+    display_test_return_time_timeo();  
   } else {
-    power_reset_timeo();
+    display_reset_return_time_timeo();
     clock_refresh_display_enable(FALSE);
     display_clr();
     display_format_thermo();
@@ -136,6 +156,7 @@ static struct sm_trans sm_trans_clock_display_time[] = {
 
 static struct sm_trans sm_trans_clock_display_date[] = {   
   {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},
+  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_time},   
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},  
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init}, 
@@ -144,6 +165,7 @@ static struct sm_trans sm_trans_clock_display_date[] = {
 
 static struct sm_trans sm_trans_clock_display_week[] = {  
   {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week},
+  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_time},   
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},  
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},  
@@ -152,7 +174,8 @@ static struct sm_trans sm_trans_clock_display_week[] = {
 
 
 static struct sm_trans sm_trans_clock_display_temp[] = {
-  {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},   
+  {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp}, 
+  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_time}, 
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week}, 
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},  

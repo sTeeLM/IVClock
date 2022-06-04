@@ -4,8 +4,20 @@
 #include <stdint.h>
 #include "bsp.h"
 
+// 特殊字符
 #define BSP_IV18_BLANK   0
 #define BSP_IV18_DEGREE  1
+
+#define BSP_IV18_PROGRESS_BASE 2
+#define BSP_IV18_PROGRESS0  2
+#define BSP_IV18_PROGRESS1  3
+#define BSP_IV18_PROGRESS2  4
+#define BSP_IV18_PROGRESS3  5
+#define BSP_IV18_PROGRESS4  6
+#define BSP_IV18_PROGRESS5  7
+#define BSP_IV18_PROGRESS_CNT 6
+
+#define BSP_IV18_SPECIAL_MAX  7
 
 BSP_Error_Type BSP_IV18_Init(void);
 void BSP_IV18_Clr(void);

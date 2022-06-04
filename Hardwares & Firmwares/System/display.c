@@ -49,13 +49,19 @@ static const char * display_format_day(uint8_t day)
   }
 }
 
+void display_rotate_progress(uint8_t n)
+{
+  BSP_IV18_Set_Dig(1, n + BSP_IV18_PROGRESS_BASE);
+  BSP_IV18_Set_Dig(8, n + BSP_IV18_PROGRESS_BASE);  
+}
+
 void display_format_clock(struct clock_struct * clk)
 {
   bool ispm;
   uint8_t hour12;
   if(_display_mode == DISPLAY_MODE_CLOCK_HHMMSS) {
     ispm = cext_cal_hour12(clk->hour, &hour12);
-    BSP_IV18_Set_Dig(1, '=');
+    display_rotate_progress(clk->sec % BSP_IV18_PROGRESS_CNT);
     BSP_IV18_Clr_DP(0);
     if(clock_test_hour12()) {
       if(ispm) BSP_IV18_Set_DP(0);
@@ -74,7 +80,6 @@ void display_format_clock(struct clock_struct * clk)
     
     BSP_IV18_Set_Dig(6, (clk->sec / 10 + 0x30));
     BSP_IV18_Set_Dig(7, (clk->sec % 10 + 0x30));
-    BSP_IV18_Set_Dig(8, '=');
   } else if(_display_mode == DISPLAY_MODE_CLOCK_YYMMDD) {
     BSP_IV18_Set_Dig(1, (clk->year / 10 + 0x30));
     BSP_IV18_Set_Dig(2, (clk->year % 10 + 0x30)); 
