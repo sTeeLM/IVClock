@@ -79,7 +79,7 @@ public:
 		return m_bRemoteAlarmValid;
 	}
 	BOOL SetAlarm(CIVError& Error, const remote_control_body_alarm_t& alarm);
-	BOOL GetBatTemp(CIVError& Error, remote_control_body_bat_temp_t& battemp);
+	BOOL GetBatTemp(CIVError& Error, remote_control_body_info_t& battemp);
 	BOOL IsBatTempValid() {
 		return m_bRemoteBatTempValid;
 	}
@@ -146,7 +146,7 @@ protected:
 	HWND m_hWndAlarm;
 
 	BOOL m_bRemoteBatTempValid;
-	remote_control_body_bat_temp_t m_RemoteBatTemp;
+	remote_control_body_info_t m_RemoteBatTemp;
 	HWND m_hWndBatTemp;
 
 	// use by SetRemoteXXX, and SetXXX
@@ -180,7 +180,7 @@ protected:
 	BOOL LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent = NULL);
 	BOOL LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent = NULL);
 	BOOL LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent = NULL);
-	BOOL LoadRemoteConfigBatTemp(CIVError& Error, HANDLE hWaitEvent = NULL);
+	BOOL LoadRemoteConfigInfo(CIVError& Error, HANDLE hWaitEvent = NULL);
 
 	static UINT fnRemoteConfigMon(LPVOID pParam);
 	BOOL DealTask(CIVError& Error);

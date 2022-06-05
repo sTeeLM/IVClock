@@ -1,0 +1,7 @@
+#ifndef __IVCLOCK_VERSION_H__
+#define __IVCLOCK_VERSION_H__
+
+#define IVCLOCK_VERSION_MAJOR 2
+#define IVCLOCK_VERSION_MINOR 1
+
+#endif

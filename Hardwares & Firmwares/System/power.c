@@ -9,8 +9,7 @@
 #include "pwr.h"
 #include "clock.h"
 #include "player.h"
-
-
+#include "ocv.h"
 #include "display.h"
 
 static bool power_is_in_powersave;
@@ -115,7 +114,22 @@ double power_get_bat_voltage(void)
 
 uint8_t power_get_bat_quantity(void)
 {
-  return 0;
+  double vol = power_get_bat_voltage();
+  uint8_t i;
+  for(i = 0 ; i < sizeof(ocv_table)/sizeof(ocv_t) ; i++) {
+    if(vol < ocv_table[i].voltage * 2)
+      break;
+  }
+  
+  if(i == sizeof(ocv_table)/sizeof(ocv_t))
+    return 100;
+  else if(i == 0)
+    return 0;
+  
+  return ocv_table[i - 1].quantity +
+    (vol / 2.0 -  ocv_table[i - 1].voltage) *
+    ((ocv_table[i].quantity - ocv_table[i-1].quantity) /
+    (ocv_table[i].voltage - ocv_table[i - 1].voltage));
 }
 
 void power_cal_65(void)

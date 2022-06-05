@@ -15,7 +15,7 @@ public:
         IV_TASK_SET_ALARM,
         IV_TASK_GET_TIME,
         IV_TASK_SET_TIME,
-        IV_TASK_GET_BATTEMP
+        IV_TASK_GET_INFO
     }IV_TASK_TYPE_T;
 
     CTask(HWND hWnd, IV_TASK_TYPE_T eTaskType, UINT nMessage, LPVOID pParam)

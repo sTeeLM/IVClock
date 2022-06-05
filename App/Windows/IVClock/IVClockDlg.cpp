@@ -87,7 +87,7 @@ LRESULT CIVClockDlg::cbPing(WPARAM wParam, LPARAM lParam)
 		m_pageParam.UpdateUI();
 		m_pageDateTime.UpdateUI();
 		m_pageAlarm.UpdateUI();
-		m_pageBatTemp.UpdateUI();
+		m_pageInfo.UpdateUI();
 	}
 	return 0;
 }
@@ -144,14 +144,14 @@ BOOL CIVClockDlg::OnInitDialog()
 	m_ctlTab.InsertItem(2, strLabel);
 	strLabel.LoadString(IDS_TAB_ALARM);
 	m_ctlTab.InsertItem(3, strLabel);
-	strLabel.LoadString(IDS_TAB_BATTEMP);
+	strLabel.LoadString(IDS_TAB_INFO);
 	m_ctlTab.InsertItem(4, strLabel);
 
 	m_pageSerial.Create(IDD_PROPPAGE_SERIAL, &m_ctlTab);
 	m_pageParam.Create(IDD_PROPPAGE_PARAM, &m_ctlTab);
 	m_pageDateTime.Create(IDD_PROPPAGE_DATETIME, &m_ctlTab);
 	m_pageAlarm.Create(IDD_PROPPAGE_ALARM, &m_ctlTab);
-	m_pageBatTemp.Create(IDD_PROPPAGE_BATTEMP, &m_ctlTab);
+	m_pageInfo.Create(IDD_PROPPAGE_INFO, &m_ctlTab);
 
 	CRect rect;
 	m_ctlTab.GetClientRect(&rect);
@@ -164,7 +164,7 @@ BOOL CIVClockDlg::OnInitDialog()
 	m_pageParam.MoveWindow(&rect);
 	m_pageDateTime.MoveWindow(&rect);
 	m_pageAlarm.MoveWindow(&rect);
-	m_pageBatTemp.MoveWindow(&rect);
+	m_pageInfo.MoveWindow(&rect);
 
 	m_pageSerial.ShowWindow(SW_SHOW);
 	m_ctlTab.SetCurSel(0);
@@ -173,7 +173,7 @@ BOOL CIVClockDlg::OnInitDialog()
 	theApp.m_RemoteConfig.SetParamHwnd(m_pageParam.GetSafeHwnd());
 	theApp.m_RemoteConfig.SetDateTimeHwnd(m_pageDateTime.GetSafeHwnd());
 	theApp.m_RemoteConfig.SetAlarmHwnd(m_pageAlarm.GetSafeHwnd());
-	theApp.m_RemoteConfig.SetBatTempHwnd(m_pageBatTemp.GetSafeHwnd());
+	theApp.m_RemoteConfig.SetBatTempHwnd(m_pageInfo.GetSafeHwnd());
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -238,35 +238,35 @@ void CIVClockDlg::OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult)
 		m_pageParam.ShowWindow(SW_HIDE);
 		m_pageDateTime.ShowWindow(SW_HIDE);
 		m_pageAlarm.ShowWindow(SW_HIDE);
-		m_pageBatTemp.ShowWindow(SW_HIDE);
+		m_pageInfo.ShowWindow(SW_HIDE);
 		break;
 	case 1:
 		m_pageSerial.ShowWindow(SW_HIDE);
 		m_pageParam.ShowWindow(SW_SHOW);
 		m_pageDateTime.ShowWindow(SW_HIDE);
 		m_pageAlarm.ShowWindow(SW_HIDE);
-		m_pageBatTemp.ShowWindow(SW_HIDE);
+		m_pageInfo.ShowWindow(SW_HIDE);
 		break;
 	case 2:
 		m_pageSerial.ShowWindow(SW_HIDE);
 		m_pageParam.ShowWindow(SW_HIDE);
 		m_pageDateTime.ShowWindow(SW_SHOW);
 		m_pageAlarm.ShowWindow(SW_HIDE);
-		m_pageBatTemp.ShowWindow(SW_HIDE);
+		m_pageInfo.ShowWindow(SW_HIDE);
 		break;
 	case 3:
 		m_pageSerial.ShowWindow(SW_HIDE);
 		m_pageParam.ShowWindow(SW_HIDE);
 		m_pageDateTime.ShowWindow(SW_HIDE);
 		m_pageAlarm.ShowWindow(SW_SHOW);
-		m_pageBatTemp.ShowWindow(SW_HIDE);
+		m_pageInfo.ShowWindow(SW_HIDE);
 		break;
 	case 4:
 		m_pageSerial.ShowWindow(SW_HIDE);
 		m_pageParam.ShowWindow(SW_HIDE);
 		m_pageDateTime.ShowWindow(SW_HIDE);
 		m_pageAlarm.ShowWindow(SW_HIDE);
-		m_pageBatTemp.ShowWindow(SW_SHOW);
+		m_pageInfo.ShowWindow(SW_SHOW);
 		break;
 	}
 	*pResult = 0;

@@ -1,54 +1,56 @@
-﻿// CPageBatTemp.cpp: 实现文件
+﻿// CPageInfo.cpp: 实现文件
 //
 
 #include "pch.h"
 #include "IVClock.h"
-#include "PageBatTemp.h"
+#include "PageInfo.h"
 #include "afxdialogex.h"
 
 
-// CPageBatTemp 对话框
+// CPageInfo 对话框
 
-IMPLEMENT_DYNAMIC(CPageBatTemp, CDialog)
+IMPLEMENT_DYNAMIC(CPageInfo, CDialog)
 
-CPageBatTemp::CPageBatTemp(CWnd* pParent /*=nullptr*/)
+CPageInfo::CPageInfo(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_PROPPAGE_BATTEMP, pParent)
 	, m_bInProgress(FALSE)
 	, m_strTempCen(_T(""))
 	, m_strTempFah(_T(""))
 	, m_strTempBatVoltage(_T(""))
+	, m_strFirmwareVersion(_T(""))
 {
 
 }
 
-CPageBatTemp::~CPageBatTemp()
+CPageInfo::~CPageInfo()
 {
 }
 
-BOOL CPageBatTemp::LoadRemoteConfig(CIVError& Error)
+BOOL CPageInfo::LoadRemoteConfig(CIVError& Error)
 {
-	remote_control_body_bat_temp_t battemp;
+	remote_control_body_info_t info;
 
 	if (!theApp.m_RemoteConfig.IsBatTempValid())
 		return TRUE;
 
-	if(!theApp.m_RemoteConfig.GetBatTemp(Error, battemp))
+	if(!theApp.m_RemoteConfig.GetBatTemp(Error, info))
 		return FALSE;
 
-	m_strTempCen.Format(_T("%0.2f ℃"), battemp.temp_cen);
-	m_strTempFah.Format(_T("%0.2f ℉"), battemp.temp_fah);
-	m_strTempBatVoltage.Format(_T("%0.2f V"), battemp.bat_voltage);
+	m_strTempCen.Format(_T("%0.2f ℃"), info.temp_cen);
+	m_strTempFah.Format(_T("%0.2f ℉"), info.temp_fah);
+	m_strTempBatVoltage.Format(_T("%0.2f V"), info.bat_voltage);
+	m_strFirmwareVersion.Format(_T("%02d.%02d"), info.firmware_version_major, info.firmware_version_minor);
 
 	if(m_ctlTempBatQuantity.GetSafeHwnd())
-		m_ctlTempBatQuantity.SetPos(battemp.bat_quantity);
+		m_ctlTempBatQuantity.SetPos(info.bat_quantity);
 	
 	return TRUE;
 }
 
-BOOL CPageBatTemp::OnInitDialog()
+BOOL CPageInfo::OnInitDialog()
 {
 	CIVError Error;
-	remote_control_body_bat_temp_t battemp;
+	remote_control_body_info_t battemp;
 
 	if (!LoadRemoteConfig(Error)) {
 		return FALSE;
@@ -71,30 +73,31 @@ BOOL CPageBatTemp::OnInitDialog()
 	return TRUE;
 }
 
-void CPageBatTemp::UpdateUI()
+void CPageInfo::UpdateUI()
 {
 	GetDlgItem(IDC_BTN_BATTEMP_REFRESH)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsBatTempValid());
 }
 
-void CPageBatTemp::DoDataExchange(CDataExchange* pDX)
+void CPageInfo::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT_TEMP_CEN, m_strTempCen);
 	DDX_Text(pDX, IDC_EDIT_TEMP_FAH, m_strTempFah);
 	DDX_Text(pDX, IDC_EDIT_BAT_VOTAGE, m_strTempBatVoltage);
+	DDX_Text(pDX, IDC_EDIT_FIRM_VERSION, m_strFirmwareVersion);
 	DDX_Control(pDX, IDC_PROGRESS_BAT_QUANTITY, m_ctlTempBatQuantity);
 }
 
 
-BEGIN_MESSAGE_MAP(CPageBatTemp, CDialog)
-	ON_MESSAGE(WM_CB_GET_BATTEMP, cbGetBatTemp)
-	ON_BN_CLICKED(IDC_BTN_BATTEMP_REFRESH, &CPageBatTemp::OnBnClickedBtnBattempRefresh)
+BEGIN_MESSAGE_MAP(CPageInfo, CDialog)
+	ON_MESSAGE(WM_CB_GET_INFO, cbGetInfo)
+	ON_BN_CLICKED(IDC_BTN_BATTEMP_REFRESH, &CPageInfo::OnBnClickedBtnInfoRefresh)
 END_MESSAGE_MAP()
 
 
-// CPageBatTemp 消息处理程序
+// CPageInfo 消息处理程序
 
-LRESULT CPageBatTemp::cbGetBatTemp(WPARAM wParam, LPARAM lParam)
+LRESULT CPageInfo::cbGetInfo(WPARAM wParam, LPARAM lParam)
 {
 	CTask* pTask = (CTask*)wParam;
 	CIVError Error;
@@ -106,7 +109,7 @@ LRESULT CPageBatTemp::cbGetBatTemp(WPARAM wParam, LPARAM lParam)
 			if (pTask->m_pParam)
 				AfxMessageBox(pTask->m_Error.GetErrorStr());
 			else {
-				TRACE(_T("cbGetBatTemp Error:%s\n"), pTask->m_Error.GetErrorStr());
+				TRACE(_T("cbGetInfo Error:%s\n"), pTask->m_Error.GetErrorStr());
 			}
 		}
 	}
@@ -114,7 +117,7 @@ LRESULT CPageBatTemp::cbGetBatTemp(WPARAM wParam, LPARAM lParam)
 		if (pTask->m_pParam)
 			AfxMessageBox(pTask->m_Error.GetErrorStr());
 		else {
-			TRACE(_T("cbGetBatTemp Error:%s\n"), pTask->m_Error.GetErrorStr());
+			TRACE(_T("cbGetInfo Error:%s\n"), pTask->m_Error.GetErrorStr());
 		}
 	}
 
@@ -124,10 +127,10 @@ LRESULT CPageBatTemp::cbGetBatTemp(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void CPageBatTemp::OnBnClickedBtnBattempRefresh()
+void CPageInfo::OnBnClickedBtnInfoRefresh()
 {
 	CIVError Error;
-	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_BATTEMP, GetSafeHwnd(), WM_CB_GET_BATTEMP, (LPVOID)1)) {
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_INFO, GetSafeHwnd(), WM_CB_GET_INFO, (LPVOID)1)) {
 		AfxMessageBox(Error.GetErrorStr());
 	}
 

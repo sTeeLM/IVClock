@@ -698,6 +698,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\rtc.c</FilePath>
             </File>
+            <File>
+              <FileName>ocv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\ocv.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

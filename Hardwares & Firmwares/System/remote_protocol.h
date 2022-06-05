@@ -20,7 +20,7 @@ typedef enum remote_control_cmd_type
   REMOTE_CONTROL_CMD_GET_PARAM,
   REMOTE_CONTROL_CMD_SET_PARAM,
   REMOTE_CONTROL_CMD_STOP_ALARM,  
-  REMOTE_CONTROL_CMD_GET_BAT_TEMP,
+  REMOTE_CONTROL_CMD_GET_INFO,
   REMOTE_CONTROL_CMD_CNT
 }remote_control_cmd_type_t;
 
@@ -35,7 +35,7 @@ typedef enum remote_control_res_type
   REMOTE_CONTROL_RES_GET_PARAM,
   REMOTE_CONTROL_RES_SET_PARAM,
   REMOTE_CONTROL_RES_STOP_ALARM,
-  REMOTE_CONTROL_RES_GET_BAT_TEMP,
+  REMOTE_CONTROL_RES_GET_INFO,
 }remote_control_res_type_t;
 
 typedef enum remote_control_code_type
@@ -112,13 +112,15 @@ typedef struct remote_control_body_param
 #pragma pack(pop)
 
 #pragma pack(push,1)
-typedef struct remote_control_body_bat_temp
+typedef struct remote_control_body_info
 {
   double  bat_voltage;
   uint8_t bat_quantity;  
   double temp_cen;
-  double temp_fah;  
-}remote_control_body_bat_temp_t;
+  double temp_fah;
+  uint8_t firmware_version_major;
+  uint8_t firmware_version_minor;  
+}remote_control_body_info_t;
 #pragma pack(pop)
 // msg
 #pragma pack(push,1)
@@ -129,7 +131,7 @@ typedef struct remote_control_msg
     remote_control_body_time_t time;
     remote_control_body_alarm_t alarm; 
     remote_control_body_param_t param;
-    remote_control_body_bat_temp_t bat_temp;
+    remote_control_body_info_t info;
   }body;
 }remote_control_msg_t;
 #pragma pack(pop)

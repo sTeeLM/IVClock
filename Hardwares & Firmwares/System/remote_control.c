@@ -13,7 +13,7 @@
 #include "timer.h"
 #include "player.h"
 #include "thermometer.h"
-
+#include "version.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -56,7 +56,7 @@ static void do_get_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res);
-static void do_get_bat_temp(remote_control_msg_t * cmd, remote_control_msg_t * res);
+static void do_get_info(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_stop_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res);
 
 remote_control_proc_type_t remote_control_proc[] = 
@@ -69,7 +69,7 @@ remote_control_proc_type_t remote_control_proc[] =
   {REMOTE_CONTROL_CMD_GET_PARAM, do_get_param}, 
   {REMOTE_CONTROL_CMD_SET_PARAM, do_set_param},
   {REMOTE_CONTROL_CMD_STOP_ALARM, do_stop_alarm},   
-  {REMOTE_CONTROL_CMD_GET_BAT_TEMP, do_get_bat_temp}, 
+  {REMOTE_CONTROL_CMD_GET_INFO, do_get_info}, 
 };
 
 static bool remote_control_check_header(remote_control_msg_header_t * header)
@@ -361,15 +361,17 @@ static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res)
   res->header.length = sizeof(res->body.param);
 }
 
-static void do_get_bat_temp(remote_control_msg_t * cmd, remote_control_msg_t * res)
+static void do_get_info(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
-  res->body.bat_temp.bat_voltage = power_get_bat_voltage();
-  res->body.bat_temp.bat_quantity = power_get_bat_quantity();  
-  res->body.bat_temp.temp_cen = thermometer_read_cen_double();
-  res->body.bat_temp.temp_fah = thermometer_read_fah_double();  
+  res->body.info.bat_voltage = power_get_bat_voltage();
+  res->body.info.bat_quantity = power_get_bat_quantity();  
+  res->body.info.temp_cen = thermometer_read_cen_double();
+  res->body.info.temp_fah = thermometer_read_fah_double();  
+  res->body.info.firmware_version_major = IVCLOCK_VERSION_MAJOR;
+  res->body.info.firmware_version_minor = IVCLOCK_VERSION_MINOR;  
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
-  res->header.length = sizeof(res->body.bat_temp);
+  res->header.length = sizeof(res->body.info);
 }
 
 static void do_stop_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)

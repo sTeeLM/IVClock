@@ -21,6 +21,7 @@
 #include "main.h"
 #include "debug.h"
 #include "delay.h"
+#include "version.h"
 
 /* bsp */
 #include "adc.h"
@@ -146,7 +147,8 @@ int main(void)
   PrintBsp("BIAS  ", BSP_BIAS_Init());  
   PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
   
-  IVDBG("initialize sub systems...");
+  IVDBG("initialize sub systems version %02dd.%02d...", 
+    IVCLOCK_VERSION_MAJOR, IVCLOCK_VERSION_MINOR);
   /* System initialize */
   rtc_init();
   power_init();

@@ -217,9 +217,9 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 		msg.body.alarm.alarm_index = m_LocalAlarm.alarm_index;
 		CopyMemory(&msg.body, &m_LocalAlarm,sizeof(remote_control_body_alarm_t));
 		break;
-	case REMOTE_CONTROL_CMD_GET_BAT_TEMP:
-		msg.header.length = sizeof(remote_control_body_bat_temp_t);
-		ZeroMemory(&msg.body, sizeof(remote_control_body_bat_temp_t));
+	case REMOTE_CONTROL_CMD_GET_INFO:
+		msg.header.length = sizeof(remote_control_body_info_t);
+		ZeroMemory(&msg.body, sizeof(remote_control_body_info_t));
 		break;
 	}
 
@@ -245,7 +245,7 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 			m_bRemoteAlarmValid = TRUE;
 		}
 		break;
-	case REMOTE_CONTROL_CMD_GET_BAT_TEMP:
+	case REMOTE_CONTROL_CMD_GET_INFO:
 		CopyMemory(&m_RemoteBatTemp, &msg.body, sizeof(m_RemoteBatTemp));
 		m_bRemoteBatTempValid = TRUE;
 		break;
@@ -458,9 +458,9 @@ BOOL CRemoteConfig::LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent/
 	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_TIME);
 }
 
-BOOL CRemoteConfig::LoadRemoteConfigBatTemp(CIVError& Error, HANDLE hWaitEvent)
+BOOL CRemoteConfig::LoadRemoteConfigInfo(CIVError& Error, HANDLE hWaitEvent)
 {
-	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_BAT_TEMP);
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_INFO);
 }
 
 BOOL CRemoteConfig::SetParam(CIVError& Error, const remote_control_body_param_t& param)
@@ -539,7 +539,7 @@ BOOL CRemoteConfig::GetAlarm(CIVError& Error, remote_control_body_alarm_t& alarm
 	return TRUE;
 }
 
-BOOL CRemoteConfig::GetBatTemp(CIVError& Error, remote_control_body_bat_temp_t& battemp)
+BOOL CRemoteConfig::GetBatTemp(CIVError& Error, remote_control_body_info_t& battemp)
 {
 	DWORD dwWaitRes;
 	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
@@ -722,8 +722,8 @@ BOOL CRemoteConfig::DealTask(CIVError& Error)
 		case CTask::IV_TASK_SET_TIME:
 			pTask->m_bRes = SetRemoteConfigDateTime(pTask->m_Error, m_hQuitRemoteConfigMon);
 			break;
-		case CTask::IV_TASK_GET_BATTEMP:
-			pTask->m_bRes = LoadRemoteConfigBatTemp(pTask->m_Error, m_hQuitRemoteConfigMon);
+		case CTask::IV_TASK_GET_INFO:
+			pTask->m_bRes = LoadRemoteConfigInfo(pTask->m_Error, m_hQuitRemoteConfigMon);
 			break;
 		default:
 			TRACE(_T("UNKNOWN TASK TYPE % d"), pTask->m_eTaskType);
@@ -782,7 +782,7 @@ void CRemoteConfig::TryLoadRemoteConfig()
 
 	LoadRemoteConfigDateTime(Error, NULL);
 
-	LoadRemoteConfigBatTemp(Error, NULL);
+	LoadRemoteConfigInfo(Error, NULL);
 }
 
 

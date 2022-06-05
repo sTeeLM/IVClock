@@ -60,7 +60,7 @@
     <ClInclude Include="TaskQueue.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="PageBatTemp.h">
+    <ClInclude Include="PageInfo.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -101,7 +101,7 @@
     <ClCompile Include="TaskQueue.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="PageBatTemp.cpp">
+    <ClCompile Include="PageInfo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

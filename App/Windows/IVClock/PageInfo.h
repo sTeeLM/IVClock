@@ -1,15 +1,15 @@
 ﻿#pragma once
 
 
-// CPageBatTemp 对话框
+// CPageInfo 对话框
 
-class CPageBatTemp : public CDialog
+class CPageInfo : public CDialog
 {
-	DECLARE_DYNAMIC(CPageBatTemp)
+	DECLARE_DYNAMIC(CPageInfo)
 
 public:
-	CPageBatTemp(CWnd* pParent = nullptr);   // 标准构造函数
-	virtual ~CPageBatTemp();
+	CPageInfo(CWnd* pParent = nullptr);   // 标准构造函数
+	virtual ~CPageInfo();
 	virtual BOOL OnInitDialog();
 	void UpdateUI();
 // 对话框数据
@@ -21,13 +21,14 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	BOOL LoadRemoteConfig(CIVError& Error);
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnBnClickedBtnBattempRefresh();
-	afx_msg LRESULT cbGetBatTemp(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnBnClickedBtnInfoRefresh();
+	afx_msg LRESULT cbGetInfo(WPARAM wParam, LPARAM lParam);
 
 protected:
 	BOOL m_bInProgress;
 	CString m_strTempCen;
 	CString m_strTempFah;
 	CString m_strTempBatVoltage;
+	CString m_strFirmwareVersion;
 	CProgressCtrl m_ctlTempBatQuantity;
 };

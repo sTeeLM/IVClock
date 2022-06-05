@@ -209,7 +209,7 @@
     <ClInclude Include="IVClockDlg.h" />
     <ClInclude Include="IVError.h" />
     <ClInclude Include="PageAlarm.h" />
-    <ClInclude Include="PageBatTemp.h" />
+    <ClInclude Include="PageInfo.h" />
     <ClInclude Include="PageDateTime.h" />
     <ClInclude Include="PageSerial.h" />
     <ClInclude Include="PageParam.h" />
@@ -222,7 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConfigManager.cpp" />
-    <ClCompile Include="PageBatTemp.cpp" />
+    <ClCompile Include="PageInfo.cpp" />
     <ClCompile Include="IVClock.cpp" />
     <ClCompile Include="IVClockDlg.cpp" />
     <ClCompile Include="IVError.cpp" />

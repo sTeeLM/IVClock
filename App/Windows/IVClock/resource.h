@@ -11,15 +11,14 @@
 #define IDS_TAB_DATETIME                104
 #define IDS_TAB_ALARM                   105
 #define IDD_PROPPAGE_DATETIME           106
-#define IDS_TAB_MISC                    106
-#define IDS_TAB_BATTEMP                 106
+#define IDS_TAB_INFO                    106
 #define IDD_PROPPAGE_ALARM              107
 #define IDS_TEST_PASSED                 107
 #define IDD_PROPPAGE_PARAM              108
 #define IDS_TEST_TESTING                108
 #define IDD_PROPPAGE_INFO               109
-#define IDD_PROPPAGE_SERIAL             109
 #define IDS_TEST_FAILED                 109
+#define IDD_PROPPAGE_SERIAL             110
 #define IDD_PROPPAGE_BATTEMP            110
 #define IDR_MAINFRAME                   128
 #define IDR_MENU_TRAY                   138
@@ -87,6 +86,8 @@
 #define IDC_EDIT_BAT_VOTAGE             1051
 #define IDC_EDIT_TEMP_FAH               1052
 #define IDC_EDIT_TEMP_CEN               1053
+#define IDC_EDIT_BAT_VOTAGE2            1054
+#define IDC_EDIT_FIRM_VERSION           1054
 #define IDC_BTN_BATTEMP_REFRESH         1055
 #define IDC_PROGRESS_BAT_QUANTITY       1056
 #define IDC_PROGRESS1                   1057

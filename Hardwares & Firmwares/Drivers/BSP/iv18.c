@@ -63,11 +63,9 @@ static const uint8_t BSP_IV18_Dig_SPEICAL[] =
    0x00, //00000000  BLANK
    0x87, //10000111  o  degree assume ascii 1!! 
    0x82, //10000010  progress 0,ab
-   0x12, //00010010  progress 1,bc
-   0x30, //00110000  progress 2,cd
-   0x28, //00101000  progress 3,de 
-   0x09, //00001001  progress 4,ef
-   0x81, //10000001  progress 5,fa    
+   0x30, //00110000  progress 1,cd
+   0x28, //00101000  progress 2,de 
+   0x81, //10000001  progress 3,fa    
 };
 
 static const uint8_t BSP_IV18_Dig_ASCII[] =

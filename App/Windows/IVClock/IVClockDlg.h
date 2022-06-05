@@ -8,7 +8,7 @@
 #include "PageDateTime.h"
 #include "PageSerial.h"
 #include "PageAlarm.h"
-#include "PageBatTemp.h"
+#include "PageInfo.h"
 
 // CIVClockDlg 对话框
 class CIVClockDlg : public CDialogEx
@@ -51,5 +51,5 @@ public:
 	CPageSerial  m_pageSerial;
 	CPageAlarm m_pageAlarm;
 	CPageDateTime m_pageDateTime;
-	CPageBatTemp m_pageBatTemp;
+	CPageInfo m_pageInfo;
 };
