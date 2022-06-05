@@ -247,7 +247,7 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 		break;
 	case REMOTE_CONTROL_CMD_GET_INFO:
 		CopyMemory(&m_RemoteBatTemp, &msg.body, sizeof(m_RemoteBatTemp));
-		m_bRemoteBatTempValid = TRUE;
+		m_bRemoteInfoValid = TRUE;
 		break;
 	}
 
@@ -539,7 +539,7 @@ BOOL CRemoteConfig::GetAlarm(CIVError& Error, remote_control_body_alarm_t& alarm
 	return TRUE;
 }
 
-BOOL CRemoteConfig::GetBatTemp(CIVError& Error, remote_control_body_info_t& battemp)
+BOOL CRemoteConfig::GetInfo(CIVError& Error, remote_control_body_info_t& battemp)
 {
 	DWORD dwWaitRes;
 	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
@@ -658,7 +658,7 @@ BOOL CRemoteConfig::ScheduleRevalidTask(CIVError& Error)
 	double dTotalSec = oleSpan.GetTotalSeconds();
 
 	TRACE(_T("ScheduleRevalidTask: dTotalSec %f\n"), dTotalSec);
-	if (dTotalSec > IV_TOTAL_LIFE_SPAN) {
+	if (dTotalSec > IV_TOTAL_LIFE_SPAN && !m_bInTray) {
 		AddTask(Error, CTask::IV_TASK_PING, theApp.GetMainWnd()->GetSafeHwnd(), WM_CB_PING);
 	}
 
@@ -675,6 +675,11 @@ BOOL CRemoteConfig::ScheduleRevalidTask(CIVError& Error)
 	if (!m_bRemoteAlarmValid) {
 		TRACE(_T("ScheduleRevalidTask: IV_TASK_GET_ALARM\n"));
 		AddTask(Error, CTask::IV_TASK_GET_ALARM, m_hWndAlarm, WM_CB_GET_ALARM);
+	}
+
+	if (!m_bRemoteInfoValid) {
+		TRACE(_T("ScheduleRevalidTask: IV_TASK_GET_INFO\n"));
+		AddTask(Error, CTask::IV_TASK_GET_INFO, m_hWndInfo, WM_CB_GET_INFO);
 	}
 
 	return TRUE;

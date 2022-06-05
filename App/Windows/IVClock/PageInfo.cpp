@@ -30,10 +30,10 @@ BOOL CPageInfo::LoadRemoteConfig(CIVError& Error)
 {
 	remote_control_body_info_t info;
 
-	if (!theApp.m_RemoteConfig.IsBatTempValid())
+	if (!theApp.m_RemoteConfig.IsInfoValid())
 		return TRUE;
 
-	if(!theApp.m_RemoteConfig.GetBatTemp(Error, info))
+	if(!theApp.m_RemoteConfig.GetInfo(Error, info))
 		return FALSE;
 
 	m_strTempCen.Format(_T("%0.2f ℃"), info.temp_cen);
@@ -60,7 +60,7 @@ BOOL CPageInfo::OnInitDialog()
 		return FALSE;
 	}
 
-	if (!theApp.m_RemoteConfig.GetBatTemp(Error, battemp))
+	if (!theApp.m_RemoteConfig.GetInfo(Error, battemp))
 		return FALSE;
 
 	if (m_ctlTempBatQuantity.GetSafeHwnd()) {
@@ -75,7 +75,7 @@ BOOL CPageInfo::OnInitDialog()
 
 void CPageInfo::UpdateUI()
 {
-	GetDlgItem(IDC_BTN_BATTEMP_REFRESH)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsBatTempValid());
+	GetDlgItem(IDC_BTN_BATTEMP_REFRESH)->EnableWindow(!m_bInProgress && theApp.m_RemoteConfig.IsInfoValid());
 }
 
 void CPageInfo::DoDataExchange(CDataExchange* pDX)

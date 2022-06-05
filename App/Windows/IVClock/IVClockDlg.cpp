@@ -173,7 +173,7 @@ BOOL CIVClockDlg::OnInitDialog()
 	theApp.m_RemoteConfig.SetParamHwnd(m_pageParam.GetSafeHwnd());
 	theApp.m_RemoteConfig.SetDateTimeHwnd(m_pageDateTime.GetSafeHwnd());
 	theApp.m_RemoteConfig.SetAlarmHwnd(m_pageAlarm.GetSafeHwnd());
-	theApp.m_RemoteConfig.SetBatTempHwnd(m_pageInfo.GetSafeHwnd());
+	theApp.m_RemoteConfig.SetInfoHwnd(m_pageInfo.GetSafeHwnd());
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -278,7 +278,7 @@ void CIVClockDlg::OnBnClickedCancel()
 	CDialogEx::OnCancel();
 }
 
-#define TOOLTIPS_NAME_	"XXXX"
+#define TOOLTIPS_NAME	"IVCLOCK"
 
 //最小化到托盘函数
 void CIVClockDlg::ToTray()
@@ -290,7 +290,7 @@ void CIVClockDlg::ToTray()
 	nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	nid.uCallbackMessage = WM_SHOWTASK;//自定义的消息名称
 	nid.hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
-	wcscpy_s(nid.szTip, _T(TOOLTIPS_NAME_)); //信息提示条
+	wcscpy_s(nid.szTip, _T(TOOLTIPS_NAME)); //信息提示条
 	Shell_NotifyIcon(NIM_ADD, &nid); //在托盘区添加图标
 	ShowWindow(SW_HIDE); //隐藏主窗口
 }
@@ -305,7 +305,7 @@ void CIVClockDlg::DeleteTray()
 	nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	nid.uCallbackMessage = WM_SHOWTASK; //自定义的消息名称
 	nid.hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
-	wcscpy_s(nid.szTip, _T(TOOLTIPS_NAME_)); //信息提示条为“计划任务提醒”
+	wcscpy_s(nid.szTip, _T(TOOLTIPS_NAME)); //信息提示条为“计划任务提醒”
 	Shell_NotifyIcon(NIM_DELETE, &nid); //在托盘区删除图标
 }
 

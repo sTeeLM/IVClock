@@ -31,13 +31,13 @@ public:
 		m_hWndParam(NULL),
 		m_hWndDateTime(NULL),
 		m_hWndAlarm(NULL),
-		m_hWndBatTemp(NULL),
+		m_hWndInfo(NULL),
 		m_oleLastSync(COleDateTime::GetCurrentTime()),
 		m_oleLastSuccessCom(COleDateTime::GetCurrentTime()),
 		m_bRemoteParamValid(FALSE),
 		m_bRemoteDateTimeValid(FALSE),
 		m_bRemoteAlarmValid(FALSE),
-		m_bRemoteBatTempValid(FALSE)
+		m_bRemoteInfoValid(FALSE)
 	{
 		ZeroMemory(&m_RemoteParam, sizeof(m_RemoteParam));
 		ZeroMemory(&m_RemoteDateTime, sizeof(m_RemoteDateTime));
@@ -79,9 +79,9 @@ public:
 		return m_bRemoteAlarmValid;
 	}
 	BOOL SetAlarm(CIVError& Error, const remote_control_body_alarm_t& alarm);
-	BOOL GetBatTemp(CIVError& Error, remote_control_body_info_t& battemp);
-	BOOL IsBatTempValid() {
-		return m_bRemoteBatTempValid;
+	BOOL GetInfo(CIVError& Error, remote_control_body_info_t& battemp);
+	BOOL IsInfoValid() {
+		return m_bRemoteInfoValid;
 	}
 
 	INT  GetAlarmCnt() {
@@ -104,13 +104,13 @@ public:
 	void SetParamHwnd(HWND hWnd) { m_hWndParam = hWnd; }
 	void SetDateTimeHwnd(HWND hWnd) { m_hWndDateTime = hWnd; }
 	void SetAlarmHwnd(HWND hWnd) { m_hWndAlarm = hWnd; }
-	void SetBatTempHwnd(HWND hWnd) { m_hWndBatTemp = hWnd; }
+	void SetInfoHwnd(HWND hWnd) { m_hWndInfo = hWnd; }
 
 	void SetValid(BOOL bValid = TRUE) {
 		m_bRemoteParamValid = bValid;
 		m_bRemoteDateTimeValid = bValid;
 		m_bRemoteAlarmValid = bValid;
-		m_bRemoteBatTempValid = bValid;
+		m_bRemoteInfoValid = bValid;
 	}
 protected:
 
@@ -145,9 +145,9 @@ protected:
 	INT m_nRemoteAlarmSndCnt;
 	HWND m_hWndAlarm;
 
-	BOOL m_bRemoteBatTempValid;
+	BOOL m_bRemoteInfoValid;
 	remote_control_body_info_t m_RemoteBatTemp;
-	HWND m_hWndBatTemp;
+	HWND m_hWndInfo;
 
 	// use by SetRemoteXXX, and SetXXX
 	remote_control_body_param_t m_LocalParam;
