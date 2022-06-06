@@ -114,6 +114,16 @@ static bool remote_control_read_cmd(remote_control_msg_t * cmd)
 {
   uint8_t * p = (uint8_t *)cmd;
   BSP_Error_Type ret = BSP_ERROR_INTERNAL;
+  
+  if(BSP_USART3_Receive((uint8_t *)p, sizeof(remote_control_msg_t)) == BSP_ERROR_NONE) {
+    IVDBG("receive cmd: magic = %x, len = %d", cmd->header.magic, cmd->header.length);
+    if(remote_control_check_header(&cmd->header)) {
+      remote_control_dump_msg(cmd);
+      ret = BSP_ERROR_NONE;
+    }
+  }
+  return ret == BSP_ERROR_NONE;
+/*  
   if(BSP_USART3_Receive((uint8_t *)p, sizeof(cmd->header)) == BSP_ERROR_NONE) {
     IVDBG("receive cmd: magic = %x, len = %d", cmd->header.magic, cmd->header.length);
     if(remote_control_check_header(&cmd->header)) {
@@ -132,6 +142,7 @@ static bool remote_control_read_cmd(remote_control_msg_t * cmd)
     }
   }
   return ret == BSP_ERROR_NONE;
+*/
 }
 
 static void remote_control_send_res(remote_control_msg_t * res)
@@ -139,7 +150,8 @@ static void remote_control_send_res(remote_control_msg_t * res)
   res->header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
   IVDBG("send res: magic = %x, len = %d", res->header.magic, res->header.length);
   remote_control_dump_msg(res);
-  BSP_USART3_Transmit((uint8_t *)res, res->header.length + sizeof(res->header));
+  //BSP_USART3_Transmit((uint8_t *)res, res->header.length + sizeof(res->header));
+  BSP_USART3_Transmit((uint8_t *)res, sizeof(remote_control_msg_t));
 }
 
 static void remote_control_deal_cmd(remote_control_msg_t * cmd, remote_control_msg_t * res)

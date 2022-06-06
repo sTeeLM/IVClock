@@ -14,9 +14,16 @@
 #include "thermometer.h"
 #include <string.h>
 
+#define DISPLAY_MON_LIGHT_FREQ_DIV 10
+
 static bool _display_is_on;
 static bool _display_mon_light;
 static enum display_mode _display_mode;
+static uint16_t _g_lt_0;
+static uint16_t _g_lt_100;
+static uint8_t _last_light_percent;
+static uint8_t _last_light_mon_cnt;
+
 void display_init(void)
 {
   BSP_TIM1_Stop_PMW(TIM_CHANNEL_1); // light control
@@ -483,6 +490,8 @@ void display_on(void)
   BSP_TIM4_Start();
   _display_is_on = TRUE;
   _display_mon_light = config_read_int("mon_lt_en");
+  _g_lt_0 = config_read_int("lt_0");
+  _g_lt_100 = config_read_int("lt_100");  
   if(_display_mon_light) {
     BSP_TIM1_Start_PMW(TIM_CHANNEL_1); // light control
   }
@@ -550,7 +559,10 @@ void display_set_brightness(uint8_t percent)
     percent = 100;
   if(percent == 0 )
     percent = 1;
-  BSP_TIM1_Set_Duty_Cycle(TIM_CHANNEL_1, 100 - percent);
+  if(_last_light_percent != percent) {
+    BSP_TIM1_Set_Duty_Cycle(TIM_CHANNEL_1, 100 - percent);
+    _last_light_percent = percent;
+  }
 }
 
 void display_cal_0(void)
@@ -559,6 +571,7 @@ void display_cal_0(void)
   val.val16 = BSP_ADC2_Get_Value();
   console_printf("0 -> %d\r\n", val.val16);
   config_write("lt_0", &val);
+  _g_lt_0 = val.val16;
 }
 
 void display_cal_100(void)
@@ -567,17 +580,16 @@ void display_cal_100(void)
   val.val16 = BSP_ADC2_Get_Value();
   console_printf("100 -> %d\r\n", val.val16);
   config_write("lt_100", &val);
+  _g_lt_100 = val.val16;   
 }
 
 uint8_t display_get_light_percent(void)
 {
   uint16_t val = BSP_ADC2_Get_Value();
-  uint16_t lt_0 = config_read_int("lt_0");
-  uint16_t lt_100 = config_read_int("lt_100"); 
   double k, b;
   int8_t percent;
-  k = ((double)(100 - 0)) / ((double)(lt_100 - lt_0));
-  b = 100 - k * lt_100;
+  k = ((double)(100 - 0)) / ((double)(_g_lt_100 - _g_lt_0));
+  b = 100 - k * _g_lt_100;
   percent = (int8_t)(k * val + b); 
   IVDBG("display_get_light_percent: val = %d, k = %f, b = %f, v = %d", val, k, b, percent);
   if(percent > 100) {
@@ -627,9 +639,11 @@ static uint8_t display_light_to_brightness(uint8_t light)
 void display_mon_light(void)
 {
   if(_display_is_on && _display_mon_light) {
-    display_set_brightness(
-    display_light_to_brightness(
-    display_get_light_percent()));
+    if( ++_last_light_mon_cnt % DISPLAY_MON_LIGHT_FREQ_DIV == 0) {
+      display_set_brightness(
+        display_light_to_brightness(
+          display_get_light_percent()));
+    }
   }
 }
 

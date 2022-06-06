@@ -218,7 +218,7 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 		CopyMemory(&msg.body, &m_LocalAlarm,sizeof(remote_control_body_alarm_t));
 		break;
 	case REMOTE_CONTROL_CMD_GET_INFO:
-		msg.header.length = sizeof(remote_control_body_info_t);
+		msg.header.length = 0;
 		ZeroMemory(&msg.body, sizeof(remote_control_body_info_t));
 		break;
 	}
@@ -277,6 +277,46 @@ BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent /
 	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_TIME);
 }
 
+BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t& msg, CIVError& Error)
+{
+	uint8_t cmd = msg.header.cmd;
+	PBYTE pBody = (PBYTE)&msg;
+	pBody += sizeof(msg.header);
+
+	if (msg.header.magic != REMOTE_CONTROL_MSG_HEADER_MAGIC
+		|| msg.header.length > sizeof(remote_control_msg_t)
+		- sizeof(remote_control_msg_header_t)) {
+		TRACE(_T("ERROR ProcessSerialMsg:IVE_SERIAL_PROTOCAL\n"));
+		Error.SetError(CIVError::IVE_SERIAL_PROTOCAL);
+		goto err;
+	}
+
+	if (!pConn->WriteData((LPBYTE)&msg, sizeof(msg))) {
+		TRACE(_T("ERROR ProcessSerialMsg:IVE_SERIAL_WRITE\n"));
+		Error.SetError(CIVError::IVE_SERIAL_WRITE);
+		goto err;
+	}
+
+	if (!pConn->ReadData((LPBYTE)&msg, sizeof(msg))) {
+		TRACE(_T("ERROR ProcessSerialMsg:IVE_SERIAL_READ\n"));
+		Error.SetError(CIVError::IVE_SERIAL_READ);
+		goto err;
+	}
+
+	if (msg.header.res != cmd + REMOTE_CONTROL_RES_BASE
+		|| msg.header.magic != REMOTE_CONTROL_MSG_HEADER_MAGIC
+		|| msg.header.code != REMOTE_CONTROL_CODE_OK) {
+		TRACE(_T("ERROR ProcessSerialMsg:IVE_SERIAL_PROTOCAL\n"));
+		Error.SetError(CIVError::IVE_SERIAL_PROTOCAL);
+		goto err;
+	}
+
+	return TRUE;
+err:
+	return FALSE;
+}
+
+/*
 BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t &msg, CIVError& Error)
 {
 	uint8_t cmd = msg.header.cmd;
@@ -334,7 +374,7 @@ BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_contro
 err:
 	return FALSE;
 }
-
+*/
 BOOL CRemoteConfig::LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent/* = NULL*/)
 {
 	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_PARAM);
