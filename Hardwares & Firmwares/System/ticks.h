@@ -6,7 +6,8 @@
 void ticks_init(void);
 void ticks_inc_1ms(void);
 
-uint64_t clock_get_now_ms(void);
-uint64_t clock_diff_now_ms(uint64_t ms);
-
+uint64_t ticks_get_now_ms(void);
+uint64_t ticks_diff_now_ms(uint64_t ms);
+void ticks_enter_console(void);
+void ticks_leave_console(void);
 #endif

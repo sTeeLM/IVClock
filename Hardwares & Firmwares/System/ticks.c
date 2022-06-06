@@ -13,12 +13,12 @@ void ticks_init(void)
   in_console = 0;
 }
 
-uint64_t clock_get_now_ms(void)
+uint64_t ticks_get_now_ms(void)
 {
   return _ticks;
 }
 
-uint64_t clock_diff_now_ms(uint64_t ms)
+uint64_t ticks_diff_now_ms(uint64_t ms)
 {
   return (uint64_t)(ms - _ticks);
 }

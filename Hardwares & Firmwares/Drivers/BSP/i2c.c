@@ -155,8 +155,12 @@ void BSP_I2C_DeInit(void)
 
 BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
-  if(pData == NULL || Size == 0)
-    return BSP_ERROR_NONE;
+  BSP_Error_Type ret = BSP_ERROR_NONE;
+  
+  if(pData == NULL || Size == 0) {
+    ret = BSP_ERROR_NONE;
+    goto out;
+  }
   
   I2C_Start();
   
@@ -165,25 +169,29 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
   
   if ( I2C_GetAck() ){
     I2C_Stop();
-    return BSP_ERROR_TIMEOUT;
+    ret = BSP_ERROR_TIMEOUT;
+    goto out;
   }  
   
   if (MemAddSize == I2C_MEMADD_SIZE_8BIT) {
     I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
     if ( I2C_GetAck() ){
       I2C_Stop();
-      return BSP_ERROR_TIMEOUT;
+      ret = BSP_ERROR_TIMEOUT;
+      goto out;
     }      
   } else {
     I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
     if ( I2C_GetAck() ){
       I2C_Stop();
-      return BSP_ERROR_TIMEOUT;
+      ret = BSP_ERROR_TIMEOUT;
+      goto out;
     }
     I2C_Write_Byte((unsigned char)(((MemAddress & 0xFF00) >> 8) & 0xFF));
     if ( I2C_GetAck() ){
       I2C_Stop();
-      return BSP_ERROR_TIMEOUT;
+      ret = BSP_ERROR_TIMEOUT;
+      goto out;
     }    
   }
   
@@ -192,18 +200,31 @@ BSP_Error_Type BSP_I2C_Write(uint16_t DevAddress, uint16_t MemAddress, uint16_t 
     if ( I2C_GetAck() )
     {
      I2C_Stop();
-     return BSP_ERROR_TIMEOUT;
+      ret = BSP_ERROR_TIMEOUT;
+      goto out;
     }
    } while ( --Size != 0 );
   
    I2C_Stop();
-   return BSP_ERROR_NONE;
+   
+out:   
+   IVDBG("BSP_I2C_Write [%04x][%04x][%d][%d] ret = %d", 
+    DevAddress, 
+    MemAddress,
+    MemAddSize == I2C_MEMADD_SIZE_8BIT ? 8:16, 
+    Size, 
+    ret);
+   return ret;
 }
 
 BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
-  if(pData == NULL || Size == 0)
-    return BSP_ERROR_NONE;
+  BSP_Error_Type ret = BSP_ERROR_NONE;
+  
+  if(pData == NULL || Size == 0) {
+    ret = BSP_ERROR_NONE;
+    goto out;
+  }
   I2C_Start();
   
   // send DevAddress
@@ -211,25 +232,29 @@ BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t M
   
   if ( I2C_GetAck() ){
     I2C_Stop();
-    return BSP_ERROR_TIMEOUT;
+    ret = BSP_ERROR_TIMEOUT;
+    goto out;
   }  
   
   if (MemAddSize == I2C_MEMADD_SIZE_8BIT) {
     I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
     if ( I2C_GetAck() ){
       I2C_Stop();
-      return BSP_ERROR_TIMEOUT;
+      ret = BSP_ERROR_TIMEOUT;
+      goto out;
     }      
   } else {
     I2C_Write_Byte((unsigned char)(MemAddress & 0xFF));
     if ( I2C_GetAck() ){
       I2C_Stop();
-      return BSP_ERROR_TIMEOUT;
+      ret = BSP_ERROR_TIMEOUT;
+      goto out;
     }
     I2C_Write_Byte((unsigned char)(((MemAddress & 0xFF00) >> 8) & 0xFF));
     if ( I2C_GetAck() ){
       I2C_Stop();
-      return BSP_ERROR_TIMEOUT;
+      ret = BSP_ERROR_TIMEOUT;
+      goto out;
     }    
   }
 
@@ -238,7 +263,8 @@ BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t M
   I2C_Write_Byte((unsigned char)(DevAddress | 0x1)); 
   if ( I2C_GetAck() ){
     I2C_Stop();
-    return BSP_ERROR_TIMEOUT;
+    ret = BSP_ERROR_TIMEOUT;
+    goto out;
   }
   
   for (;;){
@@ -249,9 +275,16 @@ BSP_Error_Type BSP_I2C_Read(uint16_t DevAddress, uint16_t MemAddress, uint16_t M
     }
     I2C_PutAck(0);
   }
-
   I2C_Stop();
-  return BSP_ERROR_NONE;
+  
+out:
+   IVDBG("BSP_I2C_Read [%04x][%04x][%d][%d] ret = %d", 
+    DevAddress, 
+    MemAddress,
+    MemAddSize == I2C_MEMADD_SIZE_8BIT ? 8:16, 
+    Size, 
+    ret);  
+  return ret;
 }
 
 #else

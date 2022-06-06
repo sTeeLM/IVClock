@@ -109,7 +109,7 @@ static void config_dump(void)
   uint32_t i, j, offset = 0;
   config_val_t val;
   uint8_t buffer[8];
-  IVDBG("dump all config begin ----------------------");
+  IVINFO("dump all config begin ----------------------");
   for(i = 0 ; i < sizeof(_slot) / sizeof(config_slot_t) ; i ++) { 
     switch(_slot[i].type) {
       case CONFIG_TYPE_UINT8:
@@ -131,31 +131,31 @@ static void config_dump(void)
       default: ;
     }
     if(_slot[i].type != CONFIG_TYPE_BLOB) {
-      IVDBG("[0x%08x] %s : %d", offset, _slot[i].name, 
+      IVINFO("[0x%08x] %s : %d", offset, _slot[i].name, 
         _slot[i].type == CONFIG_TYPE_UINT8 ? val.val8 : 
         (_slot[i].type == CONFIG_TYPE_UINT16 ? val.val16 : 
         (_slot[i].type == CONFIG_TYPE_UINT32 ? val.val32 : 0))
       );
     } else {
-      IVDBG("[0x%08x] %s (blob len = %d):", offset, _slot[i].name, val.valblob.len);
+      IVINFO("[0x%08x] %s (blob len = %d):", offset, _slot[i].name, val.valblob.len);
       for(j = 0 ; j < val.valblob.len / 8 ; j ++) {
         BSP_ROM_Read(offset, buffer, sizeof(buffer));
         offset += 8;
-        IVDBG(" %02x %02x %02x %02x %02x %02x %02x %02x",
+        IVINFO(" %02x %02x %02x %02x %02x %02x %02x %02x",
           buffer[0],buffer[1],buffer[2],buffer[3],
           buffer[4],buffer[5],buffer[6],buffer[7]
         );
       }
       BSP_ROM_Read(offset, buffer, val.valblob.len % 8);
       offset += val.valblob.len % 8;
-      IVDBG_RH;
+      IVINFO_RH;
       for(j = 0 ; j < val.valblob.len % 8 ; j ++) {
-        IVDBG_R(" %02x", buffer[j]);
+        IVINFO_R(" %02x", buffer[j]);
       }
-      IVDBG_RT;
+      IVINFO_RT;
     }
   } 
-  IVDBG("dump all config end ----------------------");
+  IVINFO("dump all config end ----------------------");
 }
 
 void config_init(void)

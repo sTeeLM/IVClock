@@ -5,6 +5,7 @@
 #include "usart.h"
 #include "debug.h"
 #include "clock.h"
+#include "ticks.h"
 
 #include "con_help.h"
 #include "con_clock.h"
@@ -171,7 +172,7 @@ void console_run(void)
   
   // stop the clock
   clock_enter_console();
-  
+  ticks_enter_console();
   do {
     console_printf("console>");
     memset(console_buf, 0, sizeof(console_buf));
@@ -226,5 +227,6 @@ void console_run(void)
     
   } while (strcmp(console_buf, "!") != 0);
   
-  clock_leave_console();  
+  clock_leave_console(); 
+  ticks_leave_console();
 }
