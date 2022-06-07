@@ -16,6 +16,9 @@
 #include "con_player.h"
 #include "con_alarm.h"
 
+#include "version.h"
+#include "build_id.h"
+
 #define CONSOLE_BUFFER_SIZE 41
 
 void console_init(void)
@@ -167,8 +170,14 @@ void console_run(void)
   }
   
   console_printf("++++++++++++++++++++++++++++++++++++++++\n");
-  console_printf("+             tini CONSOLE             +\n");
+  console_printf("+             tini CONSOLE %02d.%02d       +\n", IVCLOCK_VERSION_MAJOR, IVCLOCK_VERSION_MINOR);
   console_printf("++++++++++++++++++++++++++++++++++++++++\n");
+  
+  console_printf("Build-id:\n");
+  for(c = 0 ; c < sizeof(build_id); c ++) {
+    console_printf("%02x", build_id[c]);
+  }  
+  console_printf("\n");
   
   // stop the clock
   clock_enter_console();

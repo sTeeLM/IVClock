@@ -57,6 +57,7 @@
 #include "sm.h"
 #include "rtc.h"
 
+#include "build_id.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -96,6 +97,19 @@
 void PrintBsp(const char * bsp, BSP_Error_Type res)
 {
   IVINFO("%s %s", bsp, res == BSP_ERROR_NONE ? "OK" : "FAILED");
+}
+
+void PrintBuildID(void)
+{
+  uint8_t i;
+  
+  IVINFO_RH;
+  
+  for(i = 0 ; i < sizeof(build_id); i ++) {
+    IVINFO_R("%02x", build_id[i]);
+  }
+  
+  IVINFO_RT;
 }
 
 /**
@@ -147,7 +161,9 @@ int main(void)
   PrintBsp("BIAS  ", BSP_BIAS_Init());  
   PrintBsp("Blue_Tooth ", BSP_Blue_Tooth_Init());
   
-  IVDBG("initialize sub systems version %02dd.%02d...", 
+  PrintBuildID();
+  
+  IVDBG("initialize sub systems version %02d.%02d...", 
     IVCLOCK_VERSION_MAJOR, IVCLOCK_VERSION_MINOR);
   /* System initialize */
   rtc_init();
