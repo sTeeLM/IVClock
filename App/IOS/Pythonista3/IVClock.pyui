@@ -1,0 +1,812 @@
+[
+  {
+    "nodes" : [
+      {
+        "nodes" : [
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 6}, {95, 32}}",
+            "class" : "Button",
+            "attributes" : {
+              "border_width" : 1,
+              "action" : "btnConnect_action",
+              "frame" : "{{104, 177}, {80, 32}}",
+              "title" : "连接设备",
+              "uuid" : "474DF0C3-CCC7-44A6-A215-94A0885E379C",
+              "font_bold" : true,
+              "class" : "Button",
+              "corner_radius" : 1,
+              "name" : "btnConnect",
+              "font_size" : 15
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{286, 49}, {120, 29}}",
+            "class" : "SegmentedControl",
+            "attributes" : {
+              "action" : "segTimeFormat_action",
+              "flex" : "LR",
+              "segments" : "12小时|24小时",
+              "frame" : "{{84, 179}, {120, 29}}",
+              "uuid" : "D451E77D-D8B2-4C4B-94DE-31A38DB0803D",
+              "class" : "SegmentedControl",
+              "name" : "segTimeFormat"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 46}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelTimeFormat",
+              "frame" : "{{69, 177}, {150, 32}}",
+              "uuid" : "C6A90C1B-8EC4-44E7-9F95-D97323594096",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "时间显示格式",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 86}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelTempFormat",
+              "frame" : "{{69, 177}, {150, 32}}",
+              "uuid" : "E53FA791-3D07-4702-B60F-FB485A2EB8CF",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "气温显示格式",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{285, 86}, {120, 29}}",
+            "class" : "SegmentedControl",
+            "attributes" : {
+              "action" : "segTempFormat_action",
+              "flex" : "LR",
+              "segments" : "摄氏|华氏",
+              "frame" : "{{84, 179}, {120, 29}}",
+              "uuid" : "C565469B-0156-40E9-84BF-0DB1C12FE1E1",
+              "class" : "SegmentedControl",
+              "name" : "segTempFormat"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{341.66666666666663, 123}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchBP_action",
+              "frame" : "{{165, 177}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchBP",
+              "uuid" : "E223EAB5-FC11-470C-9776-B266066B99EC"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 126}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{115, 177}, {150, 32}}",
+              "uuid" : "0608532A-FC15-4F86-8148-824E7A94DB80",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "按钮提示音",
+              "name" : "labelBP",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{344, 164}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchLM_action",
+              "frame" : "{{165, 177}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchLM",
+              "uuid" : "01BEE828-C521-444A-8210-705A424A4FF8"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 164}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{115, 177}, {150, 32}}",
+              "uuid" : "E8CC7B56-D70F-449C-A904-AF277F75C88D",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "智能亮度调节",
+              "name" : "labelLM",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{344, 203}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchMM_action",
+              "frame" : "{{165, 177}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchMM",
+              "uuid" : "F9861C65-714B-4D7E-A4CD-C4F609F27506"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 204}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{115, 177}, {150, 32}}",
+              "uuid" : "BB4EB1DE-DDAC-412E-9946-D7990EB59F7C",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "摇晃唤醒",
+              "name" : "labelMM",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 244}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{115, 177}, {150, 32}}",
+              "uuid" : "FD1EEC96-E82E-4400-9986-0AE03B3AD8AD",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "自动休眠",
+              "name" : "labelPS",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{203.33333333333331, 242}, {202, 29}}",
+            "class" : "SegmentedControl",
+            "attributes" : {
+              "action" : "segPS_action",
+              "flex" : "LR",
+              "segments" : "禁止|15秒|30秒|45秒",
+              "frame" : "{{130, 178}, {120, 29}}",
+              "uuid" : "80BEFC4E-0AEB-473A-AB2D-8864913BBDB1",
+              "class" : "SegmentedControl",
+              "name" : "segPS"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 284}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{115, 177}, {150, 32}}",
+              "uuid" : "3674BE74-8924-4099-A97C-C7C62897F47D",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "整点报时",
+              "name" : "labelBS",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{343.66666666666663, 281}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchBS_action",
+              "frame" : "{{165, 296}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchBS",
+              "uuid" : "17397BFB-C950-4635-ABAD-D69C168B80E1"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 324}, {101, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelBSFrom",
+              "frame" : "{{116, 296}, {150, 32}}",
+              "uuid" : "CA54FBAF-A670-44C4-B405-262A50BE2114",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "从几点开始",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 362}, {101, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelBSTo",
+              "frame" : "{{116, 296}, {150, 32}}",
+              "uuid" : "211747F0-9D45-45A5-85E8-7589702FE857",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "到几点结束",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 402}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{116, 296}, {150, 32}}",
+              "uuid" : "EFDFD372-71CA-41A4-AAAD-361CD5EBE413",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "计时提示音",
+              "name" : "labelBP",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{206, 404}, {200, 29}}",
+            "class" : "SegmentedControl",
+            "attributes" : {
+              "action" : "segBP_action",
+              "flex" : "LR",
+              "segments" : "0|1|2|3|4|5|6|7|8|9",
+              "frame" : "{{131, 297}, {120, 29}}",
+              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC",
+              "class" : "SegmentedControl",
+              "name" : "segBP"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{306.66666666666663, 6}, {87, 32}}",
+            "class" : "Button",
+            "attributes" : {
+              "border_width" : 1,
+              "action" : "btnSyncTime_action",
+              "frame" : "{{151, 296}, {80, 32}}",
+              "title" : "同步时间",
+              "uuid" : "FF10733F-D76B-4051-82FD-3DB49BDBABB7",
+              "class" : "Button",
+              "corner_radius" : 1,
+              "name" : "btnSyncTime",
+              "font_size" : 15
+            },
+            "selected" : true
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{208, 485}, {199, 29}}",
+            "class" : "SegmentedControl",
+            "attributes" : {
+              "action" : "segAlarmIndex_action",
+              "flex" : "LR",
+              "segments" : "0|1|2|3|4|5|6|7|8|9",
+              "frame" : "{{131, 297}, {120, 29}}",
+              "uuid" : "A0B1EFDB-94FD-4A3D-B3C3-6CC62A742796",
+              "class" : "SegmentedControl",
+              "name" : "segAlarmIndex"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{10, 482}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelAlarmIndex",
+              "frame" : "{{116, 296}, {150, 32}}",
+              "uuid" : "9DAB7B6F-AA71-40E4-AAFC-8E5172DDB2BA",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "闹钟编号",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{10, 524}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelAlarmTime",
+              "frame" : "{{116, 296}, {150, 32}}",
+              "uuid" : "A4F56CAD-E036-42F7-A981-C9817317007B",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "闹钟时间",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{10, 577}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelAlarmSnd",
+              "frame" : "{{127, 355}, {150, 32}}",
+              "uuid" : "E1FB8662-42F6-4817-80AD-716A5D02C6EF",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "闹钟铃声",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{203.33333333333331, 577}, {200, 27}}",
+            "class" : "SegmentedControl",
+            "attributes" : {
+              "flex" : "LR",
+              "action" : "segAlarmSnd_action",
+              "segments" : "0|1|2|3|4|5|6|7|8|9",
+              "frame" : "{{131, 297}, {120, 29}}",
+              "class" : "SegmentedControl",
+              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC",
+              "name" : "segAlarmSnd"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{109, 617}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchAlarmDay_action",
+              "frame" : "{{176, 355}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchAlarmDay0",
+              "uuid" : "D658E3CC-7D0D-48E2-BAD5-B5DC72FE2E1F"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 617}, {95, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{127, 355}, {150, 32}}",
+              "uuid" : "874CB0F2-1E82-4AA3-AF7B-1C6C3F3545F7",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "周一",
+              "name" : "labelAlarmDay0",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 657}, {95, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{127, 355}, {150, 32}}",
+              "uuid" : "19027C3A-989F-4E37-8D97-FA7D62A0F9D5",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "周二",
+              "name" : "labelAlarmDay1",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{109, 657}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchAlarmDay_action",
+              "frame" : "{{176, 355}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchAlarmDay1",
+              "uuid" : "6EF066FA-7EC2-4DF8-83B1-D2374B047EE7"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 697}, {95, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{127, 355}, {150, 32}}",
+              "uuid" : "2876E6A9-A9B0-4958-B78D-3EF4F82DF4E0",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "周三",
+              "name" : "labelAlarmDay2",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{109, 698}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchAlarmDay_action",
+              "frame" : "{{176, 355}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchAlarmDay2",
+              "uuid" : "64CAC6D3-193B-4B38-BED3-3E4EC652EEBB"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 737}, {95, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{127, 355}, {150, 32}}",
+              "uuid" : "7F20B45E-8006-4BA7-9C32-BD10108433EC",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "周四",
+              "name" : "labelAlarmDay3",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{109, 737}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchAlarmDay_action",
+              "frame" : "{{176, 371}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchAlatmDay3",
+              "uuid" : "FCD56DBF-B4C6-439D-8EA1-6AAA7AF17D11"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{223, 617}, {113, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{127, 370}, {150, 32}}",
+              "uuid" : "D42F6118-FC64-4071-8875-9C929C10B6AA",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "周五",
+              "name" : "labelAlarmDay4",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{222, 656}, {113, 33}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{127, 370}, {150, 32}}",
+              "uuid" : "A4775341-17C3-4350-93A2-910265CDD758",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "周六",
+              "name" : "labelAlarmDay5",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{223, 698}, {113, 33}}",
+            "class" : "Label",
+            "attributes" : {
+              "font_size" : 18,
+              "frame" : "{{127, 370}, {150, 32}}",
+              "uuid" : "24AC1623-0C1D-4414-ACCB-7723F2F01119",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "周日",
+              "name" : "labelAlarmDay6",
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{346.66666666666663, 617}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchAlarmDay_action",
+              "frame" : "{{176, 371}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchAlarmDay4",
+              "uuid" : "0B989DC2-942A-4B97-A113-7345745B971B"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{344, 658}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchAlarmDay_action",
+              "frame" : "{{176, 371}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchAlarmDay5",
+              "uuid" : "95044410-3F85-4634-9FAB-85A87875E56B"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{344, 697}, {51, 31}}",
+            "class" : "Switch",
+            "attributes" : {
+              "action" : "switchAlarmDay_action",
+              "frame" : "{{176, 371}, {51, 31}}",
+              "value" : true,
+              "class" : "Switch",
+              "name" : "switchAlarmDay6",
+              "uuid" : "2AD1FD5B-9262-4421-B15A-B9EBE0330BE4"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{109, 6}, {190, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelInfo",
+              "frame" : "{{127, 370}, {150, 32}}",
+              "uuid" : "A3109AA7-FB0A-488A-908D-FC1E883233F9",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "信息",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 442}, {150, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelPlyVol",
+              "frame" : "{{128, 389}, {150, 32}}",
+              "uuid" : "FCA2212A-4C45-4C80-93E4-0C2A5251BE0E",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "喇叭音量",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{173, 440}, {232, 34}}",
+            "class" : "Slider",
+            "attributes" : {
+              "flex" : "W",
+              "continuous" : false,
+              "action" : "sliderPlyVol_action",
+              "frame" : "{{103, 388}, {200, 34}}",
+              "uuid" : "208432D5-FCFB-4029-A38C-795BB39B568E",
+              "class" : "Slider",
+              "value" : 0.5,
+              "name" : "sliderPlyVol"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{174, 320}, {231, 45}}",
+            "class" : "DatePicker",
+            "attributes" : {
+              "name" : "datepickerBSFrom",
+              "frame" : "{{45, 297}, {320, 216}}",
+              "action" : "datepickerBSFrom_action",
+              "class" : "DatePicker",
+              "mode" : 0,
+              "uuid" : "3F8D34EA-A42B-44BD-9CC7-4F967841FE1C"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{174, 362}, {230, 39}}",
+            "class" : "DatePicker",
+            "attributes" : {
+              "name" : "datepickerBSTo",
+              "frame" : "{{45, 297}, {320, 216}}",
+              "action" : "datepickerBSTo_action",
+              "class" : "DatePicker",
+              "mode" : 0,
+              "uuid" : "EF170E00-8966-4549-A22B-86CD2806A7D9"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{173, 522}, {231, 44}}",
+            "class" : "DatePicker",
+            "attributes" : {
+              "name" : "datepickerAlarmTime",
+              "frame" : "{{45, 297}, {320, 216}}",
+              "action" : "datepickerAlarmTime_action",
+              "class" : "DatePicker",
+              "mode" : 0,
+              "uuid" : "9EE87781-7033-469F-BF2D-E166B5B11037"
+            },
+            "selected" : false
+          }
+        ],
+        "frame" : "{{0, 0}, {410, 800}}",
+        "class" : "ScrollView",
+        "attributes" : {
+          "enabled" : true,
+          "frame" : "{{40, 240}, {320, 320}}",
+          "uuid" : "25BE4B87-6AE6-4FFB-9BA0-72467E5BD3A1",
+          "content_height" : 810,
+          "class" : "ScrollView",
+          "content_width" : 410,
+          "name" : "scrollview1"
+        },
+        "selected" : true
+      }
+    ],
+    "frame" : "{{0, 0}, {410, 800}}",
+    "class" : "View",
+    "attributes" : {
+      "name" : "IVClock",
+      "enabled" : true,
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+      "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+      "flex" : ""
+    },
+    "selected" : false
+  }
+]
