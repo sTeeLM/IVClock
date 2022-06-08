@@ -93,6 +93,7 @@ void CPageInfo::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_TEMP_FAH, m_strTempFah);
 	DDX_Text(pDX, IDC_EDIT_BAT_VOTAGE, m_strTempBatVoltage);
 	DDX_Text(pDX, IDC_EDIT_FIRM_VERSION, m_strFirmwareVersion);
+	DDX_Text(pDX, IDC_EDIT_FIRM_BUILD_ID, m_strFirmwareBuildID);
 	DDX_Control(pDX, IDC_PROGRESS_BAT_QUANTITY, m_ctlTempBatQuantity);
 }
 

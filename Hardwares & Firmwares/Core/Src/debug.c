@@ -14,8 +14,10 @@ void debug_printf(uint8_t raw, ivlog_type_t level, const char * fmt, ...)
 {
   va_list arg_ptr;
   uint32_t len = 0;
+  uint64_t now = ticks_get_now_ms();
   if(!raw) {
-    len = snprintf(buffer, sizeof(buffer) - 1, "%s ",
+    len = snprintf(buffer, sizeof(buffer) - 1, "[%lld]%s ",
+      now,
       level == IVLOG_ERROR ? "[ERR ]" : 
       (level == IVLOG_INFO? "[INFO]" : "[DBG ]"));
   }
