@@ -57,9 +57,9 @@ BSP_Error_Type BSP_ROM_Read(uint32_t Addr, uint8_t * pData, uint32_t Size)
   ret = BSP_I2C_Read(ROM_ADDR, Addr, ROM_MEM_ADDRSIZE, (uint8_t*)pData, Size);
   
   if(ret != BSP_ERROR_NONE) {
-    IVERR("BSP_ROM_Read[%04x] pDate = %04x Size = %04x ret = %d", Addr, pData, Size, ret);
+    IVERR("BSP_ROM_Read[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size, ret);
   } else {
-    IVDBG("BSP_ROM_Read[%04x] pDate = %04x Size = %04x ret = %d", Addr, pData, Size, ret);
+    IVDBG("BSP_ROM_Read[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size, ret);
   }
   
   return ret;
@@ -114,9 +114,9 @@ BSP_Error_Type BSP_ROM_Write(uint32_t Addr, uint8_t * pData, uint32_t Size)
 out:
   
   if(ret != BSP_ERROR_NONE) {
-    IVERR("BSP_ROM_Write[%04x] pDate = %04x Size = %04x ret = %d", Addr, pData, Size);
+    IVERR("BSP_ROM_Write[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size);
   } else {
-    IVDBG("BSP_ROM_Write[%04x] pDate = %04x Size = %04x ret = %d", Addr, pData, Size);
+    IVDBG("BSP_ROM_Write[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size);
   }
   return ret;
 }

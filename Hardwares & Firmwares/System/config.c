@@ -141,7 +141,7 @@ static void config_dump(void)
       for(j = 0 ; j < val.valblob.len / 8 ; j ++) {
         BSP_ROM_Read(offset, buffer, sizeof(buffer));
         offset += 8;
-        IVINFO(" %02x %02x %02x %02x %02x %02x %02x %02x",
+        IVINFO("%02x %02x %02x %02x %02x %02x %02x %02x",
           buffer[0],buffer[1],buffer[2],buffer[3],
           buffer[4],buffer[5],buffer[6],buffer[7]
         );
@@ -150,7 +150,7 @@ static void config_dump(void)
       offset += val.valblob.len % 8;
       IVINFO_RH;
       for(j = 0 ; j < val.valblob.len % 8 ; j ++) {
-        IVINFO_R(" %02x", buffer[j]);
+        IVINFO_R("%02x", buffer[j]);
       }
       IVINFO_RT;
     }

@@ -103,6 +103,8 @@ void PrintBuildID(void)
 {
   uint8_t i;
   
+  IVINFO("Build-ID:");
+  
   IVINFO_RH;
   
   for(i = 0 ; i < sizeof(build_id); i ++) {
