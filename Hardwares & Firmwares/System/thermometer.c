@@ -38,25 +38,25 @@ bool thermometer_read_cen(uint16_t * integer, uint16_t * flt)
   return sign;
 }
 
-double thermometer_read_cen_double(void)
+float thermometer_read_cen_float(void)
 {
   uint16_t _integer, _flt;
   bool sign;
-  double ret;
+  float ret;
   sign = thermometer_read_cen (&_integer, &_flt);
-  ret = _integer + (double)_flt / 100.0;
+  ret = _integer + (float)_flt / 100.0;
   if(sign)
     ret = 0 - ret;
   return ret;
 }
 
-double thermometer_read_fah_double(void)
+float thermometer_read_fah_float(void)
 {
   uint16_t _integer, _flt;
   bool sign;
-  double ret;
+  float ret;
   sign = thermometer_read_fah (&_integer, &_flt);
-  ret = _integer + (double)_flt / 100.0;
+  ret = _integer + (float)_flt / 100.0;
   if(sign)
     ret = 0 - ret;
   return ret; 

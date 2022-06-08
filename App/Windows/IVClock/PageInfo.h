@@ -30,5 +30,6 @@ protected:
 	CString m_strTempFah;
 	CString m_strTempBatVoltage;
 	CString m_strFirmwareVersion;
+	CString m_strFirmwareBuildID;
 	CProgressCtrl m_ctlTempBatQuantity;
 };

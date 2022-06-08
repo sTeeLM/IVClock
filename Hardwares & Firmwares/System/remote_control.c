@@ -14,6 +14,7 @@
 #include "player.h"
 #include "thermometer.h"
 #include "version.h"
+#include "build_id.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -377,10 +378,11 @@ static void do_get_info(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   res->body.info.bat_voltage = power_get_bat_voltage();
   res->body.info.bat_quantity = power_get_bat_quantity();  
-  res->body.info.temp_cen = thermometer_read_cen_double();
-  res->body.info.temp_fah = thermometer_read_fah_double();  
+  res->body.info.temp_cen = thermometer_read_cen_float();
+  res->body.info.temp_fah = thermometer_read_fah_float();  
   res->body.info.firmware_version_major = IVCLOCK_VERSION_MAJOR;
-  res->body.info.firmware_version_minor = IVCLOCK_VERSION_MINOR;  
+  res->body.info.firmware_version_minor = IVCLOCK_VERSION_MINOR; 
+  memcpy(res->body.info.build_id, build_id, sizeof(build_id));  
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
   res->header.length = sizeof(res->body.info);

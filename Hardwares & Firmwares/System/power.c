@@ -97,10 +97,10 @@ bool power_player_enabled(void)
   return power_50_enabled();
 }
 
-double power_get_bat_voltage(void)
+float power_get_bat_voltage(void)
 {
   uint16_t val, cal65, cal90;
-  double voltage, k, b;
+  float voltage, k, b;
   cal65 = config_read_int("bat_65");
   cal90 = config_read_int("bat_90");  
   val = BSP_ADC1_Get_Value();
@@ -114,7 +114,7 @@ double power_get_bat_voltage(void)
 
 uint8_t power_get_bat_quantity(void)
 {
-  double vol = power_get_bat_voltage();
+  float vol = power_get_bat_voltage();
   uint8_t i;
   for(i = 0 ; i < sizeof(ocv_table)/sizeof(ocv_t) ; i++) {
     if(vol < ocv_table[i].voltage * 2)

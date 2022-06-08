@@ -18,6 +18,7 @@ CPageInfo::CPageInfo(CWnd* pParent /*=nullptr*/)
 	, m_strTempFah(_T(""))
 	, m_strTempBatVoltage(_T(""))
 	, m_strFirmwareVersion(_T(""))
+	, m_strFirmwareBuildID(_T(""))
 {
 
 }
@@ -40,6 +41,13 @@ BOOL CPageInfo::LoadRemoteConfig(CIVError& Error)
 	m_strTempFah.Format(_T("%0.2f ℉"), info.temp_fah);
 	m_strTempBatVoltage.Format(_T("%0.2f V"), info.bat_voltage);
 	m_strFirmwareVersion.Format(_T("%02d.%02d"), info.firmware_version_major, info.firmware_version_minor);
+
+	CString strTemp;
+	m_strFirmwareBuildID.Empty();
+	for (INT i = 0; i < sizeof(info.build_id); i++) {
+		strTemp.Format(_T("%02x"), info.build_id[i]);
+		m_strFirmwareBuildID += strTemp;
+	}
 
 	if(m_ctlTempBatQuantity.GetSafeHwnd())
 		m_ctlTempBatQuantity.SetPos(info.bat_quantity);

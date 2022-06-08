@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
-extern const uint8_t build_id[16];
+#define BUILD_ID_SIZE (16)
+
+extern const uint8_t build_id[BUILD_ID_SIZE];
 
 #endif

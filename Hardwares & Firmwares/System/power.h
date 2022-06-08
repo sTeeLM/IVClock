@@ -22,7 +22,7 @@ bool power_iv18_enabled(void);
 void power_mon_start(void);
 void power_mon_stop(void);
 void power_wdg_set(uint16_t low, uint16_t hi);
-double power_get_bat_voltage(void);
+float power_get_bat_voltage(void);
 uint8_t power_get_bat_quantity(void);
 void power_cal_65(void);
 void power_cal_90(void);

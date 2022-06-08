@@ -114,12 +114,13 @@ typedef struct remote_control_body_param
 #pragma pack(push,1)
 typedef struct remote_control_body_info
 {
-  double  bat_voltage;
+  float  bat_voltage;
   uint8_t bat_quantity;  
-  double temp_cen;
-  double temp_fah;
+  float temp_cen;
+  float temp_fah;
   uint8_t firmware_version_major;
-  uint8_t firmware_version_minor;  
+  uint8_t firmware_version_minor; 
+  uint8_t build_id[16];
 }remote_control_body_info_t;
 #pragma pack(pop)
 // msg

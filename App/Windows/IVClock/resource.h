@@ -91,6 +91,8 @@
 #define IDC_BTN_BATTEMP_REFRESH         1055
 #define IDC_PROGRESS_BAT_QUANTITY       1056
 #define IDC_PROGRESS1                   1057
+#define IDC_EDIT_FIRM_VERSION2          1057
+#define IDC_EDIT_FIRM_BUILD_ID          1057
 #define IDC_MFCLINK1                    1058
 #define IDC_MFCLINK_EMAIL               1058
 #define ID_EXIT                         32773
