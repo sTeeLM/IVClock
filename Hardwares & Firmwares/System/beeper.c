@@ -11,6 +11,16 @@ void beeper_init(void)
   beeper_enabled = config_read_int("bp_en");
 }
 
+void beeper_enter_powersave(void)
+{
+  
+}
+
+void beeper_leave_powersave(void)
+{
+  BSP_TIM1_Stop_PMW(TIM_CHANNEL_2);
+}
+
 void beeper_beep(void)
 {
   if(beeper_enabled) {

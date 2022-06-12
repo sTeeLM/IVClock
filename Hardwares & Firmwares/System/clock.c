@@ -9,6 +9,7 @@
 #include "display.h"
 #include "button.h"
 #include "key.h"
+#include "tim.h"
 
 
 #define CLOCK_FACTORY_RESET_HOUR 12
@@ -387,6 +388,7 @@ void clock_init(void)
 //    BSP_RTC_Write_Data(RTC_TYPE_DATE);  
   }
   
+  BSP_TIM2_Start();
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
   refresh_display = FALSE;
@@ -399,14 +401,17 @@ void clock_enter_powersave(void)
 {
   IVDBG(("clock_enter_powersave"));
   clock_enable_interrupt(FALSE);
+  BSP_TIM2_Stop();
 }
 
 void clock_leave_powersave(void)
 {
   IVDBG(("clock_leave_powersave"));
+  BSP_TIM2_Start();
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE);
   clock_enable_interrupt(TRUE);
+  
 }
 
 void clock_enter_console(void)

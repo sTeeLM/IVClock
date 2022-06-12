@@ -4,8 +4,8 @@
 #include "delay.h"
 #include "power.h"
 
-static ADC_HandleTypeDef hadc1;
-static ADC_HandleTypeDef hadc2;
+static ADC_HandleTypeDef hadc1; // bat
+static ADC_HandleTypeDef hadc2; // light
 
 /**
   * @brief ADC1 Initialization Function
@@ -144,6 +144,16 @@ BSP_Error_Type BSP_ADC2_Init(void)
     return BSP_ERROR_INTERNAL;
   }
   
+
+  
+  /* USER CODE BEGIN ADC2_Init 2 */
+  return BSP_ERROR_NONE;
+  /* USER CODE END ADC2_Init 2 */
+  
+}
+
+BSP_Error_Type BSP_ADC2_Start(void)
+{
   if (ADC_Enable(&hadc2) != HAL_OK)
   {
     return BSP_ERROR_INTERNAL;
@@ -154,10 +164,12 @@ BSP_Error_Type BSP_ADC2_Init(void)
     return BSP_ERROR_INTERNAL;
   }
   
-  /* USER CODE BEGIN ADC2_Init 2 */
   return BSP_ERROR_NONE;
-  /* USER CODE END ADC2_Init 2 */
-  
+}
+
+BSP_Error_Type BSP_ADC2_Stop(void)
+{
+  return ADC_ConversionStop_Disable(&hadc2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 uint16_t BSP_ADC2_Get_Value(void)

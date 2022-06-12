@@ -31,4 +31,6 @@ void BSP_IV18_Clr_DP(uint8_t index);
 void BSP_IV18_Set_Blink(uint8_t index);
 void BSP_IV18_Clr_Blink(uint8_t index);
 void BSP_IV18_Scan(void);
+void BSP_IV18_Enter_High_Impedance(void);
+void BSP_IV18_Leave_High_Impedance(void);
 #endif

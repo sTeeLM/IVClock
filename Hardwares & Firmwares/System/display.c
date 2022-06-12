@@ -485,6 +485,7 @@ bool display_is_on(void)
 
 void display_on(void)
 {
+  BSP_IV18_Leave_High_Impedance();
   power_iv18_enable(TRUE);
   power_490_enable(TRUE);
   BSP_TIM4_Start();
@@ -493,6 +494,7 @@ void display_on(void)
   _g_lt_0 = config_read_int("lt_0");
   _g_lt_100 = config_read_int("lt_100");  
   if(_display_mon_light) {
+    BSP_ADC2_Start();
     BSP_TIM1_Start_PMW(TIM_CHANNEL_1); // light control
   }
 }
@@ -503,8 +505,10 @@ void display_off(void)
   power_490_enable(FALSE);
   if(_display_mon_light) {
     BSP_TIM1_Stop_PMW(TIM_CHANNEL_1); 
+    BSP_ADC2_Stop();
   }
   BSP_TIM4_Stop();
+  BSP_IV18_Enter_High_Impedance();
 }
 
 void display_show_string(uint8_t index, const char * str)

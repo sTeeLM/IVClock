@@ -7,6 +7,7 @@
 #include "thermometer.h"
 #include "console.h"
 #include "power.h"
+#include "usart.h"
 #include <string.h>
 
 #define PLAYER_DIR_MISC     1

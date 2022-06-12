@@ -17,6 +17,7 @@ BSP_Error_Type BSP_USART2_Transmit(uint8_t *pData, uint16_t Size);
 BSP_Error_Type BSP_USART2_Receive(uint8_t *pData, uint16_t Size);
 BSP_Error_Type BSP_USART2_Transmit_IT(uint8_t *pData, uint16_t Size);
 BSP_Error_Type BSP_USART2_Receive_IT(uint8_t *pData, uint16_t Size);
+void BSP_UART2_Enter_High_Impedance(void);
 
 BSP_Error_Type BSP_USART3_Receive(uint8_t *pData, uint16_t Size);
 BSP_Error_Type BSP_USART3_Transmit(uint8_t *pData, uint16_t Size);

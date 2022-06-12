@@ -128,6 +128,8 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+  
+  
 
   /* USER CODE BEGIN Init */
 
@@ -141,7 +143,8 @@ int main(void)
   ticks_init();
 
   /* Hardware initialize */
-  BSP_GPIO_Init();  
+  BSP_GPIO_Init(); 
+
   PrintBsp("USART1", BSP_USART1_UART_Init());
   PrintBsp("USART2", BSP_USART2_UART_Init());
   PrintBsp("USART3", BSP_USART3_UART_Init());

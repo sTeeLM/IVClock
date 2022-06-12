@@ -45,5 +45,7 @@ void rtc_set_date(uint8_t year, uint8_t mon, uint8_t date, uint8_t day)
 
 void rtc_enable_32768HZ(bool enable)
 {
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
   BSP_DS3231_Set_En32khz(enable);
+  BSP_DS3231_Write_Data(BSP_DS3231_TYPE_CTL); 
 }

@@ -13,5 +13,6 @@ uint16_t BSP_ADC1_Get_Value(void);
 
 BSP_Error_Type BSP_ADC2_Init(void);
 uint16_t BSP_ADC2_Get_Value(void);
-
+BSP_Error_Type BSP_ADC2_Start(void);
+BSP_Error_Type BSP_ADC2_Stop(void);
 #endif

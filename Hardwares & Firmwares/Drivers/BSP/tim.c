@@ -125,6 +125,7 @@ BSP_Error_Type BSP_TIM1_Stop(void)
 {
   if(HAL_TIMEx_PWMN_Stop_IT(&htim1, TIM_CHANNEL_1) != HAL_OK ||
     HAL_TIMEx_PWMN_Stop_IT(&htim1, TIM_CHANNEL_2) != HAL_OK ) {
+      IVERR("BSP_TIM1_Stop");
       return BSP_ERROR_INTERNAL;
     }
   return BSP_ERROR_NONE;
@@ -211,13 +212,25 @@ BSP_Error_Type BSP_TIM2_Init(void)
     return BSP_ERROR_INTERNAL;
   }
   
-  if(HAL_TIM_Base_Start_IT(&htim2) != HAL_OK) {
-    return BSP_ERROR_INTERNAL;
-  }
-  
   /* USER CODE BEGIN TIM2_Init 2 */
   return BSP_ERROR_NONE;
   /* USER CODE END TIM2_Init 2 */
+}
+
+BSP_Error_Type BSP_TIM2_Start(void)
+{
+  if(HAL_TIM_Base_Start_IT(&htim2) != HAL_OK) {
+    return BSP_ERROR_INTERNAL;
+  }
+  return BSP_ERROR_NONE;
+}
+
+BSP_Error_Type BSP_TIM2_Stop(void)
+{
+  if(HAL_TIM_Base_Stop_IT(&htim2) != HAL_OK) {
+    return BSP_ERROR_INTERNAL;
+  }
+  return BSP_ERROR_NONE;
 }
 
 

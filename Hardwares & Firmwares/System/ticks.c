@@ -1,16 +1,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "ticks.h"
+#include "bsp.h"
 #include "task.h"
 
 
 static uint64_t _ticks;
-static uint8_t in_console;
 
 void ticks_init(void)
 {
   _ticks = rand();
-  in_console = 0;
 }
 
 uint64_t ticks_get_now_ms(void)
@@ -25,9 +24,6 @@ uint64_t ticks_diff_now_ms(uint64_t ms)
 
 void ticks_inc_1ms(void)
 {
-  if(in_console)
-    return;
-  
   _ticks ++;
   
   if((_ticks % 23) == 0)
@@ -42,10 +38,19 @@ void ticks_inc_1ms(void)
 
 void ticks_enter_console(void)
 {
-  in_console = 1;
+  ticks_suspend();
 }
 
 void ticks_leave_console(void)
 {
-  in_console = 0;
+  ticks_resume();
+}
+
+void ticks_suspend(void)
+{
+  HAL_SuspendTick();
+}
+void ticks_resume(void)
+{
+  HAL_ResumeTick();
 }

@@ -11,6 +11,7 @@
 #include "player.h"
 #include "ocv.h"
 #include "display.h"
+#include "beeper.h"
 
 static bool power_is_in_powersave;
 static uint8_t curr_power_save_dur;
@@ -152,20 +153,28 @@ void power_enter_powersave(void)
 {
   IVDBG("power_enter_powersave");
   
+  power_mon_stop();  
   clock_enter_powersave();
   display_enter_powersave();
   player_enter_powersave();
+  beeper_enter_powersave();
+  BSP_TIM1_Stop();
+  ticks_suspend();
   
   power_is_in_powersave = TRUE;
-  
+ 
   while(power_is_in_powersave) {
     BSP_PWR_Sleep();
+    IVDBG("wakeup!");
   }
- 
+  ticks_resume();
+  BSP_TIM1_Start();
+  beeper_leave_powersave();
   clock_leave_powersave();
   display_leave_powersave();
   player_leave_powersave();
   power_reset_timeo();  
+  power_mon_start();
 }
 
 void power_wakeup(void)

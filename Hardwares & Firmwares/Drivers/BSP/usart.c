@@ -105,7 +105,27 @@ BSP_Error_Type BSP_USART3_UART_Init(void)
   return BSP_ERROR_NONE;
 }
 
+void BSP_UART2_Enter_High_Impedance(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  
+  HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+  HAL_GPIO_DeInit(GPIOA, GPIO_PIN_3);
 
+  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  
+}
+
+void BSP_UART2_Leave_High_Impedance(void)
+{
+  
+}
 
 /**
 * @brief UART MSP Initialization

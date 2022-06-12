@@ -172,6 +172,58 @@ static void BSP_IV18_Dev_Init(void)
   BSP_IV18_Cur_Loop = 0;
 }
 
+void BSP_IV18_Leave_High_Impedance(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  
+  HAL_GPIO_DeInit(IV18_LOAD_GPIO_Port, IV18_LOAD_Pin);
+  HAL_GPIO_DeInit(IV18_CLK_GPIO_Port, IV18_CLK_Pin); 
+  HAL_GPIO_DeInit(IV18_DIN_GPIO_Port, IV18_DIN_Pin); 
+  
+  HAL_GPIO_WritePin(IV18_LOAD_GPIO_Port, IV18_LOAD_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IV18_CLK_GPIO_Port, IV18_CLK_Pin, GPIO_PIN_RESET);  
+  HAL_GPIO_WritePin(IV18_DIN_GPIO_Port, IV18_DIN_Pin, GPIO_PIN_RESET);
+  
+  GPIO_InitStruct.Pin = IV18_LOAD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(IV18_LOAD_GPIO_Port, &GPIO_InitStruct);
+  
+  GPIO_InitStruct.Pin = IV18_CLK_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(IV18_CLK_GPIO_Port, &GPIO_InitStruct);
+  
+  GPIO_InitStruct.Pin = IV18_DIN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(IV18_DIN_GPIO_Port, &GPIO_InitStruct);  
+}
+
+void BSP_IV18_Enter_High_Impedance(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  
+  HAL_GPIO_DeInit(IV18_LOAD_GPIO_Port, IV18_LOAD_Pin);
+  HAL_GPIO_DeInit(IV18_CLK_GPIO_Port, IV18_CLK_Pin); 
+  HAL_GPIO_DeInit(IV18_DIN_GPIO_Port, IV18_DIN_Pin);   
+  
+  GPIO_InitStruct.Pin = IV18_LOAD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(IV18_LOAD_GPIO_Port, &GPIO_InitStruct);
+  
+  GPIO_InitStruct.Pin = IV18_CLK_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(IV18_CLK_GPIO_Port, &GPIO_InitStruct);
+  
+  GPIO_InitStruct.Pin = IV18_DIN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(IV18_DIN_GPIO_Port, &GPIO_InitStruct);  
+}
+
 BSP_Error_Type BSP_IV18_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
