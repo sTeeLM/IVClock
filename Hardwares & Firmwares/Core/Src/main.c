@@ -153,7 +153,7 @@ int main(void)
   IVINFO("HCLKFreq: %d", HAL_RCC_GetHCLKFreq());
   IVINFO("TickFreq: %s", HAL_GetTickFreq() == HAL_TICK_FREQ_10HZ ? "10Hz" : 
     (HAL_GetTickFreq() == HAL_TICK_FREQ_100HZ ? "100Hz" : 
-    (HAL_GetTickFreq() == HAL_TICK_FREQ_1KHZ ? "1Hz" : "Unknown")));
+    (HAL_GetTickFreq() == HAL_TICK_FREQ_1KHZ ? "1KHz" : "Unknown")));
   
   IVINFO("Build-ID: %s", build_id_str);
   
