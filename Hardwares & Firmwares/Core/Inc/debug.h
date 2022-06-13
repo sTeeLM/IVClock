@@ -16,7 +16,9 @@ typedef enum {
 int8_t debug_init(void);
 void debug_printf(uint8_t newline, ivlog_type_t level, const char * fmt, ...);
 
-#define IV_DEBUG_LEVEL 4
+#ifndef IV_DEBUG_LEVEL
+  #define IV_DEBUG_LEVEL 4
+#endif
 
 #if (IV_DEBUG_LEVEL >= 1)
 #define IVERR(...)     debug_printf(0, IVLOG_ERROR, __VA_ARGS__)

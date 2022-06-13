@@ -5,11 +5,6 @@
 
 #include "stm32f1xx_hal.h"
 
-
-#define tick_save_now HAL_GetTick
-#define tick_diff_now(to) \
-  (uint32_t)(HAL_GetTick() - (uint32_t)to)
-
 uint8_t delay_init(void);
 
 /**

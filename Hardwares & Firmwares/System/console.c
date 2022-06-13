@@ -173,11 +173,7 @@ void console_run(void)
   console_printf("+             tini CONSOLE %02d.%02d       +\n", IVCLOCK_VERSION_MAJOR, IVCLOCK_VERSION_MINOR);
   console_printf("++++++++++++++++++++++++++++++++++++++++\n");
   
-  console_printf("Build-id:\n");
-  for(c = 0 ; c < sizeof(build_id); c ++) {
-    console_printf("%02x", build_id[c]);
-  }  
-  console_printf("\n");
+  console_printf("Build-ID: %s\n", build_id_str);
   
   // stop the clock
   clock_enter_console();

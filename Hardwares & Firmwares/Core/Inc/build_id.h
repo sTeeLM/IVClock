@@ -6,5 +6,6 @@
 #define BUILD_ID_SIZE (16)
 
 extern const uint8_t build_id[BUILD_ID_SIZE];
+extern const char * build_id_str;
 
 #endif

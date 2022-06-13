@@ -24,6 +24,10 @@ output += 'const uint8_t build_id[BUILD_ID_SIZE] = {'
 for i in md5.digest(): output += "0x%02x,"%(i)
 output += '};\n'
 
+output += 'const char * build_id_str = "'
+output += md5.hexdigest();
+output += '";\n'
+
 with open(sys.argv[2], 'w') as f:
     f.write(output);
 

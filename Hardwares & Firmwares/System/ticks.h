@@ -12,4 +12,5 @@ void ticks_enter_console(void);
 void ticks_leave_console(void);
 void ticks_suspend(void);
 void ticks_resume(void);
+
 #endif
