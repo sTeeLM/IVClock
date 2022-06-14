@@ -84,9 +84,9 @@ struct console_cmds cmds[] =
                         "ply: show status\r\n"
                         "ply on: player on\r\n"
                         "ply off: player off\n" 
-                        "ply clk: report clock\r\n"
-                        "ply tmp: report temperature\r\n"  
+                        "ply clk: report clock\r\n" 
                         "ply alm n: player alarm sound\r\n" 
+                        "ply eft n: player effect sound\r\n"     
                         "ply stp: stop play\r\n",   
                         con_player},   
   {"!", "quit the console", "!", con_quit},

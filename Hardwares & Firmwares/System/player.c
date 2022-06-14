@@ -131,7 +131,7 @@ dir 05（音效）：
 度                  1
 */
 
-#define PLAYER_MAX_SEQ_LEN 64
+#define PLAYER_MAX_SEQ_LEN 128
 
 static struct player_seq_node player_seq[PLAYER_MAX_SEQ_LEN + 1];  
 
@@ -359,9 +359,13 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
   return ret;
 }
 
-void player_report_clk(void)
+static uint8_t player_synthetise_temperature(uint8_t start, uint8_t len);
+
+void player_report_clk_and_temp(void)
 {
   uint8_t i, len = 0;
+  uint16_t integer, flt, ret = 0;
+  bool sign;
   
   memset(player_seq, 0 ,sizeof(player_seq));
   
@@ -375,38 +379,41 @@ void player_report_clk(void)
 
   /* XXXX 年 */
   len += player_synthetise_year(len, PLAYER_MAX_SEQ_LEN - len);
-  if(len > PLAYER_MAX_SEQ_LEN - 1) goto err;
+  if(len >= PLAYER_MAX_SEQ_LEN) goto err;
 //  player_seq[len].dir  = PLAYER_DIR_MISC;
 //  player_seq[len].file = PLAYER_FILE_PAUSE;  
 //  len ++;
   
   /* XXXX 月 */
   len += player_synthetise_mon(len, PLAYER_MAX_SEQ_LEN - len);
-  if(len > PLAYER_MAX_SEQ_LEN - 1) goto err;
+  if(len >= PLAYER_MAX_SEQ_LEN) goto err;
 //  player_seq[len].dir  = PLAYER_DIR_MISC;
 //  player_seq[len].file = PLAYER_FILE_PAUSE;  
 //  len ++;  
 
   /* XXXX 日 */
   len += player_synthetise_date(len, PLAYER_MAX_SEQ_LEN - len);
-  if(len > PLAYER_MAX_SEQ_LEN - 1) goto err;
+  if(len >= PLAYER_MAX_SEQ_LEN) goto err;
   player_seq[len].dir  = PLAYER_DIR_MISC;
   player_seq[len].file = PLAYER_FILE_PAUSE;  
   len ++;  
   
   /* XXXX 星期 */
   len += player_synthetise_day(len, PLAYER_MAX_SEQ_LEN - len);
-  if(len > PLAYER_MAX_SEQ_LEN - 1) goto err;
+  if(len >= PLAYER_MAX_SEQ_LEN) goto err;
   player_seq[len].dir  = PLAYER_DIR_MISC;
   player_seq[len].file = PLAYER_FILE_PAUSE;  
   len ++;   
   
   /* XXXX 时|xxx分|整 */
   len += player_synthetise_time(len, PLAYER_MAX_SEQ_LEN - len);
-  if(len > PLAYER_MAX_SEQ_LEN - 1) goto err;
+  if(len >= PLAYER_MAX_SEQ_LEN) goto err;
   player_seq[len].dir  = PLAYER_DIR_MISC;
   player_seq[len].file = PLAYER_FILE_PAUSE;  
   len ++;
+  
+  len += player_synthetise_temperature(len, PLAYER_MAX_SEQ_LEN - len);
+  if(len >= PLAYER_MAX_SEQ_LEN) goto err;
   
   player_seq[len].dir = 0;
   player_seq[len].file = 0;
@@ -416,15 +423,14 @@ void player_report_clk(void)
   return;
 
 err:
+  IVERR("player_report_clk_temp error! len = %d", len);
   player_seq[0].dir = 0;
   player_seq[0].file = 0;  
 }
 
-void player_report_temperature(void)
+static uint8_t player_synthetise_temperature(uint8_t start, uint8_t len)
 {
   uint16_t integer, flt, ret = 0;
-  uint8_t start = 0;
-  uint8_t len = PLAYER_MAX_SEQ_LEN;
   bool sign;
   
   memset(player_seq, 0 ,sizeof(player_seq));
@@ -469,12 +475,8 @@ void player_report_temperature(void)
   player_seq[ret].dir  = PLAYER_DIR_MISC;
   player_seq[ret].file = PLAYER_FILE_DU;
   ret ++;
-
-  player_seq[ret].dir = 0;  
-  player_seq[ret].file = 0;
   
-  player_dump_seq();
-  player_play_sequence_start();
+  return ret;
 }
 
 static uint8_t player_play_snd_index_to_file(enum player_snd_dir dir, uint8_t index)

@@ -425,5 +425,5 @@ void alarm1_stop_snd(void)
 
 void alarm1_play_snd(void)
 {
-  player_report_clk();
+  player_report_clk_and_temp();
 }
