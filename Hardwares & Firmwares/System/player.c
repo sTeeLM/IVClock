@@ -433,47 +433,45 @@ static uint8_t player_synthetise_temperature(uint8_t start, uint8_t len)
   uint16_t integer, flt, ret = 0;
   bool sign;
   
-  memset(player_seq, 0 ,sizeof(player_seq));
-  
   if(config_read_int("temp_cen")) {
     sign = thermometer_read_cen(&integer, &flt);
   } else {
     sign = thermometer_read_fah(&integer, &flt);
   }
   
-  player_seq[ret].dir  = PLAYER_DIR_MISC;
-  player_seq[ret].file = PLAYER_FILE_WENDU;
+  player_seq[start + ret].dir  = PLAYER_DIR_MISC;
+  player_seq[start + ret].file = PLAYER_FILE_WENDU;
   ret ++;
   
-  player_seq[ret].dir  = PLAYER_DIR_MISC;
-  player_seq[ret].file = config_read_int("temp_cen") ? 
+  player_seq[start + ret].dir  = PLAYER_DIR_MISC;
+  player_seq[start + ret].file = config_read_int("temp_cen") ? 
     PLAYER_FILE_SHESHI : PLAYER_FILE_HUASHI;
   ret ++;  
   
   if(sign) {
-    player_seq[ret].dir  = PLAYER_DIR_MISC;
-    player_seq[ret].file = PLAYER_FILE_FU;
+    player_seq[start + ret].dir  = PLAYER_DIR_MISC;
+    player_seq[start + ret].file = PLAYER_FILE_FU;
     ret ++;
   }
 
   ret += player_synthetise_number(integer, start + ret, len - ret);
     
   if(flt != 0) {    
-    player_seq[ret].dir  = PLAYER_DIR_MISC;
-    player_seq[ret].file = PLAYER_FILE_DIAN;
+    player_seq[start + ret].dir  = PLAYER_DIR_MISC;
+    player_seq[start + ret].file = PLAYER_FILE_DIAN;
     ret ++;
     
-    player_seq[ret].dir  = PLAYER_DIR_NUM2;
-    player_seq[ret].file = player_number_to_tune(flt / 10);
+    player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+    player_seq[start + ret].file = player_number_to_tune(flt / 10);
     ret ++; 
 
-    player_seq[ret].dir  = PLAYER_DIR_NUM2;
-    player_seq[ret].file = player_number_to_tune(flt % 10);
+    player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+    player_seq[start + ret].file = player_number_to_tune(flt % 10);
     ret ++;     
   }
   
-  player_seq[ret].dir  = PLAYER_DIR_MISC;
-  player_seq[ret].file = PLAYER_FILE_DU;
+  player_seq[start + ret].dir  = PLAYER_DIR_MISC;
+  player_seq[start + ret].file = PLAYER_FILE_DU;
   ret ++;
   
   return ret;
