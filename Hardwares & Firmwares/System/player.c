@@ -96,7 +96,7 @@ dir 04（闹钟）：
 
 #define PLAYER_DIR_EFECTS 5
 /*
-dir 04（音效）：
+dir 05（音效）：
 001 ~ 010：音效声音
 */
 #define PLAYER_FILE_EFECTS1  1
