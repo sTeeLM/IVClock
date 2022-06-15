@@ -23,7 +23,6 @@ static const char * sm_functions_names[] = {
   "SM_SET_PARAM",        // 参数设置
   "SM_TIMER",            // 计时器功能
   "SM_STOP_WATCH",       // 马表功能
-  "SM_ALARM",
 };
 
 static const char ** sm_states_names[] = {

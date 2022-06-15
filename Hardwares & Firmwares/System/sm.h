@@ -14,7 +14,6 @@ enum sm_functions
   SM_SET_PARAM,
   SM_TIMER,
   SM_STOP_WATCH,            // 马表功能
-  SM_ALARM,
   SM_FUNCTION_CNT
 };
 
