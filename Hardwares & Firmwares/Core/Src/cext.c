@@ -7,12 +7,12 @@
 // mon 0-11
 // date 0-30
 // return 0-6, 0 is monday, 6 is sunday
-unsigned char cext_yymmdd_to_day(unsigned char year, unsigned char mon, unsigned char date)
+uint8_t cext_yymmdd_to_day(uint16_t year, uint8_t mon, uint8_t date)
 {
   unsigned int d,m,y,c;
   d = date + 1;
   m = mon + 1;
-  y = CEXT_YEAR_BASE + year;
+  y = year;
   
   if(m < 3){
     y -= 1;
@@ -31,16 +31,6 @@ unsigned char cext_yymmdd_to_day(unsigned char year, unsigned char mon, unsigned
   
   return c - 1;
 }
-
-// year is 0-99 (2000 - 2099)
-char cext_is_leap_year(unsigned char year)
-{
-  unsigned int y;
-  if(year >= 100) year = 99;
-  y = year + CEXT_YEAR_BASE;
-  return is_leap_year(y);
-}
-
 //
 // 24 小时的小时到12小时的小时
 bool cext_cal_hour12(uint8_t hour, uint8_t * hour12)

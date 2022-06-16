@@ -60,7 +60,7 @@ typedef struct remote_control_msg_header
 #pragma pack(push,1)
 typedef struct remote_control_body_time
 {
-  uint8_t year;   // 0 - 99 (2000 ~ 2099)
+  uint16_t year;   // 1901 - 2099
   uint8_t mon;    // 1 - 12
   uint8_t date;   // 1 - 31(30/29/28)
   uint8_t hour;   // 0 - 23

@@ -65,6 +65,8 @@ uint8_t BSP_DS3231_Time_Get_Sec(void);
 void BSP_DS3231_Time_Set_Sec(uint8_t sec);
 
 // 在BSP_DS3231_Read_Data(BSP_DS3231_TYPE_DATE)之后调用
+bool BSP_DS3231_Date_Get_Centry(void);
+void BSP_DS3231_Date_Set_Centry(bool set);
 uint8_t BSP_DS3231_Date_Get_Year(void);
 void BSP_DS3231_Date_Set_Year(uint8_t year);
 uint8_t BSP_DS3231_Date_Get_Month(void);

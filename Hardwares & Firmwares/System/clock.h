@@ -20,7 +20,7 @@ enum clock_sync_type
 
 struct clock_struct 
 {
-  uint8_t year;   // 0 - 99 (2000 ~ 2099)
+  uint16_t year;  // 1901 ~ 2099
   uint8_t mon;    // 0 - 11
   uint8_t date;   // 0 - 30(29/28/27)
   uint8_t day;    // 0 - 6
@@ -51,8 +51,8 @@ uint8_t clock_get_day(void);
 uint8_t clock_get_month(void);
 void clock_set_month(uint8_t month);
 void clock_inc_month(void);
-uint8_t clock_get_year(void);
-void clock_set_year(uint8_t year);
+uint16_t clock_get_year(void);
+void clock_set_year(uint16_t year);
 void clock_inc_year(void);
 void clock_sync_from_rtc(enum clock_sync_type type);
 void clock_sync_to_rtc(enum clock_sync_type type);
@@ -62,8 +62,8 @@ void clock_inc_ms39(void);
 
 void clock_enable_interrupt(bool enable);
   
-bool clock_is_leap_year(uint8_t year); // year 0-99
-uint8_t clock_get_mon_date(uint8_t year, uint8_t mon); // mon 0-11
+bool clock_is_leap_year(uint16_t year); // year 1901~2099
+uint8_t clock_get_mon_date(uint16_t year, uint8_t mon); // mon 0-11
 
 
 void clock_refresh_display_enable(bool enable);

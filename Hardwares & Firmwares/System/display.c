@@ -66,6 +66,7 @@ void display_format_clock(struct clock_struct * clk)
 {
   bool ispm;
   uint8_t hour12;
+  uint16_t year;
   if(_display_mode == DISPLAY_MODE_CLOCK_HHMMSS) {
     ispm = cext_cal_hour12(clk->hour, &hour12);
     display_rotate_progress(clk->sec % BSP_IV18_PROGRESS_CNT);
@@ -88,12 +89,20 @@ void display_format_clock(struct clock_struct * clk)
     BSP_IV18_Set_Dig(6, (clk->sec / 10 + 0x30));
     BSP_IV18_Set_Dig(7, (clk->sec % 10 + 0x30));
   } else if(_display_mode == DISPLAY_MODE_CLOCK_YYMMDD) {
-    BSP_IV18_Set_Dig(1, (clk->year / 10 + 0x30));
-    BSP_IV18_Set_Dig(2, (clk->year % 10 + 0x30)); 
-    BSP_IV18_Set_Dig(3, '-');  
-    BSP_IV18_Set_Dig(4, ((clk->mon + 1) / 10 + 0x30));
-    BSP_IV18_Set_Dig(5, ((clk->mon + 1) % 10 + 0x30)); 
-    BSP_IV18_Set_Dig(6, '-');  
+    year = clk->year;
+    BSP_IV18_Set_Dig(1, (year / 1000 + 0x30));  
+    year %= 1000;
+    BSP_IV18_Set_Dig(2, (year / 100 + 0x30));     
+    year %= 100;
+
+    BSP_IV18_Set_Dig(3, (year / 10 + 0x30));
+    BSP_IV18_Set_Dig(4, (year % 10 + 0x30)); 
+    BSP_IV18_Set_DP(4);  
+    
+    BSP_IV18_Set_Dig(5, ((clk->mon + 1) / 10 + 0x30));
+    BSP_IV18_Set_Dig(6, ((clk->mon + 1) % 10 + 0x30)); 
+    BSP_IV18_Set_DP(6); 
+    
     BSP_IV18_Set_Dig(7, ((clk->date + 1) / 10 + 0x30));
     BSP_IV18_Set_Dig(8, ((clk->date + 1) % 10 + 0x30));     
   } else if(_display_mode == DISPLAY_MODE_CLOCK_WEEK) {
@@ -710,21 +719,25 @@ void display_set_blink_clock_year(bool enable)
 {
   if(enable) {
     display_set_blink(1);
-    display_set_blink(2);    
+    display_set_blink(2);
+    display_set_blink(3); 
+    display_set_blink(4);     
   } else {
     display_clr_blink(1);
     display_clr_blink(2); 
+    display_clr_blink(3);
+    display_clr_blink(4);     
   }
 }
 
 void display_set_blink_clock_mon(bool enable)
 {
   if(enable) {
-    display_set_blink(4);
-    display_set_blink(5);    
+    display_set_blink(5);
+    display_set_blink(6);    
   } else {
-    display_clr_blink(4);
-    display_clr_blink(5); 
+    display_clr_blink(5);
+    display_clr_blink(6); 
   }
 }
 

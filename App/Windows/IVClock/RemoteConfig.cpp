@@ -552,7 +552,7 @@ BOOL CRemoteConfig::SetDateTime(CIVError& Error, const remote_control_body_time_
 BOOL CRemoteConfig::SetDateTime(CIVError& Error, const COleDateTime& oleDateTime)
 {
 	remote_control_body_time_t datetime;
-	datetime.year = oleDateTime.GetYear() - 2000;
+	datetime.year = oleDateTime.GetYear();
 	datetime.mon = oleDateTime.GetMonth();
 	datetime.date = oleDateTime.GetDay();
 	datetime.hour = oleDateTime.GetHour();

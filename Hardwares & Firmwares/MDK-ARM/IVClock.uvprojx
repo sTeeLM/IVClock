@@ -549,11 +549,6 @@
               <FilePath>..\Drivers\BSP\key.c</FilePath>
             </File>
             <File>
-              <FileName>mp3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\mp3.c</FilePath>
-            </File>
-            <File>
               <FileName>tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\tim.c</FilePath>
@@ -572,6 +567,11 @@
               <FileName>blue_tooth.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\blue_tooth.c</FilePath>
+            </File>
+            <File>
+              <FileName>mp3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\mp3.c</FilePath>
             </File>
             <File>
               <FileName>rom.c</FileName>

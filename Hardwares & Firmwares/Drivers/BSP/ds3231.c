@@ -146,7 +146,8 @@ void BSP_DS3231_Dump(void)
 {
   IVDBG("BSP_DS3231_Dump:");
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_DATE);
-  IVDBG("date/day: %02u-%02u-%02u/%u",
+  IVDBG("date/day: (%02u)%02u-%02u-%02u/%u",
+    BSP_DS3231_Date_Get_Centry(),
     BSP_DS3231_Date_Get_Year(), BSP_DS3231_Date_Get_Month(), BSP_DS3231_Date_Get_Date(),
     BSP_DS3231_Date_Get_Day()
   );
@@ -363,6 +364,18 @@ uint8_t BSP_DS3231_Date_Get_Year()
   return (_ds3231_data[3] & 0x0F) + ((_ds3231_data[3] & 0xF0) >> 4) * 10;
 }
 
+bool BSP_DS3231_Date_Get_Centry()
+{
+  return ((_ds3231_data[2] & 0x80) != 0);
+}
+
+void BSP_DS3231_Date_Set_Centry(bool set)
+{
+  _ds3231_data[2] &= ~0x80;
+  if(set)
+    _ds3231_data[2] |= 0x80;
+}
+
 void BSP_DS3231_Date_Set_Year(uint8_t year)
 {
   _ds3231_data[3] &= 0xF0;
@@ -406,24 +419,25 @@ uint8_t BSP_DS3231_Date_Get_Date()
 bool BSP_DS3231_Date_Set_Date(uint8_t date)
 {
   uint8_t mon = BSP_DS3231_Date_Get_Month();
+  bool centry = BSP_DS3231_Date_Get_Centry();
   
   IVDBG("BSP_DS3231_Date_Set_Date, valid check...");
   if(mon == 1 || mon == 3 || mon == 5 || mon == 7 
     || mon == 8 || mon == 10 || mon == 12) {
-    if(date > 32) return 1;
+    if(date > 32) return FALSE;
   } else {
-    if(date > 31) return 1;
-    if(mon == 2 && cext_is_leap_year(BSP_DS3231_Date_Get_Year())) {
-      if(date > 30) return 1;
-    } else if(mon == 2 && !cext_is_leap_year(BSP_DS3231_Date_Get_Year())) {
-      if(date > 29) return 1;
+    if(date > 31) return FALSE;
+    if(mon == 2 && is_leap_year(BSP_DS3231_Date_Get_Year() + centry ? 2000 : 1900)) {
+      if(date > 30) return FALSE;
+    } else if(mon == 2 && !is_leap_year(BSP_DS3231_Date_Get_Year() + centry ? 2000 : 1900)) {
+      if(date > 29) return FALSE;
     }
   }
   
   IVDBG("BSP_DS3231_Date_Set_Date, valid check...OK");
   _ds3231_set_date(date, &_ds3231_data[1]);
 
-  return 0;  
+  return TRUE;  
 }
 
 uint8_t BSP_DS3231_Date_Get_Day()

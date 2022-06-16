@@ -160,7 +160,7 @@ BOOL CPageDateTime::OnInitDialog()
 	if (theApp.m_RemoteConfig.IsDateTimeValid()) {
 		if (theApp.m_RemoteConfig.GetDateTime(Error, datetime)) {
 			m_oleDate.SetDateTime(
-				datetime.year + 2000,
+				datetime.year,
 				datetime.mon,
 				datetime.date,
 				datetime.hour,
@@ -224,7 +224,7 @@ LRESULT CPageDateTime::cbGetTimeDate(WPARAM wParam, LPARAM lParam)
 	if (pTask->m_bRes) {
 		if (theApp.m_RemoteConfig.GetDateTime(Error, datetime)) {
 			m_oleDate.SetDateTime(
-				datetime.year + 2000,
+				datetime.year,
 				datetime.mon,
 				datetime.date,
 				datetime.hour,

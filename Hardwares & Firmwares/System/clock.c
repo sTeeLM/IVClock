@@ -10,11 +10,13 @@
 #include "button.h"
 #include "key.h"
 #include "tim.h"
+#include "alarm.h"
 
 
 #define CLOCK_FACTORY_RESET_HOUR 12
 #define CLOCK_FACTORY_RESET_MIN  11
 #define CLOCK_FACTORY_RESET_SEC  0
+#define CLOCK_FACTORY_RESET_CENTRY 1
 #define CLOCK_FACTORY_RESET_YEAR 14
 #define CLOCK_FACTORY_RESET_MON  8
 #define CLOCK_FACTORY_RESET_DATA 19
@@ -57,6 +59,18 @@ void clock_save_config(void)
     config_write("time_12", &val);
 }
 
+//
+// 在调整了year，mon，date之后都得调用
+//
+static void clock_recal_date_day(void)
+{
+  // 如果是2月并且不是闰年，需要保证不能出现2月29日
+  // 以及不能出现4月31日这样的情况
+  if(clk.date > clock_get_mon_date(clk.year, clk.mon) - 1)
+    clk.date = clock_get_mon_date(clk.year, clk.mon) - 1;
+  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
+}
+
 // 1 / 256 = 0.00390625
 void clock_inc_ms39(void)
 {
@@ -75,8 +89,7 @@ void clock_inc_ms39(void)
       if(clk.min == 0) {
         clk.hour = (++ clk.hour) % 24;
         if(clk.hour == 0) {
-          y = clk.year + CEXT_YEAR_BASE;
-          if(is_leap_year(y)) {
+          if(is_leap_year(clk.year)) {
             clk.date = (++ clk.date) % date_table[0][clk.mon];
           } else {
             clk.date = (++ clk.date) % date_table[1][clk.mon];
@@ -85,7 +98,13 @@ void clock_inc_ms39(void)
           if(clk.day == 0) {
             clk.mon = (++ clk.mon) % 12;
             if(clk.mon == 0) {
-              clk.year = (++ clk.year) % 100;
+              clk.year = (++ clk.year);
+              if(clk.year > 2099) {
+                clk.year = 1901; // 看不到了吧，这个点我都120岁了，灰都没有了
+                clock_recal_date_day();
+                clock_sync_to_rtc(CLOCK_SYNC_DATE); 
+                alarm_resync_rtc();
+              }
             }
           }
         }
@@ -106,7 +125,7 @@ void clock_refresh_display(void)
 
 void clock_show(void)
 {
-  console_printf("%02d-%02d-%02d %02d:%02d:%02d:%03d\r\n",
+  console_printf("%04d-%02d-%02d %02d:%02d:%02d:%03d\r\n",
     clk.year, clk.mon + 1, clk.date + 1,
     clk.hour, clk.min, clk.sec, clk.ms39);
 }
@@ -192,18 +211,6 @@ uint8_t clock_get_date(void)
 }
 
 
-//
-// 在调整了year，mon，date之后都得调用
-//
-static void clock_recal_date_day(void)
-{
-  // 如果是2月并且不是闰年，需要保证不能出现2月29日
-  // 以及不能出现4月31日这样的情况
-  if(clk.date > clock_get_mon_date(clk.year, clk.mon) - 1)
-    clk.date = clock_get_mon_date(clk.year, clk.mon) - 1;
-  clk.day = cext_yymmdd_to_day(clk.year, clk.mon, clk.date);
-}
-
 void clock_set_date(uint8_t date)
 {
   if(date == 0)
@@ -243,25 +250,31 @@ void clock_inc_month(void)
   clock_recal_date_day();
 }
 
-uint8_t clock_get_year(void)
+uint16_t clock_get_year(void)
 {
   return clk.year;
 }
 
-void clock_set_year(uint8_t year)
+void clock_set_year(uint16_t year)
 {
-  clk.year = year % 100;
-  clock_recal_date_day();
+  if(year >= 1901 && year <= 2099) {
+    clk.year = year;
+    clock_recal_date_day();
+  }
 }
 
 void clock_inc_year(void)
 {
-  clk.year = (++ clk.year) % 100;
+  clk.year = (++ clk.year);
+  if(clk.year > 2099)
+    clk.year = 1901;
   clock_recal_date_day();
 }
 
 void clock_sync_from_rtc(enum clock_sync_type type)
 {
+  uint8_t year;
+  bool centry;
   IVDBG("clock_sync_from_rtc = %u", type);
   clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
@@ -277,16 +290,23 @@ void clock_sync_from_rtc(enum clock_sync_type type)
 //    clk.mon  = BSP_RTC_Date_Get_Month() - 1;     // 0 - 11
 //    clk.date = BSP_RTC_Date_Get_Date() - 1;      // 0 - 30(29/28/27)
 //    clk.day  = BSP_RTC_Date_Get_Day() - 1;       // 0 - 6
-    rtc_get_date(&clk.year, &clk.mon, &clk.date, &clk.day);
+    centry = rtc_get_date(&year, &clk.mon, &clk.date, &clk.day);
     clk.mon  --;
     clk.date --;
     clk.day  --;
+    if(centry) {
+      clk.year = 2000 + year;
+    } else {
+      clk.year = 1900 + year;  
+    }
   }
   clock_enable_interrupt(TRUE);
 }
 
 void clock_sync_to_rtc(enum clock_sync_type type)
 {
+  uint8_t year;
+  bool centry = FALSE;  
   IVDBG("clock_sync_to_rtc = %u", type);
   clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
@@ -303,7 +323,11 @@ void clock_sync_to_rtc(enum clock_sync_type type)
 //    BSP_RTC_Date_Set_Date(clk.date + 1);         // 0 - 30(29/28/27)
 //    BSP_RTC_Date_Set_Day(clk.day + 1);
 //    BSP_RTC_Write_Data(RTC_TYPE_DATE);
-    rtc_set_date(clk.year, clk.mon + 1, clk.date + 1, clk.day + 1);
+    if(clk.year >= 2000) {
+      centry = TRUE;
+    }
+    year = clk.year % 100;
+    rtc_set_date(centry, year, clk.mon + 1, clk.date + 1, clk.day + 1);
   }
   clock_enable_interrupt(TRUE);
 }
@@ -331,20 +355,16 @@ void clock_enable_interrupt(bool enable)
 }
 
 // 辅助函数
-bool clock_is_leap_year(uint8_t year)
+bool clock_is_leap_year(uint16_t year)
 {
-  uint16_t y;
-  if(year >= 100) year = 99;
-  y = year + CEXT_YEAR_BASE;
-  return is_leap_year(y);
+  return is_leap_year(year);
 }
 
 // 返回某一年某一月有几天
-uint8_t clock_get_mon_date(uint8_t year, uint8_t mon)
+uint8_t clock_get_mon_date(uint16_t year, uint8_t mon)
 {
-  if(year >= 100) year = 99;
   if(mon >= 12) mon = 11;
-  if(clock_is_leap_year(year))
+  if(is_leap_year(year))
     return date_table[0][mon];
   else
     return date_table[1][mon];
@@ -375,6 +395,7 @@ void clock_init(void)
 //    BSP_RTC_Date_Set_Month(8);
 //    BSP_RTC_Date_Set_Date(19);
     rtc_set_date(
+      CLOCK_FACTORY_RESET_CENTRY,
       CLOCK_FACTORY_RESET_YEAR,
       CLOCK_FACTORY_RESET_MON,
       CLOCK_FACTORY_RESET_DATA,
