@@ -230,12 +230,15 @@ static void player_dump_seq(void)
 
 static uint8_t player_synthetise_year(uint8_t start, uint8_t len)
 {
-  uint8_t year = clock_get_year();
+  uint16_t year = clock_get_year();
   /* 二零 */
   player_seq[start].dir  = PLAYER_DIR_NUM2;
-  player_seq[start].file = PLAYER_FILE_TWO;  
+  player_seq[start].file = player_number_to_tune(year / 1000);
+  year %= 1000;
+  
   player_seq[start+1].dir  = PLAYER_DIR_NUM2;
-  player_seq[start+1].file = PLAYER_FILE_ZERO; 
+  player_seq[start+1].file = player_number_to_tune(year / 100); 
+  year %= 100;  
 
   player_seq[start+2].dir  = PLAYER_DIR_NUM2;
   player_seq[start+2].file = player_number_to_tune(year / 10);
