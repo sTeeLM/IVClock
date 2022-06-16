@@ -209,17 +209,17 @@ static void do_get_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_set_time(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
   clock_enable_interrupt(FALSE);
-
   clock_set_year(cmd->body.time.year);
   clock_set_month(cmd->body.time.mon);
   clock_set_date(cmd->body.time.date); 
   clock_set_hour(cmd->body.time.hour); 
   clock_set_min(cmd->body.time.min);
   clock_set_sec(cmd->body.time.sec); 
+  clock_enable_interrupt(TRUE); 
   
   clock_sync_to_rtc(CLOCK_SYNC_TIME);
   clock_sync_to_rtc(CLOCK_SYNC_DATE);
-  clock_enable_interrupt(TRUE);
+
   alarm_resync_rtc();
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
