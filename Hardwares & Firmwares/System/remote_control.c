@@ -261,7 +261,6 @@ static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
     alarm0_set_min(cmd->body.alarm.alarm_index, cmd->body.alarm.min); 
     alarm0_set_snd(cmd->body.alarm.alarm_index, cmd->body.alarm.snd);     
     alarm_save_config(ALARM_SYNC_ALARM0, cmd->body.alarm.alarm_index);
-    alarm_resync_rtc();
     res->header.code = REMOTE_CONTROL_CODE_OK; 
     res->header.length = sizeof(res->body.alarm);
   } else {

@@ -574,11 +574,6 @@
               <FilePath>..\Drivers\BSP\blue_tooth.c</FilePath>
             </File>
             <File>
-              <FileName>gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\gpio.c</FilePath>
-            </File>
-            <File>
               <FileName>rom.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\rom.c</FilePath>

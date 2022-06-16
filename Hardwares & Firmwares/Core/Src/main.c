@@ -32,7 +32,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "blue_tooth.h"
-#include "gpio.h"
 #include "rom.h"
 #include "bias.h"
 #include "ds3231.h"
@@ -128,16 +127,14 @@ int main(void)
   ticks_init();
 
   /* Hardware initialize */
-  BSP_GPIO_Init(); 
+  BSP_PWR_Init(); 
 
   PrintBsp("USART1", BSP_USART1_UART_Init());
   PrintBsp("USART2", BSP_USART2_UART_Init());
   PrintBsp("USART3", BSP_USART3_UART_Init());
-  PrintBsp("PWR   ", BSP_PWR_Init());
   PrintBsp("Key   ", BSP_Key_Init());  
   PrintBsp("I2C   ", BSP_I2C_Init());
   PrintBsp("ROM   ", BSP_ROM_Init());
-  config_init();  
   PrintBsp("DS3231", BSP_DS3231_Init());
   PrintBsp("ADC1  ", BSP_ADC1_Init());
   PrintBsp("ADC2  ", BSP_ADC2_Init());  
@@ -160,6 +157,7 @@ int main(void)
   IVINFO("initialize sub systems version %02d.%02d...", 
     IVCLOCK_VERSION_MAJOR, IVCLOCK_VERSION_MINOR);
   /* System initialize */
+  config_init();  
   rtc_init();
   power_init();
   console_init();
