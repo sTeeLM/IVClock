@@ -15,6 +15,7 @@
 #include "con_display.h"
 #include "con_player.h"
 #include "con_alarm.h"
+#include "con_rtc.h"
 
 #include "version.h"
 #include "build_id.h"
@@ -41,6 +42,7 @@ struct console_cmds cmds[] =
                       "? <cmd>: show usage of cmd",
                       con_help},
   {"clk", "show clock", "clk: show clock\r\n", con_clock},
+  {"rtc", "show rtc", "rtc: show rtc\r\n", con_rtc},  
   {"alm", "show alarm", 
                         "alm: show alarm\r\n",
                         con_alarm},

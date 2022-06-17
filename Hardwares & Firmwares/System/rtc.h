@@ -12,7 +12,7 @@ bool rtc_get_date(uint8_t * year, uint8_t * mon, uint8_t * date, uint8_t * day);
 void rtc_set_date(bool centry, uint8_t year, uint8_t mon, uint8_t date, uint8_t day);
 
 void rtc_enable_32768HZ(bool enable);
-
+void rtc_show(void);
 void rtc_dump(void);
 
 #endif

@@ -41,7 +41,6 @@ void EXTI3_IRQHandler(void)
   /* USER CODE END EXTI3_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(INT_KEY_SET_Pin);
   /* USER CODE BEGIN EXTI3_IRQn 1 */
-  power_wakeup();
   /* USER CODE END EXTI3_IRQn 1 */
 }
 
@@ -55,7 +54,6 @@ void EXTI4_IRQHandler(void)
   /* USER CODE END EXTI4_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(INT_KEY_MOD_Pin);
   /* USER CODE BEGIN EXTI4_IRQn 1 */
-  power_wakeup();
   /* USER CODE END EXTI4_IRQn 1 */
 }
 
@@ -91,6 +89,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     power_wakeup();
   } else if(GPIO_Pin == INT_MP3_Pin) {
     player_scan();
+    power_wakeup();
+  } else if(GPIO_Pin == INT_KEY_SET_Pin || GPIO_Pin == INT_KEY_MOD_Pin) {
     power_wakeup();
   }
 }

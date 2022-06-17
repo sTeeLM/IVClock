@@ -1,10 +1,27 @@
 #include "rtc.h"
 #include "cext.h"
 #include "ds3231.h"
+#include "console.h"
 
 void rtc_init(void)
 {
   
+}
+
+void rtc_show(void)
+{
+  bool centry;
+  uint8_t year, mon, date, day, hour, min, sec;
+  BSP_DS3231_Read_Data(BSP_DS3231_TYPE_DATE);
+  year = BSP_DS3231_Date_Get_Year();
+  mon  = BSP_DS3231_Date_Get_Month();
+  date = BSP_DS3231_Date_Get_Date(); 
+  day  = BSP_DS3231_Date_Get_Day();
+  hour = BSP_DS3231_Time_Get_Hour();
+  min  = BSP_DS3231_Time_Get_Min();
+  sec  = BSP_DS3231_Time_Get_Sec();
+  centry = BSP_DS3231_Date_Get_Centry();
+  console_printf("(%d) %04d-%02d-%02d %02d:%02d:%02d %02d", centry, year, mon, date, day, hour, min, sec, day);
 }
 
 void rtc_get_time(uint8_t * hour, uint8_t * min, uint8_t * sec)

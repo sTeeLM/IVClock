@@ -748,6 +748,11 @@
               <FileType>1</FileType>
               <FilePath>..\System\Console\con_alarm.c</FilePath>
             </File>
+            <File>
+              <FileName>con_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Console\con_rtc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

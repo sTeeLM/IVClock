@@ -16,7 +16,7 @@
 
 // AT24C02
 // page Size is 32 bytes
-// total size is 4096 bytes (32768 bits)
+// total size is 256 bytes (2048 bits)
 #define ROM_PAGE_SIZE 8
 #define ROM_TOTAL_SIZE 256
 #define ROM_PAGES  32
