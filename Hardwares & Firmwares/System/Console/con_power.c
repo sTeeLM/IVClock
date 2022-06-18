@@ -46,10 +46,10 @@ int8_t con_power(char arg1, char arg2)
     } else {
       return -1;
     }
-  } else if(!strcmp(console_buf + arg1, "cal65")) {
-    power_cal_65();
-  } else if(!strcmp(console_buf + arg1, "cal90")) {
-    power_cal_90();
+  } else if(!strcmp(console_buf + arg1, "cal84")) {
+    power_cal_84();
+  } else if(!strcmp(console_buf + arg1, "cal0")) {
+    power_cal_0();
   } else if(!strcmp(console_buf + arg1, "bat")) {
     console_printf("battery is %f V\r\n", power_get_bat_voltage());
   } else {

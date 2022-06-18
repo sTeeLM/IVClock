@@ -73,7 +73,7 @@ void display_format_clock(struct clock_struct * clk)
     BSP_IV18_Clr_DP(0);
     if(clock_test_hour12()) {
       if(ispm) BSP_IV18_Set_DP(0);
-      BSP_IV18_Set_Dig(2, (hour12 / 10) == 0 ? BSP_IV18_BLANK : (hour12 / 10 + 0x30));
+      BSP_IV18_Set_Dig(2, (hour12 / 10 + 0x30));
       BSP_IV18_Set_Dig(3, (hour12 % 10 + 0x30));      
     } else {
       BSP_IV18_Set_Dig(2, (clk->hour / 10 + 0x30));

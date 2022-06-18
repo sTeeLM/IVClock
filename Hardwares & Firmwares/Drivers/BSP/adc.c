@@ -7,6 +7,15 @@
 static ADC_HandleTypeDef hadc1; // bat
 static ADC_HandleTypeDef hadc2; // light
 
+
+#define ADC1_VALUE_SIZE 16
+static uint16_t ADC1ValueArray[ADC1_VALUE_SIZE];
+static uint8_t  ADC1ValueIndex;
+
+#define ADC2_VALUE_SIZE 16
+static uint16_t ADC2ValueArray[ADC2_VALUE_SIZE];
+static uint8_t  ADC2ValueIndex;
+
 /**
   * @brief ADC1 Initialization Function
   * @param None
@@ -95,9 +104,8 @@ uint16_t BSP_ADC1_Get_Value(void)
   int8_t i;
   uint32_t val = 0;
 
-  for(i = 0 ; i < 16 ; i ++) {
-    val += HAL_ADC_GetValue(&hadc1);
-    delay_ms(10);
+  for(i = 0 ; i < ADC1_VALUE_SIZE ; i ++) {
+    val += ADC1ValueArray[i];
   }
 
   
@@ -127,7 +135,7 @@ BSP_Error_Type BSP_ADC2_Init(void)
   hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc2.Init.ContinuousConvMode = DISABLE;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
-  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc2.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T3_TRGO; //ADC_SOFTWARE_START;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.NbrOfConversion = 1;
   if (HAL_ADC_Init(&hadc2) != HAL_OK)
@@ -144,16 +152,6 @@ BSP_Error_Type BSP_ADC2_Init(void)
     return BSP_ERROR_INTERNAL;
   }
   
-
-  
-  /* USER CODE BEGIN ADC2_Init 2 */
-  return BSP_ERROR_NONE;
-  /* USER CODE END ADC2_Init 2 */
-  
-}
-
-BSP_Error_Type BSP_ADC2_Start(void)
-{
   if (ADC_Enable(&hadc2) != HAL_OK)
   {
     return BSP_ERROR_INTERNAL;
@@ -164,26 +162,29 @@ BSP_Error_Type BSP_ADC2_Start(void)
     return BSP_ERROR_INTERNAL;
   }
   
+  /* USER CODE BEGIN ADC2_Init 2 */
   return BSP_ERROR_NONE;
+  /* USER CODE END ADC2_Init 2 */
+  
+}
+
+BSP_Error_Type BSP_ADC2_Start(void)
+{
+  return HAL_ADC_Start_IT(&hadc2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 BSP_Error_Type BSP_ADC2_Stop(void)
 {
-  return ADC_ConversionStop_Disable(&hadc2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
+  return HAL_ADC_Stop_IT(&hadc2) == HAL_OK ? BSP_ERROR_NONE : BSP_ERROR_INTERNAL;
 }
 
 uint16_t BSP_ADC2_Get_Value(void)
 {
   int8_t i;
   uint32_t val = 0;
-  for(i = 0 ; i < 16 ; i ++) {
-    if(HAL_ADC_Start(&hadc2) == HAL_OK) {
-      if(HAL_ADC_PollForConversion(&hadc2, 30) == HAL_OK) { 
-        val += HAL_ADC_GetValue(&hadc2);
-      } else {
-        IVERR("HAL_ADC_PollForConversion error");
-      }
-    }
+
+  for(i = 0 ; i < ADC2_VALUE_SIZE ; i ++) {
+    val += ADC2ValueArray[i];
   }
   
   return val / 16;
@@ -321,6 +322,17 @@ void ADC1_2_IRQHandler(void)
   HAL_ADC_IRQHandler(&hadc2);
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
   /* USER CODE END ADC1_2_IRQn 1 */
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  if(hadc == &hadc1) {
+    ADC1ValueArray[ADC1ValueIndex] = HAL_ADC_GetValue(&hadc1);
+    ADC1ValueIndex = (ADC1ValueIndex + 1) % ADC1_VALUE_SIZE;
+  } else if(hadc == &hadc2) {
+    ADC2ValueArray[ADC2ValueIndex] = HAL_ADC_GetValue(&hadc2);
+    ADC2ValueIndex = (ADC2ValueIndex + 1) % ADC1_VALUE_SIZE;
+  }
 }
 
 void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)

@@ -114,9 +114,9 @@ BSP_Error_Type BSP_ROM_Write(uint32_t Addr, uint8_t * pData, uint32_t Size)
 out:
   
   if(ret != BSP_ERROR_NONE) {
-    IVERR("BSP_ROM_Write[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size);
+    IVERR("BSP_ROM_Write[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size, ret);
   } else {
-    IVDBG("BSP_ROM_Write[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size);
+    IVDBG("BSP_ROM_Write[%04x] pData = %04x Size = %04x ret = %d", Addr, pData, Size, ret);
   }
   return ret;
 }

@@ -6,6 +6,7 @@
 #include "debug.h"
 #include "clock.h"
 #include "ticks.h"
+#include "power.h"
 
 #include "con_help.h"
 #include "con_clock.h"
@@ -56,8 +57,8 @@ struct console_cmds cmds[] =
                         "pow 50 on | off: 5.0v on/off\r\n" 
                         "pow 490 on | off: 49v on/off\r\n"
                         "pow iv18 on | off: iv18 on/off\r\n" 
-                        "pow cal65: calibrate 6.5V\r\n"
-                        "pow cal90: calibrate 9.0V\r\n"   
+                        "pow cal0: calibrate 6.5V\r\n"
+                        "pow cal84: calibrate 9.0V\r\n"   
                         "pow bat: show volage of battery\r\n",       
                         con_power}, 
   {"be", "beeper control", 
@@ -180,6 +181,7 @@ void console_run(void)
   // stop the clock
   clock_enter_console();
   ticks_enter_console();
+  power_enter_console();
   do {
     console_printf("console>");
     memset(console_buf, 0, sizeof(console_buf));
@@ -233,7 +235,7 @@ void console_run(void)
     console_printf("\r\n");
     
   } while (strcmp(console_buf, "!") != 0);
-  
+  power_leave_console();
   clock_leave_console(); 
   ticks_leave_console();
 }

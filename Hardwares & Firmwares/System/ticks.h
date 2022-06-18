@@ -12,5 +12,6 @@ void ticks_enter_console(void);
 void ticks_leave_console(void);
 void ticks_suspend(void);
 void ticks_resume(void);
-
+void ticks_leave_powersave(void);
+void ticks_enter_powersave(void);
 #endif

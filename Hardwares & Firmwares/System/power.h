@@ -24,10 +24,11 @@ void power_mon_stop(void);
 void power_wdg_set(uint16_t low, uint16_t hi);
 float power_get_bat_voltage(void);
 uint8_t power_get_bat_quantity(void);
-void power_cal_65(void);
-void power_cal_90(void);
+void power_cal_0(void);
+void power_cal_84(void);
 void power_scan(void);
-
+void power_enter_console(void);
+void power_leave_console(void);
 void power_enter_powersave(void);
 void power_wakeup(void);
 void power_test_powersave(void);

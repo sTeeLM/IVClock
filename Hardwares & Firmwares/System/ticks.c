@@ -36,6 +36,16 @@ void ticks_inc_1ms(void)
     task_set(EV_1S);
 }
 
+void ticks_enter_powersave(void)
+{
+  ticks_suspend();
+}
+
+void ticks_leave_powersave(void)
+{
+  ticks_resume();
+}
+
 void ticks_enter_console(void)
 {
   ticks_suspend();

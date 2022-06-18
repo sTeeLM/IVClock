@@ -93,4 +93,5 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   } else if(GPIO_Pin == INT_KEY_SET_Pin || GPIO_Pin == INT_KEY_MOD_Pin) {
     power_wakeup();
   }
+  power_reset_timeo();
 }

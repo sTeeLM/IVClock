@@ -12,9 +12,12 @@
 #include "display.h"
 #include "beeper.h"
 
+#define POWER_LOW_VOLTAGE 6.5
+
 static bool power_is_in_powersave;
 static uint8_t curr_power_save_dur;
 static uint8_t power_save_timeo;
+static bool power_in_console;
 
 void power_mon_start(void)
 {
@@ -32,15 +35,53 @@ void power_wdg_set(uint16_t low, uint16_t hi)
 {
   BSP_ADC1_Set_WDG(low, hi);
 }
+/*
+v84 = k*cal84 +  b
+v0   = k*cal0   + b
+*/
+static float power_adc_to_voltage(uint16_t adc)
+{
+  uint16_t cal84, cal0, base;
+  float voltage, k, b;
+  
+  cal84 = config_read_int("bat_84");
+  cal0  = config_read_int("bat_0");
+  
+  base = (cal84 - cal0);
+  if(base == 0)
+    base = 1;
+  
+  k = (8.4 - 0.0) / base;
+  b = 8.4 - k * cal84;
+  
+  voltage = k * adc + b;
+  
+  return voltage;
+}
+static uint16_t power_voltage_to_adc(float vol)
+{
+  uint16_t cal84, cal0, base, adc;
+  float k, b;
+  cal84 = config_read_int("bat_84");
+  cal0  = config_read_int("bat_0");
+  
+  base = (cal84 - cal0);
+  if(base == 0)
+    base = 1;  
+  
+  k = (8.4 - 0.0) / base;
+  b = 8.4 - k * cal84;
+  
+  adc = (vol - b) / k;
+  
+  return adc;
+}
+
 
 void power_init(void)
 {
-  uint16_t cal65, cal84;
-  
-  cal65 = config_read_int("bat_65");
-
   power_50_enable(TRUE);
-  power_wdg_set(cal65, 0xFFF);
+  power_wdg_set(power_voltage_to_adc(POWER_LOW_VOLTAGE), 0xFFF);
   power_mon_start();
   
   power_is_in_powersave = FALSE;
@@ -99,16 +140,11 @@ bool power_player_enabled(void)
 
 float power_get_bat_voltage(void)
 {
-  uint16_t val, cal65, cal90;
-  float voltage, k, b;
-  cal65 = config_read_int("bat_65");
-  cal90 = config_read_int("bat_90");  
+  uint16_t val;
+  float voltage;
   val = BSP_ADC1_Get_Value();
-
-  k = (9.0 - 6.5) / (cal90 - cal65);
-  b = 9.0 - k * cal90;
-  voltage = k * val + b;
-  IVDBG("power_get_bat_voltage val = %d, k = %f, b = %f, v = %f", val, k, b, voltage);
+  voltage = power_adc_to_voltage(val);
+  
   return voltage;
 }
 
@@ -132,20 +168,20 @@ uint8_t power_get_bat_quantity(void)
     (ocv_table[i].voltage - ocv_table[i - 1].voltage));
 }
 
-void power_cal_65(void)
+void power_cal_84(void)
 {
   config_val_t val;
   val.val16 = BSP_ADC1_Get_Value();
-  console_printf("6.5v -> %d\r\n", val.val16);
-  config_write("bat_65", &val);
+  console_printf("8.4v -> %d\r\n", val.val16);
+  config_write("bat_84", &val);
 }
 
-void power_cal_90(void)
+void power_cal_0(void)
 {
   config_val_t val;
   val.val16 = BSP_ADC1_Get_Value();
-  console_printf("9.0v -> %d\r\n", val.val16);
-  config_write("bat_90", &val);
+  console_printf("0.0v -> %d\r\n", val.val16);
+  config_write("bat_0", &val);
 }
 
 void power_enter_powersave(void)
@@ -158,7 +194,7 @@ void power_enter_powersave(void)
   player_enter_powersave();
   beeper_enter_powersave();
   BSP_TIM1_Stop();
-  ticks_suspend();
+  ticks_enter_powersave();
   
   power_is_in_powersave = TRUE;
  
@@ -166,7 +202,7 @@ void power_enter_powersave(void)
     BSP_PWR_Sleep();
     IVDBG("wakeup!");
   }
-  ticks_resume();
+  ticks_leave_powersave();
   BSP_TIM1_Start();
   beeper_leave_powersave();
   clock_leave_powersave();
@@ -188,7 +224,7 @@ void power_reset_timeo(void)
 
 void power_set_timeo(uint8_t timeo)
 {
-  uint8_t r = power_save_timeo / POWER_STEP_TIMEO;
+  uint8_t r = timeo / POWER_STEP_TIMEO;
   power_save_timeo = r * POWER_STEP_TIMEO;
   if(power_save_timeo > POWER_MAX_TIMEO)
     power_save_timeo = 0;
@@ -221,14 +257,27 @@ void power_test_powersave(void)
     return;
   diff = clock_diff_now_sec(curr_power_save_dur);
   IVDBG("power_test_powersave diff = %d", diff);
-  if(diff > power_save_timeo) {
+  if(diff >= power_save_timeo) {
     power_enter_powersave();
   }
 }
 
+void power_leave_console(void)
+{
+  power_in_console = FALSE;
+}
+
+void power_enter_console(void)
+{
+  power_in_console = TRUE;
+}
+  
 void power_scan(void)
 {
-  task_set(EV_POWEROFF);  
+  if(!power_in_console) {
+    if(power_get_bat_voltage() < 6.5)
+      task_set(EV_POWEROFF); 
+  }  
 }
 
 

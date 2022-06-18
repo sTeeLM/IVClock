@@ -12,6 +12,8 @@
 #include "tim.h"
 #include "alarm.h"
 
+#include<string.h>
+
 
 #define CLOCK_FACTORY_RESET_HOUR 12
 #define CLOCK_FACTORY_RESET_MIN  11
@@ -30,12 +32,10 @@ static uint8_t date_table[2][12] =
 };
 
 struct clock_struct clk;
+static struct clock_struct saved_clk;
 static uint32_t now_sec; // 用于 time_diff
 static bool clock_is_hour12;
 static bool refresh_display;
-
-static bool in_console;
-static bool clock_tick_enabled;
 
 void clock_refresh_display_enable(bool enable)
 {
@@ -77,9 +77,6 @@ void clock_inc_ms39(void)
   int16_t y;
   clk.ms39 ++;
   
-  if(in_console)
-    return;
-  
   if(clk.ms39 == 0 ) {
     clk.sec = (++ clk.sec) % 60;
     now_sec ++;
@@ -95,14 +92,16 @@ void clock_inc_ms39(void)
             clk.date = (++ clk.date) % date_table[1][clk.mon];
           }
           clk.day = (++ clk.day) % 7;
-          if(clk.day == 0) {
+          if(clk.date == 0) {
             clk.mon = (++ clk.mon) % 12;
             if(clk.mon == 0) {
               clk.year = (++ clk.year);
               if(clk.year > 2099) {
                 clk.year = 1901; // 看不到了吧，这个点我都120岁了，灰都没有了
                 clock_recal_date_day();
+                clock_enable_interrupt(FALSE);
                 clock_sync_to_rtc(CLOCK_SYNC_DATE); 
+                clock_enable_interrupt(TRUE);
                 alarm_resync_rtc();
               }
             }
@@ -276,7 +275,6 @@ void clock_sync_from_rtc(enum clock_sync_type type)
   uint8_t year;
   bool centry;
   IVDBG("clock_sync_from_rtc = %u", type);
-  clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
     rtc_get_time(&clk.hour, &clk.min, &clk.sec);
 //    BSP_RTC_Read_Data(RTC_TYPE_TIME);
@@ -300,7 +298,6 @@ void clock_sync_from_rtc(enum clock_sync_type type)
       clk.year = 1900 + year;  
     }
   }
-  clock_enable_interrupt(TRUE);
 }
 
 void clock_sync_to_rtc(enum clock_sync_type type)
@@ -308,7 +305,6 @@ void clock_sync_to_rtc(enum clock_sync_type type)
   uint8_t year;
   bool centry = FALSE;  
   IVDBG("clock_sync_to_rtc = %u", type);
-  clock_enable_interrupt(FALSE);
   if(type == CLOCK_SYNC_TIME) {
 //    BSP_RTC_Read_Data(RTC_TYPE_TIME);
 //    BSP_RTC_Time_Set_Hour(clk.hour);
@@ -329,7 +325,6 @@ void clock_sync_to_rtc(enum clock_sync_type type)
     year = clk.year % 100;
     rtc_set_date(centry, year, clk.mon + 1, clk.date + 1, clk.day + 1);
   }
-  clock_enable_interrupt(TRUE);
 }
 
 //static void clock0_ISR (void) interrupt 1 using 1
@@ -375,8 +370,6 @@ void clock_init(void)
 {
   IVDBG(("clock_initialize"));
   
-  in_console = FALSE;
-  
   if(button_is_factory_reset()) { //12:10:30 PM
     IVINFO("clock factory reset time");
 //    BSP_RTC_Read_Data(RTC_TYPE_TIME);
@@ -412,6 +405,7 @@ void clock_init(void)
   BSP_TIM2_Start();
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE); 
+  clock_enable_interrupt(TRUE);
   refresh_display = FALSE;
   clock_is_hour12 = config_read_int("time_12");
   clock_dump();
@@ -423,6 +417,11 @@ void clock_enter_powersave(void)
   IVDBG(("clock_enter_powersave"));
   clock_enable_interrupt(FALSE);
   BSP_TIM2_Stop();
+  
+  // 保存时间，当醒来的时候看看有没有从20xx->1900
+  // 是的话，得跨越到1901，因为rtc把1900当闰年
+  // 同时如果穿越回去的话，得重新计算day保证形式上逻辑正确
+  memcpy(&saved_clk, &clk, sizeof(saved_clk));
 }
 
 void clock_leave_powersave(void)
@@ -431,19 +430,26 @@ void clock_leave_powersave(void)
   BSP_TIM2_Start();
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE);
-  clock_enable_interrupt(TRUE);
   
+  if(saved_clk.year >=2000 && clk.year <= 1999) {
+    if(clk.year == 1900) {
+      clk.year = 1901;
+    }
+    clock_recal_date_day();
+    clock_sync_to_rtc(CLOCK_SYNC_DATE); 
+    alarm_resync_rtc();    
+  }    
+  
+  clock_enable_interrupt(TRUE);
 }
 
 void clock_enter_console(void)
 {
-  in_console = TRUE;
+  clock_enable_interrupt(FALSE);
 }
 
 void clock_leave_console(void)
 {
-  in_console = FALSE;
-  clock_enable_interrupt(FALSE);
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE);
   clock_enable_interrupt(TRUE);

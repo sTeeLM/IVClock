@@ -63,3 +63,4 @@ IVClock.hex.asm
 .vs
 Debug
 Release
+build_id.c

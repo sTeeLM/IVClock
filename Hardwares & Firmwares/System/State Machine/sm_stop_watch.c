@@ -19,7 +19,9 @@ void do_stop_watch_init(uint8_t from_func, uint8_t from_state, uint8_t to_func, 
 static void do_stop_watch_stop(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   if(EV_BUTTON_MOD_UP == ev || EV_BUTTON_SET_LPRESS == ev) {
-    beeper_beep_beep();
+    if(EV_BUTTON_SET_LPRESS == ev) {
+      beeper_beep_beep();
+    }
     timer_clr();
     timer_refresh_display_enable(TRUE);
     display_set_mode(DISPLAY_MODE_TIMER_HHMMSSMM);
