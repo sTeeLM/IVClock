@@ -508,8 +508,9 @@ uint8_t player_get_snd_cnt(enum player_snd_dir dir)
 
 void player_play_snd(enum player_snd_dir dir, uint8_t index)
 {
-  player_seq[player_seq_current_index].dir  = dir;
-  player_seq[player_seq_current_index].file = player_play_snd_index_to_file(dir, index);
+  memset(player_seq, 0, sizeof(player_seq));
+  player_seq[0].dir  = dir;
+  player_seq[0].file = player_play_snd_index_to_file(dir, index);
   player_play_sequence_start();
 }
 
