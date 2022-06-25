@@ -367,8 +367,9 @@ void display_format_thermo(void)
   
   display_clr();
   
-  if(integer / 100)
-    display_set_dig(1, (integer / 100) % 10 + 0x30);  
+  if(integer / 100) {
+    display_set_dig(1, (integer / 100) % 10 + 0x30);
+  }    
   
   if((integer % 100) / 10 || integer / 100)
     display_set_dig(2, (integer % 100) / 10 + 0x30);
@@ -380,6 +381,35 @@ void display_format_thermo(void)
   
   display_set_dig(7, thermometer_get_unit() ==  THERMOMETER_UNIT_CEN? 'C' : 'F'); 
   display_set_dig(8, DISPLAY_DEGREE);  
+}
+
+void display_format_battery(void)
+{
+  uint16_t integer, flt;
+  float vol = power_get_bat_voltage();
+  uint8_t quantity = power_get_bat_quantity();
+
+  display_clr();
+  
+  integer = (int8_t)vol;
+  flt = (int8_t)((vol - integer) * 100);
+  
+
+  if(integer / 10)
+    display_set_dig(1, integer / 10 + 0x30);
+  
+  display_set_dig(2, integer % 10 + 0x30);
+  display_set_dp(2);
+  display_set_dig(3, flt / 10 + 0x30);
+  display_set_dig(4, flt % 10 + 0x30);
+  
+  if(quantity / 100)
+    display_set_dig(6, (quantity / 100) % 10 + 0x30); 
+  
+  if((quantity % 100) / 10 || quantity / 100)
+    display_set_dig(7, (quantity % 100) / 10 + 0x30); 
+  
+  display_set_dig(8, quantity % 10 + 0x30);
 }
 
 void display_format_thermo_unit(void)

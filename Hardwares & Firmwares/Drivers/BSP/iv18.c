@@ -168,6 +168,12 @@ static void BSP_IV18_Dev_Init(void)
   for(i = 0 ; i < 9 ; i ++)
     BSP_IV18_Set_Dig(i, 0);
   
+  BSP_IV18_Set_Dig(2, 'H');
+  BSP_IV18_Set_Dig(3, 'E');  
+  BSP_IV18_Set_Dig(4, 'L');  
+  BSP_IV18_Set_Dig(5, 'L');  
+  BSP_IV18_Set_Dig(6, 'O');  
+  
   BSP_IV18_Cur_Index = 0;
   BSP_IV18_Cur_Loop = 0;
 }

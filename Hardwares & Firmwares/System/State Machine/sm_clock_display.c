@@ -100,6 +100,20 @@ static void do_clock_display_temp(uint8_t from_func, uint8_t from_state, uint8_t
   }
 }
 
+static void do_clock_display_bat(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
+{
+
+  if(EV_1S == ev) {
+    display_test_return_time_timeo();  
+  } else {
+    display_reset_return_time_timeo();
+    clock_refresh_display_enable(FALSE);
+    display_clr();
+    display_format_battery();
+  }
+}
+
+
 static void do_clock_display_alarm0(uint8_t from_func, uint8_t from_state, uint8_t to_func, uint8_t to_state, enum task_events ev)
 {
   if(EV_ALARM0 == ev) {
@@ -134,6 +148,7 @@ const char * sm_states_names_clock_display[] = {
   "SM_CLOCK_DISPLAY_DATE",
   "SM_CLOCK_DISPLAY_WEEK",  
   "SM_CLOCK_DISPLAY_TEMP",
+  "SM_CLOCK_DISPLAY_BAT",  
   "SM_CLOCK_DISPLAY_ALARM0",
   "SM_CLOCK_DISPLAY_ALARM1"  
 };
@@ -146,7 +161,7 @@ static struct sm_trans sm_trans_clock_display_init[] = {
 static struct sm_trans sm_trans_clock_display_time[] = { 
   {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},
   {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_DATE, do_clock_display_date},
-  {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp},
+  {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_BAT, do_clock_display_bat},
   {EV_ALARM0, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_ALARM0, do_clock_display_alarm0}, 
   {EV_ALARM1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_ALARM1, do_clock_display_alarm1},   
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},
@@ -176,8 +191,17 @@ static struct sm_trans sm_trans_clock_display_week[] = {
 static struct sm_trans sm_trans_clock_display_temp[] = {
   {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp}, 
   {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time}, 
-  {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},
+  {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_BAT, do_clock_display_bat},
   {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_WEEK, do_clock_display_week}, 
+  {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},  
+  {NULL, NULL, NULL, NULL}
+};
+
+static struct sm_trans sm_trans_clock_display_bat[] = {
+  {EV_1S, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_BAT, do_clock_display_bat}, 
+  {EV_VT1, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time}, 
+  {EV_BUTTON_MOD_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TIME, do_clock_display_time},
+  {EV_BUTTON_SET_PRESS, SM_CLOCK_DISPLAY, SM_CLOCK_DISPLAY_TEMP, do_clock_display_temp}, 
   {EV_BUTTON_MOD_LPRESS, SM_SET_TIME, SM_SET_TIME_INIT, do_set_time_init},  
   {NULL, NULL, NULL, NULL}
 };
@@ -204,6 +228,7 @@ struct sm_trans * sm_trans_clock_display[] = {
   sm_trans_clock_display_date,
   sm_trans_clock_display_week,
   sm_trans_clock_display_temp,
+  sm_trans_clock_display_bat,  
   sm_trans_clock_display_alarm0,
   sm_trans_clock_display_alarm1,  
 };

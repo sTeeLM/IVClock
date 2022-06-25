@@ -7,7 +7,6 @@ static bool beeper_enabled;
 
 void beeper_init(void)
 {
-  BSP_TIM1_Stop_PMW(TIM_CHANNEL_2);
   beeper_enabled = config_read_int("bp_en");
 }
 

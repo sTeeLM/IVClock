@@ -427,7 +427,7 @@ void clock_enter_powersave(void)
 void clock_leave_powersave(void)
 {
   IVDBG(("clock_leave_powersave"));
-  BSP_TIM2_Start();
+  
   clock_sync_from_rtc(CLOCK_SYNC_TIME);
   clock_sync_from_rtc(CLOCK_SYNC_DATE);
   
@@ -440,6 +440,7 @@ void clock_leave_powersave(void)
     alarm_resync_rtc();    
   }    
   
+  BSP_TIM2_Start();
   clock_enable_interrupt(TRUE);
 }
 

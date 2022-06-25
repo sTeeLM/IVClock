@@ -4,6 +4,7 @@
 #include "timer.h"
 #include "clock.h"
 #include "iv18.h"
+#include "delay.h"
 
 static TIM_HandleTypeDef htim1; // beeper pmw and iv18 pmw
 static TIM_HandleTypeDef htim2; // clock int
@@ -107,6 +108,9 @@ BSP_Error_Type BSP_TIM1_Init(void)
   HAL_TIM_MspPostInit(&htim1);
   
   BSP_TIM1_Start();
+  BSP_TIM1_Stop_PMW(TIM_CHANNEL_2);
+  
+  BSP_TIM1_Start_Beeper(128, 3);
 
   return BSP_ERROR_NONE;
 }
