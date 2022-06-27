@@ -25,7 +25,7 @@ void rtc_show(void)
   sec  = BSP_DS3231_Time_Get_Sec();
   
   console_printf("(%d) %04d-%02d-%02d %02d:%02d:%02d %02d", 
-  centry, year, mon, date, day, hour, min, sec, day);
+  centry, year, mon, date, hour, min, sec, day);
 }
 
 void rtc_get_time(uint8_t * hour, uint8_t * min, uint8_t * sec)

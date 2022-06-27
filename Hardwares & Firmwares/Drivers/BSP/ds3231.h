@@ -45,8 +45,6 @@ enum BSP_DS3231_Alarm_Index {
 
 
 BSP_Error_Type BSP_DS3231_Init(void);
-bool BSP_DS3231_Is_Lt_Timer(void);
-void BSP_DS3231_Set_Lt_Timer(bool enable);
 
 void BSP_DS3231_Enter_Powersave(void);
 void BSP_DS3231_Leave_Powersave(void);
@@ -77,22 +75,22 @@ uint8_t BSP_DS3231_Date_Get_Day(void);
 void BSP_DS3231_Date_Set_Day(uint8_t day);
 
 // 在BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0)或者BSP_DS3231_TYPE_ALARM1之后调用
-bool BSP_DS3231_Alarm_Get_Hour_12();
-void BSP_DS3231_Alarm_Set_Hour_12(bool enable);
-uint8_t BSP_DS3231_Alarm_Get_Day(void);
-void BSP_DS3231_Alarm_Set_Day(uint8_t day);
-uint8_t BSP_DS3231_Alarm_Get_Date(void);
-void BSP_DS3231_Alarm_Set_Date(uint8_t date);
-uint8_t BSP_DS3231_Alarm_Get_Hour(void);
-void BSP_DS3231_Alarm_Set_Hour(uint8_t hour);
-uint8_t BSP_DS3231_Alarm_Get_Min();
-void BSP_DS3231_Alarm_Set_Min( uint8_t min);
-uint8_t BSP_DS3231_Alarm_Get_Sec();
-void BSP_DS3231_Alarm_Set_Sec( uint8_t sec);
-enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(void);
-void BSP_DS3231_Alarm_Set_Mode(enum BSP_DS3231_Alarm_Mode mode);
-enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(void);
-const char * BSP_DS3231_Alarm_Get_Mode_Str(void);
+bool BSP_DS3231_Alarm_Get_Hour_12(enum BSP_DS3231_Alarm_Index alarm_index);
+void BSP_DS3231_Alarm_Set_Hour_12(enum BSP_DS3231_Alarm_Index alarm_index, bool enable);
+uint8_t BSP_DS3231_Alarm_Get_Day(enum BSP_DS3231_Alarm_Index alarm_index);
+void BSP_DS3231_Alarm_Set_Day(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t day);
+uint8_t BSP_DS3231_Alarm_Get_Date(enum BSP_DS3231_Alarm_Index alarm_index);
+void BSP_DS3231_Alarm_Set_Date(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t date);
+uint8_t BSP_DS3231_Alarm_Get_Hour(enum BSP_DS3231_Alarm_Index alarm_index);
+void BSP_DS3231_Alarm_Set_Hour(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t hour);
+uint8_t BSP_DS3231_Alarm_Get_Min(enum BSP_DS3231_Alarm_Index alarm_index);
+void BSP_DS3231_Alarm_Set_Min(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t min);
+uint8_t BSP_DS3231_Alarm_Get_Sec(enum BSP_DS3231_Alarm_Index alarm_index);
+void BSP_DS3231_Alarm_Set_Sec(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t sec);
+enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(enum BSP_DS3231_Alarm_Index alarm_index);
+void BSP_DS3231_Alarm_Set_Mode(enum BSP_DS3231_Alarm_Index alarm_index, enum BSP_DS3231_Alarm_Mode mode);
+enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(enum BSP_DS3231_Alarm_Index alarm_index);
+const char * BSP_DS3231_Alarm_Get_Mode_Str(enum BSP_DS3231_Alarm_Index alarm_index);
 
 // 在BSP_DS3231_read_data(BSP_DS3231_TYPE_TEMP)之后调用
 bool BSP_DS3231_Get_Temperature(uint8_t * integer, uint8_t * flt);

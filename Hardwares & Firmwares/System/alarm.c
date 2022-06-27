@@ -39,10 +39,10 @@ static void alarm0_sync_to_rtc(int8_t index)
   IVDBG("alarm0_sync_to_rtc %d!", index);
   if(index >= 0) {
     BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0);
-    BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM0_MOD_MATCH_HOUR_MIN_SEC);
-    BSP_DS3231_Alarm_Set_Hour(alarm0[index].hour);
-    BSP_DS3231_Alarm_Set_Min(alarm0[index].min);
-    BSP_DS3231_Alarm_Set_Sec(0);
+    BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM0, BSP_DS3231_ALARM0_MOD_MATCH_HOUR_MIN_SEC);
+    BSP_DS3231_Alarm_Set_Hour(BSP_DS3231_ALARM0, alarm0[index].hour);
+    BSP_DS3231_Alarm_Set_Min(BSP_DS3231_ALARM0, alarm0[index].min);
+    BSP_DS3231_Alarm_Set_Sec(BSP_DS3231_ALARM0, 0);
     BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM0);
     
     BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
@@ -61,9 +61,9 @@ static void alarm1_sync_to_rtc(void)
 {
   IVDBG("alarm1_sync_to_rtc!");
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM1);
-  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM1_MOD_MATCH_MIN);
-  BSP_DS3231_Alarm_Set_Hour(0);
-  BSP_DS3231_Alarm_Set_Min(0);
+  BSP_DS3231_Alarm_Set_Mode(BSP_DS3231_ALARM1, BSP_DS3231_ALARM1_MOD_MATCH_MIN);
+  BSP_DS3231_Alarm_Set_Hour(BSP_DS3231_ALARM1, 0);
+  BSP_DS3231_Alarm_Set_Min(BSP_DS3231_ALARM1, 0);
   BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM1);
   
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);

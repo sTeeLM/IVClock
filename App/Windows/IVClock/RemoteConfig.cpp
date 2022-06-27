@@ -283,6 +283,8 @@ BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_contro
 	PBYTE pBody = (PBYTE)&msg;
 	pBody += sizeof(msg.header);
 
+	TRACE(_T("sizeof(msg) is %d\n"), sizeof(remote_control_msg_t));
+
 	if (msg.header.magic != REMOTE_CONTROL_MSG_HEADER_MAGIC
 		|| msg.header.length > sizeof(remote_control_msg_t)
 		- sizeof(remote_control_msg_header_t)) {

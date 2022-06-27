@@ -82,7 +82,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>C:\Keil_v5\ARM\ARMCLANG\bin\fromelf.exe --bin --nodebug -v --output  IVClock\IVClock.bin IVClock\IVClock.axf</UserProg1Name>
+            <UserProg1Name>C:\Keil_v5\ARM\ARMCLANG\bin\fromelf.exe --bin  -v --output  IVClock\IVClock.bin IVClock\IVClock.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>

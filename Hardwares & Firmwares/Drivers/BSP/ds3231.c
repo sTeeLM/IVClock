@@ -19,9 +19,7 @@
 
 #define BSP_DS3231_CTL_OFFSET 0x0E
 
-static uint8_t _ds3231_data[4];
-static uint8_t _last_read;
-static uint8_t _is_lt_timer_mode;
+static uint8_t _ds3231_data[0x13];
 
 static const char * ds3231_alarm_mode_str[] = 
 {
@@ -66,8 +64,6 @@ static void _ds3231_initialize (void)
   IVDBG("DS3231 before initialize:");
   _ds3231_dump_raw();
   BSP_DS3231_Dump();
-  
-  _is_lt_timer_mode = 0;
     
   memset(_ds3231_data, 0, sizeof(_ds3231_data));
 
@@ -85,16 +81,16 @@ static void _ds3231_initialize (void)
   
   // 闹钟设置为24小时格式
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0);
-  if(BSP_DS3231_Alarm_Get_Hour_12()) {
+  if(BSP_DS3231_Alarm_Get_Hour_12(BSP_DS3231_ALARM0)) {
     IVDBG("DS3231 set alarm0 format to 24");
-    BSP_DS3231_Alarm_Set_Hour_12(FALSE);
+    BSP_DS3231_Alarm_Set_Hour_12(BSP_DS3231_ALARM0, FALSE);
     BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM0);  
   }
   
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM1);
-  if(BSP_DS3231_Alarm_Get_Hour_12()) {
+  if(BSP_DS3231_Alarm_Get_Hour_12(BSP_DS3231_ALARM1)) {
     IVDBG("DS3231 set alarm1 format to 24");
-    BSP_DS3231_Alarm_Set_Hour_12(FALSE);
+    BSP_DS3231_Alarm_Set_Hour_12(BSP_DS3231_ALARM1, FALSE);
     BSP_DS3231_Write_Data(BSP_DS3231_TYPE_ALARM1);
   }
 
@@ -159,21 +155,21 @@ void BSP_DS3231_Dump(void)
   );
   
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0);
-  IVDBG("alarm0 mode: %s", BSP_DS3231_Alarm_Get_Mode_Str());
-  IVDBG("  day:%02u", BSP_DS3231_Alarm_Get_Day());
-  IVDBG("  date:%02u", BSP_DS3231_Alarm_Get_Date());  
-  IVDBG("  hour:%02u", BSP_DS3231_Alarm_Get_Hour());
-  IVDBG("  min:%02u", BSP_DS3231_Alarm_Get_Min());  
-  IVDBG("  sec:%02u", BSP_DS3231_Alarm_Get_Sec());
-  IVDBG("  is12:%s", BSP_DS3231_Alarm_Get_Hour_12() ? "ON" : "OFF");  
+  IVDBG("alarm0 mode: %s", BSP_DS3231_Alarm_Get_Mode_Str(BSP_DS3231_ALARM0));
+  IVDBG("  day:%02u", BSP_DS3231_Alarm_Get_Day(BSP_DS3231_ALARM0));
+  IVDBG("  date:%02u", BSP_DS3231_Alarm_Get_Date(BSP_DS3231_ALARM0));  
+  IVDBG("  hour:%02u", BSP_DS3231_Alarm_Get_Hour(BSP_DS3231_ALARM0));
+  IVDBG("  min:%02u", BSP_DS3231_Alarm_Get_Min(BSP_DS3231_ALARM0));  
+  IVDBG("  sec:%02u", BSP_DS3231_Alarm_Get_Sec(BSP_DS3231_ALARM0));
+  IVDBG("  is12:%s", BSP_DS3231_Alarm_Get_Hour_12(BSP_DS3231_ALARM0) ? "ON" : "OFF");  
 
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM1);
-  IVDBG("alarm1 mode: %s", BSP_DS3231_Alarm_Get_Mode_Str());
-  IVDBG("  day:%02u", BSP_DS3231_Alarm_Get_Day());
-  IVDBG("  date:%02u", BSP_DS3231_Alarm_Get_Date());  
-  IVDBG("  hour:%02u", BSP_DS3231_Alarm_Get_Hour());
-  IVDBG("  min:%02u", BSP_DS3231_Alarm_Get_Min());  
-  IVDBG("  is12:%s", BSP_DS3231_Alarm_Get_Hour_12() ? "ON" : "OFF");
+  IVDBG("alarm1 mode: %s", BSP_DS3231_Alarm_Get_Mode_Str(BSP_DS3231_ALARM1));
+  IVDBG("  day:%02u", BSP_DS3231_Alarm_Get_Day(BSP_DS3231_ALARM1));
+  IVDBG("  date:%02u", BSP_DS3231_Alarm_Get_Date(BSP_DS3231_ALARM1));  
+  IVDBG("  hour:%02u", BSP_DS3231_Alarm_Get_Hour(BSP_DS3231_ALARM1));
+  IVDBG("  min:%02u", BSP_DS3231_Alarm_Get_Min(BSP_DS3231_ALARM1));  
+  IVDBG("  is12:%s", BSP_DS3231_Alarm_Get_Hour_12(BSP_DS3231_ALARM1) ? "ON" : "OFF");
   
   BSP_DS3231_Read_Data(BSP_DS3231_TYPE_CTL);
   IVDBG("control:");
@@ -191,15 +187,6 @@ void BSP_DS3231_Dump(void)
   IVDBG("  bsy:%c", BSP_DS3231_Test_Bsy() ? '1' : '0');  
 }
 
-bool BSP_DS3231_Is_Lt_Timer(void)
-{
-  return _is_lt_timer_mode;
-}
-
-void BSP_DS3231_Set_Lt_Timer(bool enable)
-{
-  _is_lt_timer_mode = enable;
-}
 
 void BSP_DS3231_Read_Data(enum BSP_DS3231_Data_Type type)
 {
@@ -219,9 +206,7 @@ void BSP_DS3231_Read_Data(enum BSP_DS3231_Data_Type type)
       offset = BSP_DS3231_CTL_OFFSET; break;     
   }
   
-  _last_read = type;
-  
-  BSP_I2C_Read(BSP_DS3231_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _ds3231_data, sizeof(_ds3231_data));
+  BSP_I2C_Read(BSP_DS3231_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _ds3231_data + offset, 4);
   
 }
 
@@ -243,7 +228,7 @@ void BSP_DS3231_Write_Data(enum BSP_DS3231_Data_Type type)
       offset = BSP_DS3231_CTL_OFFSET; break;       
   }
   
-  BSP_I2C_Write(BSP_DS3231_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _ds3231_data, sizeof(_ds3231_data));
+  BSP_I2C_Write(BSP_DS3231_I2C_ADDRESS, offset, I2C_MEMADD_SIZE_8BIT, _ds3231_data + offset, 4);
    
 }
 
@@ -361,40 +346,40 @@ void BSP_DS3231_Time_Set_Sec(uint8_t sec)
 // 在BSP_DS3231_Read_Data(BSP_DS3231_TYPE_DATE)之后调用
 uint8_t BSP_DS3231_Date_Get_Year()
 {
-  return (_ds3231_data[3] & 0x0F) + ((_ds3231_data[3] & 0xF0) >> 4) * 10;
+  return (_ds3231_data[6] & 0x0F) + ((_ds3231_data[6] & 0xF0) >> 4) * 10;
 }
 
 bool BSP_DS3231_Date_Get_Centry()
 {
-  return ((_ds3231_data[2] & 0x80) != 0);
+  return ((_ds3231_data[5] & 0x80) != 0);
 }
 
 void BSP_DS3231_Date_Set_Centry(bool set)
 {
-  _ds3231_data[2] &= ~0x80;
+  _ds3231_data[5] &= ~0x80;
   if(set)
-    _ds3231_data[2] |= 0x80;
+    _ds3231_data[5] |= 0x80;
 }
 
 void BSP_DS3231_Date_Set_Year(uint8_t year)
 {
-  _ds3231_data[3] &= 0xF0;
-  _ds3231_data[3] |= year % 10;
-  _ds3231_data[3] &= 0x0F;
-  _ds3231_data[3] |= (year / 10) << 4;  
+  _ds3231_data[6] &= 0xF0;
+  _ds3231_data[6] |= year % 10;
+  _ds3231_data[6] &= 0x0F;
+  _ds3231_data[6] |= (year / 10) << 4;  
 }
 
 uint8_t BSP_DS3231_Date_Get_Month()
 {
-  return (_ds3231_data[2] & 0x0F) + ((_ds3231_data[2] & 0x10) >> 4) * 10;
+  return (_ds3231_data[5] & 0x0F) + ((_ds3231_data[5] & 0x10) >> 4) * 10;
 }
 
 void BSP_DS3231_Date_Set_Month(uint8_t month)
 {
-  _ds3231_data[2] &= 0xF0;
-  _ds3231_data[2] |= month % 10;
-  _ds3231_data[2] &= 0x0F;
-  _ds3231_data[2] |= (month / 10) << 4;  
+  _ds3231_data[5] &= 0xF0;
+  _ds3231_data[5] |= month % 10;
+  _ds3231_data[5] &= 0x0F;
+  _ds3231_data[5] |= (month / 10) << 4;  
 }
 
 static uint8_t _ds3231_get_date(uint8_t date)
@@ -412,7 +397,7 @@ static void _ds3231_set_date(uint8_t date, uint8_t * dat)
 
 uint8_t BSP_DS3231_Date_Get_Date()
 {
-  return _ds3231_get_date(_ds3231_data[1]);
+  return _ds3231_get_date(_ds3231_data[4]);
 }
 
 // 此函数需要检查合法性！！
@@ -435,98 +420,98 @@ bool BSP_DS3231_Date_Set_Date(uint8_t date)
   }
   
   IVDBG("BSP_DS3231_Date_Set_Date, valid check...OK");
-  _ds3231_set_date(date, &_ds3231_data[1]);
+  _ds3231_set_date(date, &_ds3231_data[4]);
 
   return TRUE;  
 }
 
 uint8_t BSP_DS3231_Date_Get_Day()
 {
-  return _ds3231_data[0];
+  return _ds3231_data[3];
 }
 
 void BSP_DS3231_Date_Set_Day(uint8_t day)
 {
   if (day >= 1 && day <= 7) {
-    _ds3231_data[0] = day;
+    _ds3231_data[3] = day;
   }
 }
 
 // BSP_DS3231_Read_Data(BSP_DS3231_TYPE_ALARM0)或者BSP_DS3231_TYPE_ALARM1之后调用
-uint8_t BSP_DS3231_Alarm_Get_Hour()
+uint8_t BSP_DS3231_Alarm_Get_Hour(enum BSP_DS3231_Alarm_Index alarm_index)
 {
-  return _ds3231_get_hour(_last_read == BSP_DS3231_TYPE_ALARM0 ? _ds3231_data[2]:_ds3231_data[1]);
+  return _ds3231_get_hour(alarm_index == BSP_DS3231_ALARM0 ? _ds3231_data[9]:_ds3231_data[0xc]);
 }
 
-bool BSP_DS3231_Alarm_Get_Hour_12()
+bool BSP_DS3231_Alarm_Get_Hour_12(enum BSP_DS3231_Alarm_Index alarm_index)
 {
-  return _ds3231_get_hour_12(_last_read == BSP_DS3231_TYPE_ALARM0 ? _ds3231_data[2] : _ds3231_data[1]);
+  return _ds3231_get_hour_12(alarm_index == BSP_DS3231_ALARM0 ? _ds3231_data[9] : _ds3231_data[0xc]);
 }
 
-void BSP_DS3231_Alarm_Set_Hour_12(bool enable)
+void BSP_DS3231_Alarm_Set_Hour_12(enum BSP_DS3231_Alarm_Index alarm_index, bool enable)
 {
-  _ds3231_set_hour_12(enable, _last_read == BSP_DS3231_TYPE_ALARM0 ? &_ds3231_data[2] : &_ds3231_data[1]);
+  _ds3231_set_hour_12(enable, alarm_index == BSP_DS3231_ALARM0 ? &_ds3231_data[9] : &_ds3231_data[0xc]);
 }
 
-void BSP_DS3231_Alarm_Set_Hour(uint8_t hour)
+void BSP_DS3231_Alarm_Set_Hour(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t hour)
 {
-  _ds3231_set_hour(hour, _last_read == BSP_DS3231_TYPE_ALARM0 ? &_ds3231_data[2] : &_ds3231_data[1]);
+  _ds3231_set_hour(hour, alarm_index == BSP_DS3231_ALARM0 ? &_ds3231_data[9] : &_ds3231_data[0xc]);
 }
 
-uint8_t BSP_DS3231_Alarm_Get_Min()
+uint8_t BSP_DS3231_Alarm_Get_Min(enum BSP_DS3231_Alarm_Index alarm_index)
 {
-  return _ds3231_get_min_sec(_last_read == BSP_DS3231_TYPE_ALARM0 ? _ds3231_data[1] : _ds3231_data[0]);
+  return _ds3231_get_min_sec(alarm_index == BSP_DS3231_ALARM0 ? _ds3231_data[8] : _ds3231_data[0xb]);
 }
 
-void BSP_DS3231_Alarm_Set_Min( uint8_t min)
+void BSP_DS3231_Alarm_Set_Min(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t min)
 {
-  _ds3231_set_min_sec(min, _last_read == BSP_DS3231_TYPE_ALARM0 ? &_ds3231_data[1] : &_ds3231_data[0]); 
+  _ds3231_set_min_sec(min, alarm_index == BSP_DS3231_ALARM0 ? &_ds3231_data[8] : &_ds3231_data[0xb]); 
 }
 
-uint8_t BSP_DS3231_Alarm_Get_Day(void)
+uint8_t BSP_DS3231_Alarm_Get_Day(enum BSP_DS3231_Alarm_Index alarm_index)
 {
-  return _last_read == BSP_DS3231_TYPE_ALARM0 ? (_ds3231_data[3] & 0x0F) : (_ds3231_data[2] & 0x0F);
+  return alarm_index == BSP_DS3231_ALARM0 ? (_ds3231_data[0xa] & 0x0F) : (_ds3231_data[0xd] & 0x0F);
 }
 
-void BSP_DS3231_Alarm_Set_Day(uint8_t day)
+void BSP_DS3231_Alarm_Set_Day(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t day)
 {
-  if(_last_read == BSP_DS3231_TYPE_ALARM0) {
-    _ds3231_data[3] &= 0xF0;
-    _ds3231_data[3] |= day;
+  if(alarm_index == BSP_DS3231_ALARM0) {
+    _ds3231_data[0xa] &= 0xF0;
+    _ds3231_data[0xa] |= day;
   } else {
-    _ds3231_data[2] &= 0xF0;
-    _ds3231_data[2] |= day;
+    _ds3231_data[0xd] &= 0xF0;
+    _ds3231_data[0xd] |= day;
   }
 }
 
-uint8_t BSP_DS3231_Alarm_Get_Date(void)
+uint8_t BSP_DS3231_Alarm_Get_Date(enum BSP_DS3231_Alarm_Index alarm_index)
 {
-  return _last_read == BSP_DS3231_TYPE_ALARM0 ?
-    _ds3231_get_date(_ds3231_data[3]) : _ds3231_get_date(_ds3231_data[2]);
+  return alarm_index == BSP_DS3231_ALARM0 ?
+    _ds3231_get_date(_ds3231_data[0xa]) : _ds3231_get_date(_ds3231_data[0xd]);
 }
 
-void BSP_DS3231_Alarm_Set_Date(uint8_t date)
+void BSP_DS3231_Alarm_Set_Date(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t date)
 {
-  _last_read == BSP_DS3231_TYPE_ALARM0 ? _ds3231_set_date(date, &_ds3231_data[3]) : 
-    _ds3231_set_date(date, &_ds3231_data[2]);
+  alarm_index == BSP_DS3231_ALARM0 ? _ds3231_set_date(date, &_ds3231_data[0xa]) : 
+    _ds3231_set_date(date, &_ds3231_data[0xd]);
 }
 
-uint8_t BSP_DS3231_Alarm_Get_Sec(void)
+uint8_t BSP_DS3231_Alarm_Get_Sec(enum BSP_DS3231_Alarm_Index alarm_index)
 {
-  if(_last_read == BSP_DS3231_TYPE_ALARM0) {
-    return (_ds3231_data[0] & 0x0F) + ((_ds3231_data[0] & 0x70) >> 4) * 10;
+  if(alarm_index == BSP_DS3231_ALARM0) {
+    return (_ds3231_data[7] & 0x0F) + ((_ds3231_data[7] & 0x70) >> 4) * 10;
   }
   return 0;
 }
 
 
-void BSP_DS3231_Alarm_Set_Sec( uint8_t sec)
+void BSP_DS3231_Alarm_Set_Sec(enum BSP_DS3231_Alarm_Index alarm_index, uint8_t sec)
 {
-  if(_last_read == BSP_DS3231_TYPE_ALARM0) {
-    _ds3231_data[0] &= 0xF0;
-    _ds3231_data[0] |= sec % 10;
-    _ds3231_data[0] &= 0x8F;
-    _ds3231_data[0] |= ((sec / 10) << 4);    
+  if(alarm_index == BSP_DS3231_ALARM0) {
+    _ds3231_data[7] &= 0xF0;
+    _ds3231_data[7] |= sec % 10;
+    _ds3231_data[7] &= 0x8F;
+    _ds3231_data[7] |= ((sec / 10) << 4);    
   }
 }
 // DY A1M4 A1M3 A1M2 A1M1
@@ -544,15 +529,15 @@ void BSP_DS3231_Alarm_Set_Sec( uint8_t sec)
 // 0  0    0    0    ALARM1_MOD_MATCH_DATE_HOUR_MIN     Alarm when date, hours, and minutes match
 // 1  0    0    0    ALARM1_MOD_MATCH_DAY_HOUR_MIN      Alarm when day, hours, and minutes match
 
-enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(void)
+enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(enum BSP_DS3231_Alarm_Index alarm_index)
 {
   uint8_t dy, a1m1, a1m2, a1m3, a1m4;
-  if(_last_read == BSP_DS3231_TYPE_ALARM0) {
-    dy = _ds3231_data[3] & 0x40;
-    a1m1 = _ds3231_data[0] & 0x80;
-    a1m2 = _ds3231_data[1] & 0x80;
-    a1m3 = _ds3231_data[2] & 0x80;
-    a1m4 = _ds3231_data[3] & 0x80;
+  if(alarm_index == BSP_DS3231_ALARM0) {
+    dy = _ds3231_data[0xa] & 0x40;
+    a1m1 = _ds3231_data[7] & 0x80;
+    a1m2 = _ds3231_data[8] & 0x80;
+    a1m3 = _ds3231_data[9] & 0x80;
+    a1m4 = _ds3231_data[0xa] & 0x80;
     if(a1m1 && a1m2 && a1m3 && a1m4) {
       return BSP_DS3231_ALARM0_MOD_PER_SEC;
     } else if(!a1m1 && a1m2 && a1m3 && a1m4) {
@@ -566,11 +551,11 @@ enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(void)
     } else {
       return BSP_DS3231_ALARM0_MOD_MATCH_DAY_HOUR_MIN_SEC;
     }
-  } else if(_last_read == BSP_DS3231_TYPE_ALARM1){
-    dy = _ds3231_data[2] & 0x40;
-    a1m2 = _ds3231_data[0] & 0x80;
-    a1m3 = _ds3231_data[1] & 0x80;
-    a1m4 = _ds3231_data[2] & 0x80;
+  } else if(alarm_index == BSP_DS3231_ALARM1){
+    dy = _ds3231_data[0xd] & 0x40;
+    a1m2 = _ds3231_data[0xb] & 0x80;
+    a1m3 = _ds3231_data[0xc] & 0x80;
+    a1m4 = _ds3231_data[0xd] & 0x80;
     if(a1m2 && a1m3 && a1m4) {
       return BSP_DS3231_ALARM1_MOD_PER_MIN;
     } else if(!a1m2 && a1m3 && a1m4) {
@@ -587,68 +572,68 @@ enum BSP_DS3231_Alarm_Mode BSP_DS3231_Alarm_Get_Mode(void)
   }
   return BSP_DS3231_ALARM0_MOD_CNT;
 }
-void BSP_DS3231_Alarm_Set_Mode(enum BSP_DS3231_Alarm_Mode mode)
+void BSP_DS3231_Alarm_Set_Mode(enum BSP_DS3231_Alarm_Index alarm_index, enum BSP_DS3231_Alarm_Mode mode)
 {
-  if(mode < BSP_DS3231_ALARM0_MOD_CNT && _last_read == BSP_DS3231_TYPE_ALARM0) {
-    _ds3231_data[0] &= ~0x80;
-    _ds3231_data[1] &= ~0x80;
-    _ds3231_data[2] &= ~0x80;
-    _ds3231_data[3] &= ~0x80; 
-    _ds3231_data[3] &= ~0x40;    
+  if(mode < BSP_DS3231_ALARM0_MOD_CNT && alarm_index == BSP_DS3231_ALARM0) {
+    _ds3231_data[7] &= ~0x80;
+    _ds3231_data[8] &= ~0x80;
+    _ds3231_data[9] &= ~0x80;
+    _ds3231_data[0xa] &= ~0x80; 
+    _ds3231_data[0xa] &= ~0x40;    
     switch(mode) {
       case BSP_DS3231_ALARM0_MOD_PER_SEC:
-        _ds3231_data[0] |=  0x80;
+        _ds3231_data[7] |=  0x80;
       case BSP_DS3231_ALARM0_MOD_MATCH_SEC:
-        _ds3231_data[1] |=  0x80;
+        _ds3231_data[8] |=  0x80;
       case BSP_DS3231_ALARM0_MOD_MATCH_MIN_SEC:
-        _ds3231_data[2] |=  0x80;
+        _ds3231_data[9] |=  0x80;
       case BSP_DS3231_ALARM0_MOD_MATCH_HOUR_MIN_SEC:
-        _ds3231_data[3] |=  0x80;
+        _ds3231_data[0xa] |=  0x80;
       case BSP_DS3231_ALARM0_MOD_MATCH_DATE_HOUR_MIN_SEC:
         break;
       case BSP_DS3231_ALARM0_MOD_MATCH_DAY_HOUR_MIN_SEC:
-        _ds3231_data[3] |= 0x40;
+        _ds3231_data[0xa] |= 0x40;
       default:
         ;
     }
-  } else if(mode > BSP_DS3231_ALARM0_MOD_CNT && _last_read == BSP_DS3231_TYPE_ALARM1) {
-    _ds3231_data[0] &= ~0x80;
-    _ds3231_data[1] &= ~0x80;
-    _ds3231_data[2] &= ~0x80;
-    _ds3231_data[2] &= ~0x40;
+  } else if(mode > BSP_DS3231_ALARM0_MOD_CNT && alarm_index == BSP_DS3231_ALARM1) {
+    _ds3231_data[0xb] &= ~0x80;
+    _ds3231_data[0xc] &= ~0x80;
+    _ds3231_data[0xd] &= ~0x80;
+    _ds3231_data[0xd] &= ~0x40;
     switch (mode) {
       case BSP_DS3231_ALARM1_MOD_PER_MIN:
-        _ds3231_data[0] |=  0x80;
+        _ds3231_data[0xb] |=  0x80;
       case BSP_DS3231_ALARM1_MOD_MATCH_MIN:
-        _ds3231_data[1] |=  0x80;
+        _ds3231_data[0xc] |=  0x80;
       case BSP_DS3231_ALARM1_MOD_MATCH_HOUR_MIN:
-        _ds3231_data[2] |=  0x80;
+        _ds3231_data[0xd] |=  0x80;
       case BSP_DS3231_ALARM1_MOD_MATCH_DATE_HOUR_MIN:
         break;
       case BSP_DS3231_ALARM1_MOD_MATCH_DAY_HOUR_MIN:
-        _ds3231_data[2] |= 0x40;
+        _ds3231_data[0xd] |= 0x40;
       default:
         ;
     }
   }
 }
 
-const char * BSP_DS3231_Alarm_Get_Mode_Str(void)
+const char * BSP_DS3231_Alarm_Get_Mode_Str(enum BSP_DS3231_Alarm_Index alarm_index)
 {
-  return ds3231_alarm_mode_str[BSP_DS3231_Alarm_Get_Mode()];
+  return ds3231_alarm_mode_str[BSP_DS3231_Alarm_Get_Mode(alarm_index)];
 }
 
 // 在BSP_DS3231_Read_Data(BSP_DS3231_TYPE_TEMP)之后调用
 bool BSP_DS3231_Get_Temperature(uint8_t * integer, uint8_t * flt)
 {
-  bool sign = ((_ds3231_data[0] &  0x80) != 0);
+  bool sign = ((_ds3231_data[0x11] &  0x80) != 0);
   uint16_t data;
   
-  IVDBG("BSP_DS3231_Get_Temperature: 0x%02x 0x%02x", _ds3231_data[0], _ds3231_data[1]);
+  IVDBG("BSP_DS3231_Get_Temperature: 0x%02x 0x%02x", _ds3231_data[0x11], _ds3231_data[0x12]);
   
-  data = _ds3231_data[0] & ~0x80;
+  data = _ds3231_data[0x11] & ~0x80;
   data <<= 2;
-  data |= ((_ds3231_data[1] >>= 6) & 0x03);
+  data |= ((_ds3231_data[0x12] >>= 6) & 0x03);
 
   if(sign) {
     data --;
@@ -706,23 +691,23 @@ void BSP_DS3231_Enable_Alarm_Int(enum BSP_DS3231_Alarm_Index index, bool enable)
 {
   if(index == BSP_DS3231_ALARM0) {
     if(!enable)
-      _ds3231_data[0] &= ~1;
+      _ds3231_data[0xe] &= ~1;
     else
-      _ds3231_data[0] |= 1;
+      _ds3231_data[0xe] |= 1;
   } else if(index == BSP_DS3231_ALARM1) {
     if(!enable)
-      _ds3231_data[0] &= ~2;
+      _ds3231_data[0xe] &= ~2;
     else
-      _ds3231_data[0] |= 2;
+      _ds3231_data[0xe] |= 2;
   }
 }
 
 bool BSP_DS3231_Test_Alarm_Int(enum BSP_DS3231_Alarm_Index index)
 {
   if(index == BSP_DS3231_ALARM0) {
-    return (_ds3231_data[0] & 1) == 1;
+    return (_ds3231_data[0xe] & 1) == 1;
   } else if(index == BSP_DS3231_ALARM1) {
-    return (_ds3231_data[0] & 2) == 2;
+    return (_ds3231_data[0xe] & 2) == 2;
   }
   return 0;
 }
@@ -730,68 +715,68 @@ bool BSP_DS3231_Test_Alarm_Int(enum BSP_DS3231_Alarm_Index index)
 void BSP_DS3231_Clr_Alarm_Int_Flag(enum BSP_DS3231_Alarm_Index index)
 {
   if(index == BSP_DS3231_ALARM0) {
-    _ds3231_data[1] &= ~1;
+    _ds3231_data[0xf] &= ~1;
   } else if(index == BSP_DS3231_ALARM1) {
-    _ds3231_data[1] &= ~2;    
+    _ds3231_data[0xf] &= ~2;    
   } 
 }
 
 bool BSP_DS3231_Test_Alarm_Int_Flag(enum BSP_DS3231_Alarm_Index index)
 {
   if(index == BSP_DS3231_ALARM0) {
-    return (_ds3231_data[1] & 1) == 1;
+    return (_ds3231_data[0xf] & 1) == 1;
   } else if(index == BSP_DS3231_ALARM1) {
-    return (_ds3231_data[1] & 2) == 2;
+    return (_ds3231_data[0xf] & 2) == 2;
   }
   return 0;
 }
 
 bool BSP_DS3231_Test_Eosc(void)
 {
-  return (_ds3231_data[0] & 0x80) != 0;
+  return (_ds3231_data[0xe] & 0x80) != 0;
 }
 
 void BSP_DS3231_Set_Eosc(bool val)
 {
-  _ds3231_data[0] &= ~0x80;
+  _ds3231_data[0xe] &= ~0x80;
   if(val)
-    _ds3231_data[0] |= 0x80;
+    _ds3231_data[0xe] |= 0x80;
 }
 
 bool BSP_DS3231_Test_Bbsqw(void)
 {
-  return (_ds3231_data[0] & 0x40) != 0;
+  return (_ds3231_data[0xe] & 0x40) != 0;
 }
 
 void BSP_DS3231_Set_Bbsqw(bool val)
 {
-  _ds3231_data[0] &= ~0x40;
+  _ds3231_data[0xe] &= ~0x40;
   if(val)
-    _ds3231_data[0] |= 0x40;
+    _ds3231_data[0xe] |= 0x40;
 }
 
 bool BSP_DS3231_Test_Conv(void)
 {
-  return (_ds3231_data[0] & 0x20) != 0;
+  return (_ds3231_data[0xe] & 0x20) != 0;
 }
 
 void BSP_DS3231_Set_conv(bool val)
 {
-  _ds3231_data[0] &= ~0x20;
+  _ds3231_data[0xe] &= ~0x20;
   if(val)
-    _ds3231_data[0] |= 0x20;
+    _ds3231_data[0xe] |= 0x20;
 }
 
 enum BSP_DS3231_Square_Rate BSP_DS3231_Get_Square_Rate(void)
 {
-  return (((_ds3231_data[0] & 0x18) >> 3) & 0x3);
+  return (((_ds3231_data[0xe] & 0x18) >> 3) & 0x3);
 }
 
 void BSP_DS3231_Set_Square_Rate(enum BSP_DS3231_Square_Rate rt)
 {
   uint8_t val = rt;
-  _ds3231_data[0] &= ~0x18;
-  _ds3231_data[0] |= val << 3;
+  _ds3231_data[0xe] &= ~0x18;
+  _ds3231_data[0xe] |= val << 3;
 }
 
 const char * BSP_DS3231_Get_Square_Rate_Str(void)
@@ -801,43 +786,43 @@ const char * BSP_DS3231_Get_Square_Rate_Str(void)
 
 bool BSP_DS3231_Test_Intcn(void)
 {
-  return (_ds3231_data[0] & 0x4) != 0;
+  return (_ds3231_data[0xe] & 0x4) != 0;
 }
 
 void BSP_DS3231_Set_Intcn(bool val)
 {
-  _ds3231_data[0] &= ~0x4;
+  _ds3231_data[0xe] &= ~0x4;
   if(val)
-    _ds3231_data[0] |= 0x4;
+    _ds3231_data[0xe] |= 0x4;
 }
 
 bool BSP_DS3231_Test_Osf(void)
 {
-  return (_ds3231_data[1] & 0x80) != 0;
+  return (_ds3231_data[0xf] & 0x80) != 0;
 }
 
 void BSP_DS3231_Set_Osf(bool val)
 {
-  _ds3231_data[1] &= ~0x80;
+  _ds3231_data[0xf] &= ~0x80;
   if(val)
-    _ds3231_data[1] |= 0x80;
+    _ds3231_data[0xf] |= 0x80;
 }
 
 bool BSP_DS3231_Test_En32khz(void)
 {
-  return (_ds3231_data[1] & 0x8) != 0;
+  return (_ds3231_data[0xf] & 0x8) != 0;
 }
 
 void BSP_DS3231_Set_En32khz(bool val)
 {
-  _ds3231_data[1] &= ~0x8;
+  _ds3231_data[0xf] &= ~0x8;
   if(val)
-    _ds3231_data[1] |= 0x8;
+    _ds3231_data[0xf] |= 0x8;
 }
 
 bool BSP_DS3231_Test_Bsy(void)
 {
-  return (_ds3231_data[1] & 0x4) != 0;
+  return (_ds3231_data[0xf] & 0x4) != 0;
 }
 
 void BSP_DS3231_Enter_Powersave(void)
