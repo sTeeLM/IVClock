@@ -173,7 +173,7 @@ void alarm_scan(void)
     if(min == 0 && sec == 0) {
       IVDBG("alarm1 hour = %d, begin = %d, end = %d", hour, alarm1_begin, alarm1_end);
       if(alarm1_begin < alarm1_end && (hour >= alarm1_begin && hour <= alarm1_end)
-        || alarm1_begin >= alarm1_end && (hour >= alarm1_end || hour <= alarm1_begin)) {
+        || alarm1_begin >= alarm1_end && (hour >= alarm1_end && hour <= alarm1_begin)) {
           IVDBG("alarm1 really hit!");
           power_wakeup();
           task_set(EV_ALARM1);
