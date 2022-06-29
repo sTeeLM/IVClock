@@ -340,7 +340,7 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
     player_seq[start + ret].dir  = PLAYER_DIR_MISC;
     player_seq[start + ret].file = ispm ? PLAYER_FILE_AFTERNOON : PLAYER_FILE_MORNING;
     ret ++;
-    ret += player_synthetise_number(hour, start + ret, len - ret);
+    ret += player_synthetise_number(hour12, start + ret, len - ret);
   } else {
     ret += player_synthetise_number(hour, start + ret, len - ret);
   }
