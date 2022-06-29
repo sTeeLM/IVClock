@@ -354,11 +354,17 @@ static uint8_t player_synthetise_time(uint8_t start, uint8_t len)
     player_seq[start + ret].file = PLAYER_FILE_ZHENG;
     ret ++;
   } else {
+    if(min <= 9) {
+      player_seq[start + ret].dir  = PLAYER_DIR_NUM2;
+      player_seq[start + ret].file = PLAYER_FILE_ZERO;
+      ret ++;
+    }
     ret += player_synthetise_number(min, start + ret, len - ret);
     player_seq[start + ret].dir  = PLAYER_DIR_MISC;
     player_seq[start + ret].file = PLAYER_FILE_MIN;    
     ret ++;
   }
+  
   return ret;
 }
 
