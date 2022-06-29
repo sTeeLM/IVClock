@@ -72,14 +72,8 @@ typedef struct remote_control_body_time
 #pragma pack(push,1)
 typedef struct remote_control_body_alarm
 {
-  union{
-    uint8_t alarm_index; // 0 - 9, if -1, get alarm_cnt
-    uint8_t alarm_cnt;
-  };
-  union {
-    uint8_t day_mask;    // 0x7f, LSb is MONDAY, if alarm_index is -1, get alarm snd cnt
-    uint8_t alarm_snd_cnt;
-  };
+  uint8_t alarm_index; // 0 - 9
+  uint8_t day_mask;    // 0x7f, LSb is MONDAY
   uint8_t hour;        // 0 - 23
   uint8_t min;         // 0 - 59
   uint8_t snd;         // 0 - 9
@@ -108,6 +102,8 @@ typedef struct remote_control_body_param
   uint8_t max_power_timeo;
   uint8_t step_power_timeo; 
   uint8_t tmr_snd_cnt;
+  uint8_t alarm_cnt;
+  uint8_t alarm_snd_cnt;
 }remote_control_body_param_t;
 #pragma pack(pop)
 

@@ -214,8 +214,12 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 		break;
 	case REMOTE_CONTROL_CMD_SET_ALARM:
 		msg.header.length = sizeof(remote_control_body_alarm_t);
-		msg.body.alarm.alarm_index = m_LocalAlarm.alarm_index;
 		CopyMemory(&msg.body, &m_LocalAlarm,sizeof(remote_control_body_alarm_t));
+		break;
+	case REMOTE_CONTROL_CMD_GET_ALARM:
+		msg.header.length = sizeof(remote_control_body_alarm_t);
+		ZeroMemory(&msg.body, sizeof(remote_control_body_alarm_t));
+		msg.body.alarm.alarm_index = m_LocalAlarm.alarm_index;
 		break;
 	case REMOTE_CONTROL_CMD_GET_INFO:
 		msg.header.length = 0;
@@ -240,10 +244,9 @@ BOOL CRemoteConfig::LoadSetConfig(CIVError& Error, HANDLE hWaitEvent, remote_con
 		m_bRemoteParamValid = TRUE;
 		break;
 	case REMOTE_CONTROL_CMD_SET_ALARM:
-		if (m_RemoteAlarmArray && msg.body.alarm.alarm_index < m_nRemoteAlarmCnt) {
-			CopyMemory(&m_RemoteAlarmArray[msg.body.alarm.alarm_index], &msg.body, sizeof(m_LocalAlarm));
-			m_bRemoteAlarmValid = TRUE;
-		}
+	case REMOTE_CONTROL_CMD_GET_ALARM:
+		CopyMemory(&m_RemoteAlarm, &msg.body, sizeof(m_RemoteAlarm));
+		m_bRemoteAlarmValid = TRUE;
 		break;
 	case REMOTE_CONTROL_CMD_GET_INFO:
 		CopyMemory(&m_RemoteBatTemp, &msg.body, sizeof(m_RemoteBatTemp));
@@ -276,6 +279,7 @@ BOOL CRemoteConfig::SetRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent /
 {
 	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_SET_TIME);
 }
+
 
 BOOL CRemoteConfig::ProcessSerialMsg(CSerialPortConnection* pConn, remote_control_msg_t& msg, CIVError& Error)
 {
@@ -382,118 +386,11 @@ BOOL CRemoteConfig::LoadRemoteConfigParam(CIVError& Error, HANDLE hWaitEvent/* =
 	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_PARAM);
 }
 
-
 BOOL CRemoteConfig::LoadRemoteConfigAlarm(CIVError& Error, HANDLE hWaitEvent/* = NULL */)
 {
-	remote_control_msg_t msg;
-	CSerialPortConnection* pConn = NULL;
-	BOOL bRet = FALSE;
-	DWORD dwWaitRes;
-	
-	dwWaitRes = WaitForSingleObject(m_hDataMutex, INFINITE);
-	if (dwWaitRes == WAIT_FAILED) {
-		Error.SetError(CIVError::IVE_INTERNAL);
-		goto err;
-	}
-
-	if (!LoadSerialConfig(Error)) {
-		Error.SetError(CIVError::IVE_CONFIG);
-		goto err;
-	}
-
-	
-	if ((pConn = CSerialPort::OpenSerial(
-		m_nPort,
-		m_nBaudRate,
-		m_nDataBits,
-		m_nParity,
-		m_nStopBits,
-		m_bRTSCTS,
-		m_bDTRDSR,
-		m_bXONXOFF
-	)) == NULL) {
-		Error.SetError(CIVError::IVE_SERIAL_DEVICE);
-		goto err;
-	}
-
-	if (hWaitEvent) {
-		dwWaitRes = WaitForSingleObject(hWaitEvent, 1000);
-		if (dwWaitRes == WAIT_FAILED) {
-			Error.SetError(CIVError::IVE_INTERNAL);
-			goto err;
-		}
-		else if (dwWaitRes == WAIT_OBJECT_0) {
-			Error.SetError(CIVError::IVE_CANCELED);
-			goto err;
-		}
-
-	}
-	else {
-		Sleep(1000);
-	}
-
-	// get alarm count and alarm snd count
-	msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-	msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
-	msg.header.length = sizeof(remote_control_body_alarm_t);
-	msg.body.alarm.alarm_cnt = (uint8_t)(-1);
-	if (!ProcessSerialMsg(pConn, msg, Error)) {
-		goto err;
-	}
-	TRACE(_T("LoadRemoteConfigAlarm alarm cnt is %d\n"), msg.body.alarm.alarm_index);
-	// alloc alarm memory ??
-	if (m_RemoteAlarmArray != NULL && m_nRemoteAlarmCnt != msg.body.alarm.alarm_index
-		|| m_RemoteAlarmArray == NULL) {
-		if (m_RemoteAlarmArray) {
-			free(m_RemoteAlarmArray);
-			m_RemoteAlarmArray = NULL;
-			m_nRemoteAlarmCnt = 0;
-		}
-		m_RemoteAlarmArray = (remote_control_body_alarm_t*)
-			malloc(sizeof(remote_control_body_alarm_t) * msg.body.alarm.alarm_index);
-
-		if (!m_RemoteAlarmArray) {
-			Error.SetError(CIVError::IVE_NOMEM);
-			goto err;
-		}
-		m_nRemoteAlarmCnt = msg.body.alarm.alarm_cnt;
-		m_nRemoteAlarmSndCnt = msg.body.alarm.alarm_snd_cnt;
-		ZeroMemory(m_RemoteAlarmArray, sizeof(remote_control_body_alarm_t) * m_nRemoteAlarmCnt);
-	}
-
-	// read alarm
-	for (INT i = 0; i < m_nRemoteAlarmCnt; i++) {
-		msg.header.magic = REMOTE_CONTROL_MSG_HEADER_MAGIC;
-		msg.header.cmd = REMOTE_CONTROL_CMD_GET_ALARM;
-		msg.header.length = sizeof(remote_control_body_alarm_t);
-
-		msg.body.alarm.alarm_index = i;
-		if (!ProcessSerialMsg(pConn, msg, Error)) {
-			//goto err;
-		}
-
-		CopyMemory(m_RemoteAlarmArray + i, &msg.body.alarm, sizeof(remote_control_body_alarm_t));
-	}
-
-	m_oleLastSuccessCom = COleDateTime::GetCurrentTime();
-	m_bRemoteAlarmValid = TRUE;
-	bRet = TRUE;
-err:
-
-	if (!bRet) {
-		if (m_RemoteAlarmArray) {
-			free(m_RemoteAlarmArray);
-			m_RemoteAlarmArray = NULL;
-		}
-		m_nRemoteAlarmCnt = 0;
-	}
-
-	ReleaseMutex(m_hDataMutex);
-	if (pConn)
-		pConn->Close();
-
-	return bRet;
+	return LoadSetConfig(Error, hWaitEvent, REMOTE_CONTROL_CMD_GET_ALARM);
 }
+
 
 BOOL CRemoteConfig::LoadRemoteConfigDateTime(CIVError& Error, HANDLE hWaitEvent/* = NULL */)
 {
@@ -574,8 +471,8 @@ BOOL CRemoteConfig::GetAlarm(CIVError& Error, remote_control_body_alarm_t& alarm
 
 	ZeroMemory(&alarm, sizeof(alarm));
 
-	if(nIndex >= 0 && nIndex < m_nRemoteAlarmCnt)
-		CopyMemory(&alarm, &m_RemoteAlarmArray[nIndex], sizeof(alarm));
+	if(nIndex >= 0 && nIndex < m_RemoteParam.alarm_cnt)
+		CopyMemory(&alarm, &m_RemoteAlarm, sizeof(alarm));
 
 	ReleaseMutex(m_hDataMutex);
 	return TRUE;
@@ -607,7 +504,7 @@ BOOL CRemoteConfig::SetAlarm(CIVError& Error, const remote_control_body_alarm_t&
 		return FALSE;
 	}
 
-	if (alarm.alarm_index >= 0 && alarm.alarm_index < m_nRemoteAlarmCnt)
+	if (alarm.alarm_index >= 0 && alarm.alarm_index < m_RemoteParam.alarm_cnt)
 		CopyMemory(&m_LocalAlarm, &alarm, sizeof(alarm));
 
 	ReleaseMutex(m_hDataMutex);

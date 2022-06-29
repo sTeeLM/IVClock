@@ -18,9 +18,6 @@ public:
 		m_bRTSCTS(FALSE),
 		m_bDTRDSR(FALSE),
 		m_bXONXOFF(FALSE),
-		m_RemoteAlarmArray(NULL),
-		m_nRemoteAlarmCnt(0),
-		m_nRemoteAlarmSndCnt(0),
 		m_pRemoteConfigMon(NULL),
 		m_bQuitRemoteConfigMon(FALSE),
 		m_hQuitRemoteConfigMon(NULL),
@@ -49,9 +46,7 @@ public:
 
 	}
 	virtual ~CRemoteConfig() {
-		if (m_RemoteAlarmArray)
-			free(m_RemoteAlarmArray);
-		m_RemoteAlarmArray = NULL;
+
 	}
 public:
 	BOOL Initialize(CIVError& Error);
@@ -85,10 +80,10 @@ public:
 	}
 
 	INT  GetAlarmCnt() {
-		return m_nRemoteAlarmCnt;
+		return m_RemoteParam.alarm_cnt;
 	}
 	INT GetAlarmSndCnt() {
-		return m_nRemoteAlarmSndCnt;
+		return m_RemoteParam.alarm_snd_cnt;
 	}
 
 	BOOL AddTask(CIVError& Error, CTask::IV_TASK_TYPE_T eTaskType, HWND hCallbackHwnd, UINT nMessage, LPVOID pParam = NULL);
@@ -140,9 +135,7 @@ protected:
 	HWND m_hWndDateTime;
 
 	BOOL m_bRemoteAlarmValid;
-	remote_control_body_alarm_t* m_RemoteAlarmArray;
-	INT m_nRemoteAlarmCnt;
-	INT m_nRemoteAlarmSndCnt;
+	remote_control_body_alarm_t m_RemoteAlarm;
 	HWND m_hWndAlarm;
 
 	BOOL m_bRemoteInfoValid;
