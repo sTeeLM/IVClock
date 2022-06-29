@@ -39,6 +39,7 @@ public:
 		ZeroMemory(&m_RemoteParam, sizeof(m_RemoteParam));
 		ZeroMemory(&m_RemoteDateTime, sizeof(m_RemoteDateTime));
 		ZeroMemory(&m_RemoteBatTemp, sizeof(m_RemoteBatTemp));
+		ZeroMemory(&m_RemoteAlarm, sizeof(m_RemoteAlarm));
 
 		ZeroMemory(&m_LocalParam, sizeof(m_LocalParam));
 		ZeroMemory(&m_LocalDateTime, sizeof(m_LocalDateTime));

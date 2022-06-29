@@ -94,6 +94,10 @@ BOOL CPageAlarm::LoadRemoteConfig(CIVError& Error)
 
 	// load IDC_COMBO_ALARM_HOUR
 	CComboBox* pAlarmHourBox = (CComboBox*)GetDlgItem(IDC_COMBO_ALARM_HOUR);
+	for (INT i = pAlarmHourBox->GetCount() - 1; i >= 0; i--)
+	{
+		pAlarmHourBox->DeleteString(i);
+	}
 	for (INT i = 0; i < 24; i++) {
 		strLabel.Format(_T("%02d"), i);
 		pAlarmHourBox->AddString(strLabel);
@@ -101,6 +105,10 @@ BOOL CPageAlarm::LoadRemoteConfig(CIVError& Error)
 
 	// load IDC_COMBO_ALARM_MIN
 	CComboBox* pAlarmMinBox = (CComboBox*)GetDlgItem(IDC_COMBO_ALARM_MIN);
+	for (INT i = pAlarmMinBox->GetCount() - 1; i >= 0; i--)
+	{
+		pAlarmMinBox->DeleteString(i);
+	}
 	for (INT i = 0; i < 60; i++) {
 		strLabel.Format(_T("%02d"), i);
 		pAlarmMinBox->AddString(strLabel);
@@ -169,6 +177,7 @@ LRESULT CPageAlarm::cbGetAlarm(WPARAM wParam, LPARAM lParam)
 	else {
 		TRACE(_T("GetAlarm failed: %s\n"), pTask->m_Error.GetErrorStr());
 	}
+	m_bInProgress = FALSE;
 	UpdateUI();
 	return 0;
 }
@@ -234,6 +243,7 @@ void CPageAlarm::SetAlarmDisplay(const remote_control_body_alarm_t &alarm)
 	for (UINT i = IDC_CHK_ALARM_DAY1; i <= IDC_CHK_ALARM_DAY7; i++) {
 		((CButton*)GetDlgItem(i))->SetCheck(((alarm.day_mask >> (i - IDC_CHK_ALARM_DAY1)) & 0x1) ? BST_CHECKED : BST_UNCHECKED);
 	}
+	((CComboBox*)GetDlgItem(IDC_COMBO_ALARM_INDEX))->SetCurSel(alarm.alarm_index);
 	((CComboBox*)GetDlgItem(IDC_COMBO_ALARM_HOUR))->SetCurSel(alarm.hour);
 	((CComboBox*)GetDlgItem(IDC_COMBO_ALARM_MIN))->SetCurSel(alarm.min);
 	((CComboBox*)GetDlgItem(IDC_COMBO_ALARM_SND))->SetCurSel(alarm.snd);
@@ -244,9 +254,18 @@ void CPageAlarm::OnCbnSelchangeComboAlarmIndex()
 	INT nIndex = ((CComboBox*)GetDlgItem(IDC_COMBO_ALARM_INDEX))->GetCurSel();
 	CIVError Error;
 	remote_control_body_alarm_t alarm;
-	if (nIndex != CB_ERR) {
-		if (theApp.m_RemoteConfig.GetAlarm(Error, alarm, nIndex)) {
-			SetAlarmDisplay(alarm);
-		}
+
+	alarm.alarm_index = nIndex;
+	if (!theApp.m_RemoteConfig.SetAlarm(Error, alarm)) {
+		AfxMessageBox(Error.GetErrorStr());
+		return;
 	}
+
+	if (!theApp.m_RemoteConfig.AddTask(Error, CTask::IV_TASK_GET_ALARM, GetSafeHwnd(), WM_CB_GET_ALARM, (LPVOID)1)) {
+		AfxMessageBox(Error.GetErrorStr());
+		return;
+	}
+
+	m_bInProgress = TRUE;
+	UpdateUI();
 }
