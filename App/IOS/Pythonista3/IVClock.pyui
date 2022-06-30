@@ -7,36 +7,15 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 6}, {95, 32}}",
-            "class" : "Button",
-            "attributes" : {
-              "border_width" : 1,
-              "action" : "btnConnect_action",
-              "frame" : "{{104, 177}, {80, 32}}",
-              "title" : "连接设备",
-              "uuid" : "474DF0C3-CCC7-44A6-A215-94A0885E379C",
-              "font_bold" : true,
-              "class" : "Button",
-              "corner_radius" : 1,
-              "name" : "btnConnect",
-              "font_size" : 15
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{286, 49}, {120, 29}}",
+            "frame" : "{{285, 49}, {120, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "action" : "segTimeFormat_action",
-              "flex" : "LR",
               "segments" : "12小时|24小时",
               "frame" : "{{84, 179}, {120, 29}}",
-              "uuid" : "D451E77D-D8B2-4C4B-94DE-31A38DB0803D",
+              "flex" : "LR",
               "class" : "SegmentedControl",
-              "name" : "segTimeFormat"
+              "name" : "segTimeFormat",
+              "uuid" : "D451E77D-D8B2-4C4B-94DE-31A38DB0803D"
             },
             "selected" : false
           },
@@ -80,16 +59,15 @@
             "nodes" : [
 
             ],
-            "frame" : "{{285, 86}, {120, 29}}",
+            "frame" : "{{284, 86}, {120, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "action" : "segTempFormat_action",
-              "flex" : "LR",
               "segments" : "摄氏|华氏",
               "frame" : "{{84, 179}, {120, 29}}",
-              "uuid" : "C565469B-0156-40E9-84BF-0DB1C12FE1E1",
+              "flex" : "LR",
               "class" : "SegmentedControl",
-              "name" : "segTempFormat"
+              "name" : "segTempFormat",
+              "uuid" : "C565469B-0156-40E9-84BF-0DB1C12FE1E1"
             },
             "selected" : false
           },
@@ -100,7 +78,6 @@
             "frame" : "{{341.66666666666663, 123}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchBP_action",
               "frame" : "{{165, 177}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -134,7 +111,6 @@
             "frame" : "{{344, 164}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchLM_action",
               "frame" : "{{165, 177}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -168,7 +144,6 @@
             "frame" : "{{344, 203}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchMM_action",
               "frame" : "{{165, 177}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -217,16 +192,15 @@
             "nodes" : [
 
             ],
-            "frame" : "{{203.33333333333331, 242}, {202, 29}}",
+            "frame" : "{{173, 242}, {231, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "action" : "segPS_action",
-              "flex" : "LR",
-              "segments" : "禁止|15秒|30秒|45秒",
+              "segments" : "禁止|15秒|30秒|45秒|60秒",
               "frame" : "{{130, 178}, {120, 29}}",
-              "uuid" : "80BEFC4E-0AEB-473A-AB2D-8864913BBDB1",
+              "flex" : "LR",
               "class" : "SegmentedControl",
-              "name" : "segPS"
+              "name" : "segPS",
+              "uuid" : "80BEFC4E-0AEB-473A-AB2D-8864913BBDB1"
             },
             "selected" : false
           },
@@ -255,7 +229,6 @@
             "frame" : "{{343.66666666666663, 281}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchBS_action",
               "frame" : "{{165, 296}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -322,16 +295,15 @@
             "nodes" : [
 
             ],
-            "frame" : "{{206, 404}, {200, 29}}",
+            "frame" : "{{205, 404}, {200, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "action" : "segBP_action",
-              "flex" : "LR",
               "segments" : "0|1|2|3|4|5|6|7|8|9",
               "frame" : "{{131, 297}, {120, 29}}",
-              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC",
+              "flex" : "LR",
               "class" : "SegmentedControl",
-              "name" : "segBP"
+              "name" : "segBP",
+              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC"
             },
             "selected" : false
           },
@@ -343,7 +315,6 @@
             "class" : "Button",
             "attributes" : {
               "border_width" : 1,
-              "action" : "btnSyncTime_action",
               "frame" : "{{151, 296}, {80, 32}}",
               "title" : "同步时间",
               "uuid" : "FF10733F-D76B-4051-82FD-3DB49BDBABB7",
@@ -352,22 +323,21 @@
               "name" : "btnSyncTime",
               "font_size" : 15
             },
-            "selected" : true
+            "selected" : false
           },
           {
             "nodes" : [
 
             ],
-            "frame" : "{{208, 485}, {199, 29}}",
+            "frame" : "{{207, 485}, {199, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "action" : "segAlarmIndex_action",
-              "flex" : "LR",
               "segments" : "0|1|2|3|4|5|6|7|8|9",
               "frame" : "{{131, 297}, {120, 29}}",
-              "uuid" : "A0B1EFDB-94FD-4A3D-B3C3-6CC62A742796",
+              "flex" : "LR",
               "class" : "SegmentedControl",
-              "name" : "segAlarmIndex"
+              "name" : "segAlarmIndex",
+              "uuid" : "A0B1EFDB-94FD-4A3D-B3C3-6CC62A742796"
             },
             "selected" : false
           },
@@ -375,7 +345,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{10, 482}, {150, 32}}",
+            "frame" : "{{6, 485}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelAlarmIndex",
@@ -393,7 +363,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{10, 524}, {150, 32}}",
+            "frame" : "{{6, 534}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelAlarmTime",
@@ -411,7 +381,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{10, 577}, {150, 32}}",
+            "frame" : "{{6, 577}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelAlarmSnd",
@@ -429,16 +399,15 @@
             "nodes" : [
 
             ],
-            "frame" : "{{203.33333333333331, 577}, {200, 27}}",
+            "frame" : "{{202.33333333333331, 577}, {200, 27}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "flex" : "LR",
-              "action" : "segAlarmSnd_action",
               "segments" : "0|1|2|3|4|5|6|7|8|9",
               "frame" : "{{131, 297}, {120, 29}}",
+              "flex" : "LR",
               "class" : "SegmentedControl",
-              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC",
-              "name" : "segAlarmSnd"
+              "name" : "segAlarmSnd",
+              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC"
             },
             "selected" : false
           },
@@ -449,7 +418,6 @@
             "frame" : "{{109, 617}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchAlarmDay_action",
               "frame" : "{{176, 355}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -501,7 +469,6 @@
             "frame" : "{{109, 657}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchAlarmDay_action",
               "frame" : "{{176, 355}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -535,7 +502,6 @@
             "frame" : "{{109, 698}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchAlarmDay_action",
               "frame" : "{{176, 355}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -569,11 +535,10 @@
             "frame" : "{{109, 737}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchAlarmDay_action",
               "frame" : "{{176, 371}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
-              "name" : "switchAlatmDay3",
+              "name" : "switchAlarmDay3",
               "uuid" : "FCD56DBF-B4C6-439D-8EA1-6AAA7AF17D11"
             },
             "selected" : false
@@ -639,7 +604,6 @@
             "frame" : "{{346.66666666666663, 617}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchAlarmDay_action",
               "frame" : "{{176, 371}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -652,10 +616,9 @@
             "nodes" : [
 
             ],
-            "frame" : "{{344, 658}, {51, 31}}",
+            "frame" : "{{346.66666666666663, 657}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchAlarmDay_action",
               "frame" : "{{176, 371}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -668,10 +631,9 @@
             "nodes" : [
 
             ],
-            "frame" : "{{344, 697}, {51, 31}}",
+            "frame" : "{{346.66666666666663, 700}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
-              "action" : "switchAlarmDay_action",
               "frame" : "{{176, 371}, {51, 31}}",
               "value" : true,
               "class" : "Switch",
@@ -684,15 +646,15 @@
             "nodes" : [
 
             ],
-            "frame" : "{{109, 6}, {190, 32}}",
+            "frame" : "{{105.66666666666663, 6}, {193, 32}}",
             "class" : "Label",
             "attributes" : {
-              "name" : "labelInfo",
+              "name" : "labelInfoDatetime",
               "frame" : "{{127, 370}, {150, 32}}",
               "uuid" : "A3109AA7-FB0A-488A-908D-FC1E883233F9",
               "class" : "Label",
               "alignment" : "left",
-              "text" : "信息",
+              "text" : "未同步",
               "font_size" : 18,
               "font_name" : "<System>"
             },
@@ -720,12 +682,11 @@
             "nodes" : [
 
             ],
-            "frame" : "{{173, 440}, {232, 34}}",
+            "frame" : "{{173, 440}, {231, 34}}",
             "class" : "Slider",
             "attributes" : {
               "flex" : "W",
               "continuous" : false,
-              "action" : "sliderPlyVol_action",
               "frame" : "{{103, 388}, {200, 34}}",
               "uuid" : "208432D5-FCFB-4029-A38C-795BB39B568E",
               "class" : "Slider",
@@ -741,11 +702,10 @@
             "frame" : "{{174, 320}, {231, 45}}",
             "class" : "DatePicker",
             "attributes" : {
-              "name" : "datepickerBSFrom",
-              "frame" : "{{45, 297}, {320, 216}}",
-              "action" : "datepickerBSFrom_action",
-              "class" : "DatePicker",
               "mode" : 0,
+              "frame" : "{{45, 297}, {320, 216}}",
+              "name" : "datepickerBSFrom",
+              "class" : "DatePicker",
               "uuid" : "3F8D34EA-A42B-44BD-9CC7-4F967841FE1C"
             },
             "selected" : false
@@ -757,11 +717,10 @@
             "frame" : "{{174, 362}, {230, 39}}",
             "class" : "DatePicker",
             "attributes" : {
-              "name" : "datepickerBSTo",
-              "frame" : "{{45, 297}, {320, 216}}",
-              "action" : "datepickerBSTo_action",
-              "class" : "DatePicker",
               "mode" : 0,
+              "frame" : "{{45, 297}, {320, 216}}",
+              "name" : "datepickerBSTo",
+              "class" : "DatePicker",
               "uuid" : "EF170E00-8966-4549-A22B-86CD2806A7D9"
             },
             "selected" : false
@@ -773,14 +732,175 @@
             "frame" : "{{173, 522}, {231, 44}}",
             "class" : "DatePicker",
             "attributes" : {
-              "name" : "datepickerAlarmTime",
-              "frame" : "{{45, 297}, {320, 216}}",
-              "action" : "datepickerAlarmTime_action",
-              "class" : "DatePicker",
               "mode" : 0,
+              "frame" : "{{45, 297}, {320, 216}}",
+              "name" : "datepickerAlarmTime",
+              "class" : "DatePicker",
               "uuid" : "9EE87781-7033-469F-BF2D-E166B5B11037"
             },
             "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 777}, {79, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelBatVoltage",
+              "frame" : "{{130, 424}, {150, 32}}",
+              "uuid" : "917AF6EB-9C1E-4AB8-8349-D95C5847930D",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "电池电量",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 817}, {79, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelTemp",
+              "frame" : "{{130, 424}, {150, 32}}",
+              "uuid" : "9D04AB80-B8B9-4848-A6EA-9682361001EF",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "气温",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 857}, {79, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelBuildID",
+              "frame" : "{{130, 439}, {150, 32}}",
+              "uuid" : "D7097CAD-0525-4621-9193-26C1C5A42489",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "BuildID",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 897}, {79, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelVersion",
+              "frame" : "{{130, 439}, {150, 32}}",
+              "uuid" : "AEAAE562-4B48-499B-BCB5-A5D9288BA86A",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "版本",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{93, 777}, {305, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelInfoBat",
+              "frame" : "{{130, 455}, {150, 32}}",
+              "uuid" : "3CB47041-7575-4BAE-91C4-7E9BB6331E15",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "未同步",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{93, 817}, {305, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelInfoTemp",
+              "frame" : "{{130, 455}, {150, 32}}",
+              "uuid" : "A1D966BA-0B69-416F-ABB8-DD1C369296E0",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "未同步",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{93, 857}, {305, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelInfoBuildID",
+              "frame" : "{{130, 455}, {150, 32}}",
+              "uuid" : "A1F08BA0-71F8-4E45-909E-BB5C1376CC81",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "未同步",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{93, 897}, {305, 32}}",
+            "class" : "Label",
+            "attributes" : {
+              "name" : "labelInfoVersion",
+              "frame" : "{{130, 455}, {150, 32}}",
+              "uuid" : "2AFF14F3-B893-428A-A19C-163722C3BFE0",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "未同步",
+              "font_size" : 18,
+              "font_name" : "<System>"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{6, 6}, {92, 32}}",
+            "class" : "Button",
+            "attributes" : {
+              "border_width" : 1,
+              "frame" : "{{165, 455}, {80, 32}}",
+              "title" : "停止闹钟",
+              "uuid" : "FF7C4C15-BF1D-43C4-924E-669D9227CB60",
+              "class" : "Button",
+              "corner_radius" : 1,
+              "name" : "btnStopAlarm",
+              "font_size" : 15
+            },
+            "selected" : true
           }
         ],
         "frame" : "{{0, 0}, {410, 800}}",
@@ -789,9 +909,9 @@
           "enabled" : true,
           "frame" : "{{40, 240}, {320, 320}}",
           "uuid" : "25BE4B87-6AE6-4FFB-9BA0-72467E5BD3A1",
-          "content_height" : 810,
+          "content_height" : 942,
           "class" : "ScrollView",
-          "content_width" : 410,
+          "content_width" : 409,
           "name" : "scrollview1"
         },
         "selected" : true
@@ -802,9 +922,9 @@
     "attributes" : {
       "name" : "IVClock",
       "enabled" : true,
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
       "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
       "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
-      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
       "flex" : ""
     },
     "selected" : false
