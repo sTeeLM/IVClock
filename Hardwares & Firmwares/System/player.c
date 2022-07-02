@@ -171,9 +171,14 @@ void player_off(void)
 //  BSP_MP3_Standby();  
 }
 
+static void player_play_sequence_stop(void);
 static void player_play_sequence_start(void)
 {
   IVDBG("player_play_sequence_start");
+  if(player_seq_in_playing) {
+    BSP_MP3_Stop();
+    delay_ms(20);
+  }
   player_seq_in_playing = TRUE;
   player_seq_current_index = 0;
   if(player_seq[0].dir && player_seq[0].file) {
@@ -189,7 +194,8 @@ static void player_play_sequence_stop(void)
   if(player_seq_in_playing) {
     BSP_MP3_Stop();
     player_seq_in_playing = FALSE;
-    player_seq_current_index = 0;  
+    player_seq_current_index = 0; 
+    memset(player_seq, 0 , sizeof(player_seq));    
     task_set(EV_PLAYER_STOP);
   }
 }

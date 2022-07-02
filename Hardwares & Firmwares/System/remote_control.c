@@ -58,7 +58,8 @@ static void do_set_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
 static void do_get_param(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_set_param(remote_control_msg_t * cmd, remote_control_msg_t * res);
 static void do_get_info(remote_control_msg_t * cmd, remote_control_msg_t * res);
-static void do_stop_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res);
+static void do_ply_snd(remote_control_msg_t * cmd, remote_control_msg_t * res);
+static void do_stop_snd(remote_control_msg_t * cmd, remote_control_msg_t * res);
 
 remote_control_proc_type_t remote_control_proc[] = 
 {
@@ -69,7 +70,8 @@ remote_control_proc_type_t remote_control_proc[] =
   {REMOTE_CONTROL_CMD_SET_ALARM, do_set_alarm}, 
   {REMOTE_CONTROL_CMD_GET_PARAM, do_get_param}, 
   {REMOTE_CONTROL_CMD_SET_PARAM, do_set_param},
-  {REMOTE_CONTROL_CMD_STOP_ALARM, do_stop_alarm},   
+  {REMOTE_CONTROL_CMD_PLY_SND, do_ply_snd},  
+  {REMOTE_CONTROL_CMD_STOP_SND, do_stop_snd},   
   {REMOTE_CONTROL_CMD_GET_INFO, do_get_info}, 
 };
 
@@ -383,12 +385,29 @@ static void do_get_info(remote_control_msg_t * cmd, remote_control_msg_t * res)
   res->header.length = sizeof(res->body.info);
 }
 
-static void do_stop_alarm(remote_control_msg_t * cmd, remote_control_msg_t * res)
+static void do_ply_snd(remote_control_msg_t * cmd, remote_control_msg_t * res)
 {
-  alarm0_stop_snd();
+  IVDBG("do_ply_snd type = %d, snd_index = %d", cmd->body.snd.type, cmd->body.snd.snd_index);
+  if(cmd->body.snd.type == REMOTE_CONTROL_SND_ALARM)
+    alarm0_play_snd(cmd->body.snd.snd_index);
+  else if (cmd->body.snd.type == REMOTE_CONTROL_SND_EFFECT)
+    player_play_snd(PLAYER_SND_DIR_EFFETS, cmd->body.snd.snd_index);
+  else
+    player_report_clk_and_temp(); 
   
   res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
   res->header.code = REMOTE_CONTROL_CODE_OK;
-  res->header.length = 0;
+  res->header.length = sizeof(remote_control_body_ply_snd_t);  
+}
+
+static void do_stop_snd(remote_control_msg_t * cmd, remote_control_msg_t * res)
+{
+  IVDBG("do_stop_snd type = %d", cmd->body.snd.type);
+  
+  player_stop_play();
+  
+  res->header.res = cmd->header.cmd + REMOTE_CONTROL_RES_BASE;
+  res->header.code = REMOTE_CONTROL_CODE_OK;
+  res->header.length = sizeof(remote_control_body_ply_snd_t); 
 }
 

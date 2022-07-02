@@ -19,7 +19,8 @@ typedef enum remote_control_cmd_type
   REMOTE_CONTROL_CMD_SET_ALARM,
   REMOTE_CONTROL_CMD_GET_PARAM,
   REMOTE_CONTROL_CMD_SET_PARAM,
-  REMOTE_CONTROL_CMD_STOP_ALARM,  
+  REMOTE_CONTROL_CMD_PLY_SND,   
+  REMOTE_CONTROL_CMD_STOP_SND,  
   REMOTE_CONTROL_CMD_GET_INFO,
   REMOTE_CONTROL_CMD_CNT
 }remote_control_cmd_type_t;
@@ -34,7 +35,8 @@ typedef enum remote_control_res_type
   REMOTE_CONTROL_RES_SET_ALARM,
   REMOTE_CONTROL_RES_GET_PARAM,
   REMOTE_CONTROL_RES_SET_PARAM,
-  REMOTE_CONTROL_RES_STOP_ALARM,
+  REMOTE_CONTROL_RES_PLY_SND,   
+  REMOTE_CONTROL_RES_STOP_SND,
   REMOTE_CONTROL_RES_GET_INFO,
 }remote_control_res_type_t;
 
@@ -119,6 +121,22 @@ typedef struct remote_control_body_info
   uint8_t build_id[16];
 }remote_control_body_info_t;
 #pragma pack(pop)
+
+typedef enum remote_control_snd_type
+{
+  REMOTE_CONTROL_SND_ALARM   = 0,
+  REMOTE_CONTROL_SND_EFFECT,
+  REMOTE_CONTROL_SND_BS
+}remote_control_snd_type_t;
+
+#pragma pack(push,1)
+typedef struct remote_control_body_ply_snd
+{
+  uint8_t type;
+  uint8_t snd_index;
+}remote_control_body_ply_snd_t;
+#pragma pack(pop)
+
 // msg
 #pragma pack(push,1)
 typedef struct remote_control_msg
@@ -128,10 +146,13 @@ typedef struct remote_control_msg
     remote_control_body_time_t time;
     remote_control_body_alarm_t alarm; 
     remote_control_body_param_t param;
+    remote_control_body_ply_snd_t snd;
     remote_control_body_info_t info;
   }body;
 }remote_control_msg_t;
 #pragma pack(pop)
+
+
 
 #ifdef __cplusplus
 }
