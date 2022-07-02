@@ -178,6 +178,7 @@ void remote_control_run(void)
   while(remote_control_connected()) {
     IVDBG("into remote_control_run");
     if(remote_control_read_cmd(&remote_control_cmd)) {
+      memcpy(&remote_control_res, &remote_control_cmd, sizeof(remote_control_cmd));
       remote_control_deal_cmd(&remote_control_cmd, &remote_control_res);
       remote_control_send_res(&remote_control_res);
     }
