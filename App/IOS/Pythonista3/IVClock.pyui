@@ -10,11 +10,11 @@
             "frame" : "{{285, 49}, {120, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "segments" : "12小时|24小时",
+              "name" : "segTimeFormat",
               "frame" : "{{84, 179}, {120, 29}}",
               "flex" : "LR",
+              "segments" : "12小时|24小时",
               "class" : "SegmentedControl",
-              "name" : "segTimeFormat",
               "uuid" : "D451E77D-D8B2-4C4B-94DE-31A38DB0803D"
             },
             "selected" : false
@@ -62,11 +62,11 @@
             "frame" : "{{284, 86}, {120, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "segments" : "摄氏|华氏",
+              "name" : "segTempFormat",
               "frame" : "{{84, 179}, {120, 29}}",
               "flex" : "LR",
+              "segments" : "摄氏|华氏",
               "class" : "SegmentedControl",
-              "name" : "segTempFormat",
               "uuid" : "C565469B-0156-40E9-84BF-0DB1C12FE1E1"
             },
             "selected" : false
@@ -195,11 +195,11 @@
             "frame" : "{{173, 242}, {231, 29}}",
             "class" : "SegmentedControl",
             "attributes" : {
-              "segments" : "禁止|15秒|30秒|45秒|60秒",
+              "name" : "segPS",
               "frame" : "{{130, 178}, {120, 29}}",
               "flex" : "LR",
+              "segments" : "禁止|15秒|30秒|45秒|60秒",
               "class" : "SegmentedControl",
-              "name" : "segPS",
               "uuid" : "80BEFC4E-0AEB-473A-AB2D-8864913BBDB1"
             },
             "selected" : false
@@ -241,15 +241,15 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 324}, {101, 32}}",
+            "frame" : "{{6, 324}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
-              "name" : "labelBSFrom",
+              "name" : "labelBSFromTo",
               "frame" : "{{116, 296}, {150, 32}}",
               "uuid" : "CA54FBAF-A670-44C4-B405-262A50BE2114",
               "class" : "Label",
               "alignment" : "left",
-              "text" : "从几点开始",
+              "text" : "几点开始几点结束",
               "font_size" : 18,
               "font_name" : "<System>"
             },
@@ -259,25 +259,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 362}, {101, 32}}",
-            "class" : "Label",
-            "attributes" : {
-              "name" : "labelBSTo",
-              "frame" : "{{116, 296}, {150, 32}}",
-              "uuid" : "211747F0-9D45-45A5-85E8-7589702FE857",
-              "class" : "Label",
-              "alignment" : "left",
-              "text" : "到几点结束",
-              "font_size" : 18,
-              "font_name" : "<System>"
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{6, 402}, {150, 32}}",
+            "frame" : "{{6, 364}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -288,22 +270,6 @@
               "text" : "计时提示音",
               "name" : "labelBP",
               "font_name" : "<System>"
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{205, 404}, {200, 29}}",
-            "class" : "SegmentedControl",
-            "attributes" : {
-              "segments" : "0|1|2|3|4|5|6|7|8|9",
-              "frame" : "{{131, 297}, {120, 29}}",
-              "flex" : "LR",
-              "class" : "SegmentedControl",
-              "name" : "segBP",
-              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC"
             },
             "selected" : false
           },
@@ -329,23 +295,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{207, 485}, {199, 29}}",
-            "class" : "SegmentedControl",
-            "attributes" : {
-              "segments" : "0|1|2|3|4|5|6|7|8|9",
-              "frame" : "{{131, 297}, {120, 29}}",
-              "flex" : "LR",
-              "class" : "SegmentedControl",
-              "name" : "segAlarmIndex",
-              "uuid" : "A0B1EFDB-94FD-4A3D-B3C3-6CC62A742796"
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{6, 485}, {150, 32}}",
+            "frame" : "{{6, 454}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelAlarmIndex",
@@ -363,7 +313,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 534}, {150, 32}}",
+            "frame" : "{{6, 494}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelAlarmTime",
@@ -381,7 +331,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 577}, {150, 32}}",
+            "frame" : "{{6, 549}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelAlarmSnd",
@@ -399,23 +349,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{202.33333333333331, 577}, {200, 27}}",
-            "class" : "SegmentedControl",
-            "attributes" : {
-              "segments" : "0|1|2|3|4|5|6|7|8|9",
-              "frame" : "{{131, 297}, {120, 29}}",
-              "flex" : "LR",
-              "class" : "SegmentedControl",
-              "name" : "segAlarmSnd",
-              "uuid" : "CB8D50A9-C475-4C29-9A63-AA788DA409CC"
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{109, 617}, {51, 31}}",
+            "frame" : "{{109, 589}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
               "frame" : "{{176, 355}, {51, 31}}",
@@ -430,7 +364,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 617}, {95, 32}}",
+            "frame" : "{{6, 589}, {95, 32}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -448,7 +382,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 657}, {95, 32}}",
+            "frame" : "{{6, 629}, {95, 32}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -466,7 +400,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{109, 657}, {51, 31}}",
+            "frame" : "{{109, 630}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
               "frame" : "{{176, 355}, {51, 31}}",
@@ -475,13 +409,13 @@
               "name" : "switchAlarmDay1",
               "uuid" : "6EF066FA-7EC2-4DF8-83B1-D2374B047EE7"
             },
-            "selected" : false
+            "selected" : true
           },
           {
             "nodes" : [
 
             ],
-            "frame" : "{{6, 697}, {95, 32}}",
+            "frame" : "{{6, 669}, {95, 32}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -499,7 +433,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{109, 698}, {51, 31}}",
+            "frame" : "{{109, 670}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
               "frame" : "{{176, 355}, {51, 31}}",
@@ -514,7 +448,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 737}, {95, 32}}",
+            "frame" : "{{6, 709}, {95, 32}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -532,7 +466,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{109, 737}, {51, 31}}",
+            "frame" : "{{109, 710}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
               "frame" : "{{176, 371}, {51, 31}}",
@@ -547,7 +481,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{223, 617}, {113, 32}}",
+            "frame" : "{{225.66666666666663, 590}, {113, 32}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -565,7 +499,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{222, 656}, {113, 33}}",
+            "frame" : "{{225.66666666666663, 630}, {113, 33}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -583,7 +517,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{223, 698}, {113, 33}}",
+            "frame" : "{{225.66666666666663, 671}, {113, 33}}",
             "class" : "Label",
             "attributes" : {
               "font_size" : 18,
@@ -601,7 +535,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{346.66666666666663, 617}, {51, 31}}",
+            "frame" : "{{346.66666666666663, 590}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
               "frame" : "{{176, 371}, {51, 31}}",
@@ -616,7 +550,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{346.66666666666663, 657}, {51, 31}}",
+            "frame" : "{{346.66666666666663, 632}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
               "frame" : "{{176, 371}, {51, 31}}",
@@ -631,7 +565,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{346.66666666666663, 700}, {51, 31}}",
+            "frame" : "{{347, 673}, {51, 31}}",
             "class" : "Switch",
             "attributes" : {
               "frame" : "{{176, 371}, {51, 31}}",
@@ -650,6 +584,7 @@
             "class" : "Label",
             "attributes" : {
               "name" : "labelInfoDatetime",
+              "text_color" : "RGBA(0.000000,0.347826,1.000000,1.000000)",
               "frame" : "{{127, 370}, {150, 32}}",
               "uuid" : "A3109AA7-FB0A-488A-908D-FC1E883233F9",
               "class" : "Label",
@@ -664,7 +599,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 442}, {150, 32}}",
+            "frame" : "{{6, 404}, {150, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelPlyVol",
@@ -682,7 +617,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{173, 440}, {231, 34}}",
+            "frame" : "{{174, 405}, {231, 34}}",
             "class" : "Slider",
             "attributes" : {
               "flex" : "W",
@@ -699,52 +634,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{174, 320}, {231, 45}}",
-            "class" : "DatePicker",
-            "attributes" : {
-              "mode" : 0,
-              "frame" : "{{45, 297}, {320, 216}}",
-              "name" : "datepickerBSFrom",
-              "class" : "DatePicker",
-              "uuid" : "3F8D34EA-A42B-44BD-9CC7-4F967841FE1C"
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{174, 362}, {230, 39}}",
-            "class" : "DatePicker",
-            "attributes" : {
-              "mode" : 0,
-              "frame" : "{{45, 297}, {320, 216}}",
-              "name" : "datepickerBSTo",
-              "class" : "DatePicker",
-              "uuid" : "EF170E00-8966-4549-A22B-86CD2806A7D9"
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{173, 522}, {231, 44}}",
-            "class" : "DatePicker",
-            "attributes" : {
-              "mode" : 0,
-              "frame" : "{{45, 297}, {320, 216}}",
-              "name" : "datepickerAlarmTime",
-              "class" : "DatePicker",
-              "uuid" : "9EE87781-7033-469F-BF2D-E166B5B11037"
-            },
-            "selected" : false
-          },
-          {
-            "nodes" : [
-
-            ],
-            "frame" : "{{6, 777}, {79, 32}}",
+            "frame" : "{{6, 749}, {79, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelBatVoltage",
@@ -762,7 +652,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 817}, {79, 32}}",
+            "frame" : "{{6, 789}, {79, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelTemp",
@@ -780,7 +670,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 857}, {79, 32}}",
+            "frame" : "{{6, 829}, {79, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelBuildID",
@@ -798,7 +688,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{6, 897}, {79, 32}}",
+            "frame" : "{{6, 869}, {79, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelVersion",
@@ -816,7 +706,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{93, 777}, {305, 32}}",
+            "frame" : "{{96.333333333333314, 749}, {305, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelInfoBat",
@@ -834,7 +724,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{93, 817}, {305, 32}}",
+            "frame" : "{{96.333333333333314, 789}, {305, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelInfoTemp",
@@ -852,7 +742,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{93, 857}, {305, 32}}",
+            "frame" : "{{96.333333333333314, 829}, {305, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelInfoBuildID",
@@ -870,7 +760,7 @@
             "nodes" : [
 
             ],
-            "frame" : "{{93, 897}, {305, 32}}",
+            "frame" : "{{96.333333333333314, 869}, {305, 32}}",
             "class" : "Label",
             "attributes" : {
               "name" : "labelInfoVersion",
@@ -900,7 +790,83 @@
               "name" : "btnStopAlarm",
               "font_size" : 15
             },
-            "selected" : true
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{195, 313}, {200, 43}}",
+            "class" : "View",
+            "attributes" : {
+              "name" : "pickerBSFromTo",
+              "frame" : "{{155, 421}, {100, 100}}",
+              "custom_class" : "PickerView.PickerView",
+              "custom_attributes" : "",
+              "class" : "View",
+              "uuid" : "8A8E7932-478C-4CCD-8CB9-AE517D9C7C36"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{194, 357}, {200, 47}}",
+            "class" : "View",
+            "attributes" : {
+              "class" : "View",
+              "frame" : "{{155, 408}, {100, 100}}",
+              "name" : "pickerTmrSnd",
+              "custom_class" : "PickerView.PickerView",
+              "uuid" : "483EAC6F-C5B4-4EAD-9385-8C5AB5983EE9"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{194, 438}, {199, 48}}",
+            "class" : "View",
+            "attributes" : {
+              "custom_class" : "PickerView.PickerView",
+              "frame" : "{{155, 408}, {100, 100}}",
+              "class" : "View",
+              "name" : "pickerAlarmIndex",
+              "uuid" : "718A78CA-9B4E-45FB-B614-B8E492F91C2D"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{195, 539}, {198, 50}}",
+            "class" : "View",
+            "attributes" : {
+              "class" : "View",
+              "frame" : "{{155, 408}, {100, 100}}",
+              "name" : "pickerAlarmSnd",
+              "custom_class" : "PickerView.PickerView",
+              "uuid" : "F62E9782-1054-4A7C-8BA9-B6AC30A0E8CA"
+            },
+            "selected" : false
+          },
+          {
+            "nodes" : [
+
+            ],
+            "frame" : "{{194, 485}, {199, 56}}",
+            "class" : "View",
+            "attributes" : {
+              "class" : "View",
+              "frame" : "{{155, 408}, {100, 100}}",
+              "name" : "pickerAlarmTime",
+              "custom_class" : "PickerView.PickerView",
+              "uuid" : "8A1F440C-4B20-4F35-8841-6AF0CD995E39"
+            },
+            "selected" : false
           }
         ],
         "frame" : "{{0, 0}, {410, 800}}",
@@ -909,7 +875,7 @@
           "enabled" : true,
           "frame" : "{{40, 240}, {320, 320}}",
           "uuid" : "25BE4B87-6AE6-4FFB-9BA0-72467E5BD3A1",
-          "content_height" : 942,
+          "content_height" : 915,
           "class" : "ScrollView",
           "content_width" : 409,
           "name" : "scrollview1"
@@ -920,11 +886,11 @@
     "frame" : "{{0, 0}, {410, 800}}",
     "class" : "View",
     "attributes" : {
-      "name" : "IVClock",
-      "enabled" : true,
-      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
       "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+      "enabled" : true,
       "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+      "name" : "IVClock",
       "flex" : ""
     },
     "selected" : false

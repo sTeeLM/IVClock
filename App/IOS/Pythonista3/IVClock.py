@@ -1,25 +1,28 @@
 import ui
 import cb
-import sound
-import time
 import datetime
 import struct
 import sys
 import functools
+import queue
+import time
+import PickerView
 
 
-class IVClockManager (object):
-    def __init__(self, write_notify, update_notify, connect_notify, disconnect_notify):
+class IVClockBLE (object):
+    def __init__(self, scan_notify, write_notify, update_notify, connect_notify, disconnect_notify):
         self.peripheral = None
         self.service = None
         self.characteristics = None
+        self.scan_notify = scan_notify
         self.write_notify = write_notify
         self.update_notify = update_notify
         self.connect_notify = connect_notify
         self.disconnect_notify = disconnect_notify
 
     def did_discover_peripheral(self, p):
-        #print('Scanning:', p.name)
+        print('Scanning:', p.name)
+        self.scan_notify(p)
         if p.name and 'JDY-32-LE' in p.name and not self.peripheral:
             self.peripheral = p
             print('Connecting to ivclock...')
@@ -90,14 +93,10 @@ class IVClock(object):
         'REMOTE_CONTROL_RES_STOP_ALARM' : [108, 0, ''],
         'REMOTE_CONTROL_RES_GET_INFO'  : [109, 31, '<fBff2B16s']
     }
-    STATE = [
-        'INIT',
-        'GET_REMOTE_DATETIME',
-        'GET_REMOTE_PARAM'
-        'GET_REMOTE_INFO'
-        'GET_REMOTE_ALARM',
-        'RUNNING'
-    ]
+
+    # event: {'ev' : event, 'enable_ui': True, 'call_back': cb}
+    event_queue = queue.Queue()
+
     REMOTE_CONTROL_MSG_HEADER_MAGIC = 0x12345678
     MSG_HEADER_LENGTH = 8
     MSG_BODY_LENGTH   = 31
@@ -110,7 +109,7 @@ class IVClock(object):
     body_param = {}
     body_info  = {}
     msg_res = b''
-    current_state = 'INIT'
+    is_syncing_remote = False
 
     def __init__(self):
         self.actions = {
@@ -121,22 +120,21 @@ class IVClock(object):
             'switchMM'      : self.switchMM_action,
             'segPS'         : self.segPS_action,
             'switchBS'      : self.switchBS_action,
-            'segBP'         : self.segBP_action,
+            'pickerTmrSnd'  : self.pickerTmrSnd_action,
             'btnSyncTime'   : self.btnSyncTime_action,
             'btnStopAlarm'  : self.btnStopAlarm_action,
-            'segAlarmIndex' : self.segAlarmIndex_action,
-            'segAlarmSnd'   : self.segAlarmSnd_action,
+            'pickerAlarmIndex' : self.pickerAlarmIndex_action,
+            'pickerAlarmSnd'   : self.pickerAlarmSnd_action,
             'switchAlarmDay1': self.switchAlarmDay_action,
             'switchAlarmDay2': self.switchAlarmDay_action,
             'switchAlarmDay3': self.switchAlarmDay_action,
             'switchAlarmDay4': self.switchAlarmDay_action,
             'switchAlarmDay5': self.switchAlarmDay_action,
             'switchAlarmDay6': self.switchAlarmDay_action,
-            'switchAlarmDay7': self.switchAlarmDay_action,
+            'switchAlarmDay0': self.switchAlarmDay_action,
             'sliderPlyVol'   : self.sliderPlyVol_action,
-            'datepickerBSFrom': self.datepickerBSFrom_action,
-            'datepickerBSTo'  : self.datepickerBSTo_action,
-            'datepickerAlarmTime' : self.datepickerAlarmTime_action,
+            'pickerBSFromTo': self.pickerBSFromTo_action,
+            'pickerAlarmTime' : self.pickerAlarmTime_action,
 
         }
         
@@ -188,28 +186,38 @@ class IVClock(object):
 
     def init_ui(self):
         self.view = ui.load_view('IVClock')
-        if min(ui.get_screen_size()) >= 768:
-        # iPad
-            self.view.frame = (0, 0, 360, 400)
-            self.view.present('sheet')
-        else:
-        # iPhone
-            self.view.present(orientations=['portrait'])
+        
+        
         for view in self.view.subviews[0].subviews:
-            print(view.name)
-            view.enabled = False
             if view.name in self.actions:
                 view.action = self.actions[view.name]
+            if view.name == 'pickerBSFromTo':
+                view.component = [[str(x) + '点' for x in range(0, 24)],
+                [str(x) + '点' for x in range(0, 24)]]
+            elif view.name == 'pickerTmrSnd':
+                view.component = [['音效' + str(x) for x in range(0, 10)]]
+            elif view.name == 'pickerAlarmIndex':
+                view.component = [['闹钟' + str(x) for x in range(0, 10)]]
+            elif view.name == 'pickerAlarmSnd':
+                view.component = [['音乐' + str(x) for x in range(0, 10)]]
+            elif view.name == 'pickerAlarmTime':
+                view.component = [[str(x) + '点' for x in range(0, 24)],
+                [str(x) + '分' for x in range(0, 60)]]
+        self.enableControls(False)
+        self.view.present(style='full_screen', hide_title_bar=True)
+
 
     def init_ble(self):
-        self.ble = IVClockManager(
+        self.ble = IVClockBLE(
+            self.scan_notify,
             self.write_notify, 
             self.update_notify, 
             self.connect_notify, 
             self.disconnect_notify)
 
     def syncRemote(self):
-        current_state = 'GET_REMOTE_TIME'
+        time.sleep(1)
+        self.is_syncing_remote = True
         self.sendCmd('REMOTE_CONTROL_CMD_GET_TIME')
 
     def getControlByName(self, name):
@@ -220,16 +228,32 @@ class IVClock(object):
 
     def enableControls(self, enable):
         for view in self.view.subviews[0].subviews:
-            print (view.name)
-            if view.name == 'datepickerBSFrom' or view.name == 'datepickerBSEnd':
+            if view.name == 'pickerBSFromTo':
                 view.enabled = enable and self.body_param['alm1_en']
+            elif view.name == 'sliderPlyVol':
+                view.touch_enabled = enable
             else:
                 view.enabled = enable
 
-    def callbackPing(self):
+    def callbackConnect(self, param):
+        print('callbackConnect', param)
+        cb.stop_scan()
+        self.syncRemote()
+
+    def callbackDisconnect(self, param):
+        print('callbackDisconnect', param)
+        self.enableControls(False)
+        cb.reset();
+        cb.set_central_delegate(self.ble)
+        cb.scan_for_peripherals();
+
+    def callbackPing(self, param):
+        print('callbackPing', param)
         pass
 
-    def callbackDatetime(self):
+    def callbackDatetime(self, param):
+        print('callbackDatetime', param)
+        print(self.body_datetime)
         self.getControlByName('labelInfoDatetime').text = '%04d-%02d-%02d %02d:%02d:%02d' % (
             self.body_datetime['year'],
             self.body_datetime['mon'],
@@ -239,18 +263,20 @@ class IVClock(object):
             self.body_datetime['sec'],
         )
 
-        if current_state == 'GET_REMOTE_DATETIME':
-            current_state = 'GET_REMOTE_PARAM'
+        if param['sync_remote']:
             self.sendCmd('REMOTE_CONTROL_CMD_GET_PARAM')
-        elif current_state == 'RUNNING':
+        else:
             self.enableControls(True)
 
-    def callbackParam(self):
-        if current_state == 'REMOTE_CONTROL_CMD_GET_PARAM':
-            self.getControlByName('segPS').segments = '禁止|' + str.join('|', ['%d秒'%x for x in range(self.body_param['min_power_timeo'], 
-                self.body_param['max_power_timeo'], self.body_param['step_power_timeo'])])
-            self.getControlByName('segAlarmIndex').segments = str.join('|', [x for x in range(0, self.body_param['alarm_cnt'])])
-            self.getControlByName('segAlarmSnd').segments = str.join('|', [x for x in range(0, self.body_param['alarm_snd_cnt'])])
+    def callbackParam(self, param):
+        print('callbackParam', param)
+        print(self.body_param)
+        if param['sync_remote']:
+            self.getControlByName('segPS').segments = ['禁止'] + ['%d秒'%x for x in range(self.body_param['min_power_timeo'], 
+                self.body_param['max_power_timeo'] + 1, self.body_param['step_power_timeo'])]
+            self.getControlByName('pickerAlarmIndex').component = [['闹钟' + str(x) for x in range(0, self.body_param['alarm_cnt'])]]
+            self.getControlByName('pickerTmrSnd').component = [['音效' + str(x) for x in range(0, 10)]]
+            self.getControlByName('pickerAlarmSnd').component = [['音乐' + str(x) for x in range(0, self.body_param['alarm_snd_cnt'])]]
 
 
         self.getControlByName('segTimeFormat').selected_index = 0 if self.body_param['time_12'] else 1
@@ -261,58 +287,53 @@ class IVClock(object):
         self.getControlByName('segPS').selected_index = int(self.body_param['power_timeo'] / self.body_param['step_power_timeo'])
         self.getControlByName('switchBS').value = True if self.body_param['alm1_en'] else False
         if self.getControlByName('switchBS').value:
-            self.getControlByName('datepickerBSFrom').date = self.getControlByName('datepickerBSFrom').date.replace(
-                hour = self.body_param['alm1_begin'],
-                minute = 0)
-            self.getControlByName('datepickerBSTo').date = self.getControlByName('datepickerBSTo').date.replace(
-                hour = self.body_param['alm1_end'],
-                minute = 0)
-        self.getControlByName('segBP').selected_index = self.body_param['tmr_snd']
-        self.getControlByName('sliderPlyVol').value = (self.body_param['ply_vol'] - \
-            self.body_param['min_power_timeo']) / self.body_param['max_power_timeo'] - self.body_param['min_power_timeo']
+            self.getControlByName('pickerBSFromTo').value = [self.body_param['alm1_begin'],
+                self.body_param['alm1_end']]
+        self.getControlByName('pickerTmrSnd').value = [self.body_param['tmr_snd']]
+        self.getControlByName('sliderPlyVol').value = float(self.body_param['ply_vol'] - self.body_param['min_ply_vol']) / float(self.body_param['max_ply_vol'] - self.body_param['min_ply_vol'])
+        print(self.getControlByName('sliderPlyVol').value)
         
-        if current_state == 'GET_REMOTE_INFO':
-            current_state = 'GET_REMOTE_INFO'
+        if param['sync_remote']:
             self.sendCmd('REMOTE_CONTROL_CMD_GET_INFO')
-        elif current_state == 'RUNNING':
+        else:
             self.enableControls(True)        
 
-    def callbackAlarm(self):
-        self.getControlByName('segAlarmIndex').selected_index = self.body_alarm['alarm_index']
-        self.getControlByName('datepickerAlarmTime').date.hour =self.body_alarm['hour']
-        self.getControlByName('datepickerAlarmTime').date.minute =self.body_alarm['min']
-        self.getControlByName('segAlarmSnd').selected_index = self.body_alarm['snd']
-        for (a,b) in zip( [1 if (1<<x & self.body_alarm['day_mask']) !=0 else 0 for x in range(0,6)] , [
-            self.getControlByName('switchAlarmDay1'),
-            self.getControlByName('switchAlarmDay2'),
-            self.getControlByName('switchAlarmDay3'),
-            self.getControlByName('switchAlarmDay4'),
-            self.getControlByName('switchAlarmDay6'),
-            self.getControlByName('switchAlarmDay7'),
-        ]):
-            a.value = True if b else False
-
-        if current_state == 'GET_REMOTE_ALARM':
-            current_state = 'RUNNING'
-            self.enableControls(True)
-        elif current_state == 'RUNNING':
-            self.enableControls(True)
- 
-
-    def callbackInfo(self):
-        self.getControlByName('labelInfoBat').text = '%04f   %%%03d' % (self.body_info['bat_voltage'], self.body_info['bat_quantity'])
-        self.getControlByName('labelInfoTemp').text = '%04f' % (self.body_info['bat_voltage'], self.body_info['temp_cen'])
+    def callbackInfo(self, param):
+        print('callbackInfo', param)
+        print(self.body_info)
+        self.getControlByName('labelInfoBat').text = '%.2f V  %03d%%' % (self.body_info['bat_voltage'], self.body_info['bat_quantity'])
+        self.getControlByName('labelInfoTemp').text = '%.2f' % (self.body_info['temp_cen'])
         self.getControlByName('labelInfoBuildID').text = functools.reduce(lambda x,y: '%s%02x'%(x,y), self.body_info['build_id'])
         self.getControlByName('labelInfoVersion').text = '%02d.%02d' % (self.body_info['firmware_version_major'], self.body_info['firmware_version_minor'])
 
-        if current_state == 'REMOTE_CONTROL_CMD_GET_INFO':
-            current_state = 'GET_REMOTE_ALARM'
+        if param['sync_remote']:
             self.sendCmd('REMOTE_CONTROL_CMD_GET_ALARM')
-    
-    def callbackStopAlarm(self):
+        else:
+            self.enableControls(True) 
+
+    def callbackAlarm(self, param):
+        print('callbackAlarm', param)
+        print(self.body_alarm)
+        self.getControlByName('pickerAlarmIndex').value = [self.body_alarm['alarm_index']]
+        self.getControlByName('pickerAlarmTime').value = [self.body_alarm['hour'], self.body_alarm['min']]
+        self.getControlByName('pickerAlarmSnd').value = [self.body_alarm['snd']]
+        self.getControlByName('switchAlarmDay0').value = True if self.body_alarm['day_mask'] & 0x1 else False
+        self.getControlByName('switchAlarmDay1').value = True if self.body_alarm['day_mask'] & 0x2 else False
+        self.getControlByName('switchAlarmDay2').value = True if self.body_alarm['day_mask'] & 0x4 else False
+        self.getControlByName('switchAlarmDay3').value = True if self.body_alarm['day_mask'] & 0x8 else False
+        self.getControlByName('switchAlarmDay4').value = True if self.body_alarm['day_mask'] & 0x10 else False
+        self.getControlByName('switchAlarmDay5').value = True if self.body_alarm['day_mask'] & 0x20 else False
+        self.getControlByName('switchAlarmDay6').value = True if self.body_alarm['day_mask'] & 0x40  else False
+
+        if param['sync_remote']:
+            self.is_syncing_remote = False
+        self.enableControls(True)
+        
+    def callbackStopAlarm(self, param):
         self.enableControls(True)
 
     def sendCmd(self, cmd):
+        print('sendCmd', cmd)
         header_magic  = self.REMOTE_CONTROL_MSG_HEADER_MAGIC
         header_body_length = self.CMDS[cmd][1]
         header_cmd_res = self.CMDS[cmd][0]
@@ -376,17 +397,17 @@ class IVClock(object):
     def recvRes(self, res_msg):
         res = ''
         (header_magic, header_body_length, header_cmd_res, header_ret_code) = struct.unpack('<IHBB', res_msg[0:self.MSG_HEADER_LENGTH])
-        print('recvRes')
+        print('recvRes', res_msg.hex())
         print('header_magic       %x'%(header_magic))
         print('header_body_length %d'%(header_body_length))
         print('header_cmd_res     %d'%(header_cmd_res))
         print('header_ret_code    %d'%(header_ret_code))
-        res = lookupRes(header_cmd_res)
+        res = self.lookupRes(header_cmd_res)
         if header_magic != self.REMOTE_CONTROL_MSG_HEADER_MAGIC or header_body_length > self.MSG_BODY_LENGTH or header_ret_code != 0 or not res:
             print('INVALID Message!')
             return
         if res == 'REMOTE_CONTROL_RES_PING':
-            self.callbackPing()
+            self.event_queue.put({'ev' : 'UPDATE_PING', 'param':{'sync_remote': self.is_syncing_remote}, 'callback': self.callbackPing})
         elif res == 'REMOTE_CONTROL_RES_GET_TIME' or res == 'REMOTE_CONTROL_RES_SET_TIME' :
             (self.body_datetime['year'],
             self.body_datetime['mon'],
@@ -394,14 +415,14 @@ class IVClock(object):
             self.body_datetime['hour'],
             self.body_datetime['min'],
             self.body_datetime['sec']) = struct.unpack(self.RES[res][2], res_msg[self.MSG_HEADER_LENGTH:self.MSG_HEADER_LENGTH + self.RES[res][1]])
-            self.callbackDatetime()
+            self.event_queue.put({'ev' : 'UPDATE_DATETIME', 'param':{'sync_remote': self.is_syncing_remote}, 'callback': self.callbackDatetime})
         elif res == 'REMOTE_CONTROL_RES_GET_ALARM' or res == 'REMOTE_CONTROL_RES_SET_ALARM':
             (self.body_alarm['alarm_index'],
             self.body_alarm['day_mask'],
             self.body_alarm['hour'],
             self.body_alarm['min'],
             self.body_alarm['snd']) = struct.unpack(self.RES[res][2], res_msg[self.MSG_HEADER_LENGTH:self.MSG_HEADER_LENGTH + self.RES[res][1]])
-            self.callbackAlarm()
+            self.event_queue.put({'ev' : 'UPDATE_ALARM', 'param':{'sync_remote': self.is_syncing_remote}, 'callback': self.callbackAlarm})
         elif res == 'REMOTE_CONTROL_RES_GET_PARAM' or res == 'REMOTE_CONTROL_RES_SET_PARAM':
             (self.body_param['time_12'],
             self.body_param['acc_en'],
@@ -422,10 +443,9 @@ class IVClock(object):
             self.body_param['tmr_snd_cnt'],
             self.body_param['alarm_cnt'],
             self.body_param['alarm_snd_cnt']) = struct.unpack(self.RES[res][2], res_msg[self.MSG_HEADER_LENGTH:self.MSG_HEADER_LENGTH + self.RES[res][1]])
-            self.callbackParam()
+            self.event_queue.put({'ev' : 'UPDATE_PARAM', 'param': {'sync_remote': self.is_syncing_remote}, 'callback': self.callbackParam})
         elif res == 'REMOTE_CONTROL_RES_STOP_ALARM':
-            self.callbackStopAlarm()
-            pass
+            self.event_queue.put({'ev' : 'STOP_ALARM', 'param': {'sync_remote': self.is_syncing_remote}, 'callback': self.callbackStopAlarm})
         elif res == 'REMOTE_CONTROL_RES_GET_INFO': 
             (self.body_info['bat_voltage'],
             self.body_info['bat_quantity'],
@@ -434,32 +454,31 @@ class IVClock(object):
             self.body_info['firmware_version_major'],
             self.body_info['firmware_version_minor'],
             self.body_info['build_id']) = struct.unpack(self.RES[res][2], res_msg[self.MSG_HEADER_LENGTH:self.MSG_HEADER_LENGTH + self.RES[res][1]])
-            self.callbackInfo()
+            self.event_queue.put({'ev' : 'UPDATE_INFO', 'param': {'sync_remote': self.is_syncing_remote}, 'callback': self.callbackInfo})
         
+    def scan_notify(self, p):
+        if not self.view.on_screen:
+            cb.reset()
 
     def update_notify(self, p, c, error):
-        print('update_notify', c.value)
+        print('update_notify', c.value.hex())
         if c.value : 
             self.msg_res += c.value;
             if(len(self.msg_res) >= self.MSG_LENGTH):
                 saved_msg = self.msg_res
                 self.msg_res = b''
-                self.recvRes(saved_msg)
-                
+                self.recvRes(saved_msg)    
 
     def write_notify(self, p, c, error):
         print('write_notify', c.value)
 
     def connect_notify(self, p, c, error):
         print('connect_notify', c.value)
-        cb.stop_scan()
-        self.syncRemote()
+        self.event_queue.put({'ev':'CONNECT', 'param':{}, 'callback':self.callbackConnect})
 
     def disconnect_notify(self, p, error):
-        print('connect_notify', p)
-        self.enableControls(False)
-        cb.reset();
-        cb.scan_for_peripherals();
+        print('disconnect_notify', p)
+        self.event_queue.put({'ev':'DISCONNECT', 'param':{}, 'callback':self.callbackDisconnect})
 
     def btnSyncTime_action(self, sender):
         self.enableControls(False)
@@ -499,7 +518,7 @@ class IVClock(object):
 
     def switchMM_action(self, sender):
         self.enableControls(False)
-        self.body_param['mon_lt_en'] = 1 if sender.value else 0
+        self.body_param['acc_en'] = 1 if sender.value else 0
         self.sendCmd('REMOTE_CONTROL_CMD_SET_PARAM')
 
     def segPS_action(self, sender):
@@ -514,23 +533,15 @@ class IVClock(object):
         self.body_param['alm1_en'] = 1 if sender.value else 0
         self.sendCmd('REMOTE_CONTROL_CMD_SET_PARAM')
 
-    def datepickerBSFrom_action(self, sender):
+    def pickerBSFromTo_action(self, sender):
         self.enableControls(False)
-        self.body_param['alm1_begin'] = sender.date.hour
-        self.sender.date = sender.date.replace(
-            hour = self.body_param['alm1_begin'], minute = 0)
+        self.body_param['alm1_begin'] = sender.value[0]
+        self.body_param['alm1_end'] = sender.value[1]
         self.sendCmd('REMOTE_CONTROL_CMD_SET_PARAM')
 
-    def datepickerBSTo_action(self, sender):
+    def pickerTmrSnd_action(self, sender):
         self.enableControls(False)
-        self.body_param['alm1_end'] = sender.date.hour
-        self.sender.date = sender.date.replace(
-            hour = self.body_param['alm1_end'], minute = 0)
-        self.sendCmd('REMOTE_CONTROL_CMD_SET_PARAM')
-
-    def segBP_action(self, sender):
-        self.enableControls(False)
-        self.body_param['tmr_snd'] = sender.selected_index
+        self.body_param['tmr_snd'] = sender.value[0]
         self.sendCmd('REMOTE_CONTROL_CMD_SET_PARAM')
 
     def sliderPlyVol_action(self, sender):
@@ -538,28 +549,49 @@ class IVClock(object):
         self.body_param['ply_vol'] = self.body_param['min_ply_vol'] + int(sender.value * (self.body_param['max_ply_vol'] - self.body_param['min_ply_vol']))
         self.sendCmd('REMOTE_CONTROL_CMD_SET_PARAM')  
 
-    def segAlarmIndex_action(self, sender):
+    def pickerAlarmIndex_action(self, sender):
         self.enableControls(False)
-        self.body_alarm['alarm_index'] = sender.selected_index
+        self.body_alarm['alarm_index'] = sender.value[0]
         self.sendCmd('REMOTE_CONTROL_CMD_GET_ALARM') 
 
-    def datepickerAlarmTime_action(self, sender):
+    def pickerAlarmTime_action(self, sender):
         self.enableControls(False)
-        self.body_alarm['hour'] = sender.date.hour
-        self.body_alarm['min'] = sender.date.minute
+        self.body_alarm['hour'] = sender.value[0]
+        self.body_alarm['min'] = sender.value[1]
         self.sendCmd('REMOTE_CONTROL_CMD_SET_ALARM') 
 
-    def segAlarmSnd_action(self, sender):
+    def pickerAlarmSnd_action(self, sender):
         self.enableControls(False)
-        self.body_alarm['snd'] = sender.selected_index
+        self.body_alarm['snd'] = sender.value[0]
         self.sendCmd('REMOTE_CONTROL_CMD_SET_ALARM') 
 
     def switchAlarmDay_action(self, sender):
         self.enableControls(False)
-        alarm_index = int(sender.name[-1]) - 1
-        self.body_alarm['day_mask'] = ((self.body_alarm['day_mask'] & ~(1 << alarm_index)) & 0x7F)
+        alarm_index = int(sender.name[-1])
+        value = self.body_alarm['day_mask']
+        print(alarm_index, sender.value, value)
+        if not sender.value:
+            val = 1 << alarm_index
+            val ^= 0xFF
+            value &= (val & 0xFF)
+        else:
+            value |= ((1 << alarm_index) & 0x7F)
+        self.body_alarm['day_mask'] = value
+        print(self.body_alarm)
         self.sendCmd('REMOTE_CONTROL_CMD_SET_ALARM') 
 
+    def eventLoop(self):
+        event = None
+        while self.view.on_screen:
+            try:
+                event = self.event_queue.get(block=True, timeout=1)
+            except queue.Empty:
+                event = None
+                pass
+            if event:
+                print('get event', event)
+                event['callback'](event['param'])
+        print('Quit!')
 
 def main(argv):
     iv = IVClock()
@@ -568,5 +600,6 @@ def main(argv):
     cb.set_central_delegate(iv.ble)
     print('Scanning for peripherals...')
     cb.scan_for_peripherals()
+    iv.eventLoop()
 
 main(sys.argv)
