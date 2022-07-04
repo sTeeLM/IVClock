@@ -154,6 +154,8 @@ int main(void)
   
   IVINFO("Build-ID: %s", build_id_str);
   
+  IVINFO("Device-ID: %08x %08x %08x", HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2())
+  
   IVINFO("initialize sub systems version %02d.%02d...", 
     IVCLOCK_VERSION_MAJOR, IVCLOCK_VERSION_MINOR);
   /* System initialize */
